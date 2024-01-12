@@ -19,6 +19,29 @@
     </properties>
 
     <dependencies>
+        <!--本地jar-->
+        <dependency>
+            <groupId>com.goudong</groupId>
+            <artifactId>goudong-core</artifactId>
+            <scope>system</scope>
+            <version>1.0.0</version>
+            <systemPath>${pom.basedir}/../libs/goudong-core-1.0.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.goudong</groupId>
+            <artifactId>goudong-web-spring-boot-starter</artifactId>
+            <scope>system</scope>
+            <version>1.0.0</version>
+            <systemPath>${pom.basedir}/../libs/goudong-web-spring-boot-starter-1.0.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.goudong</groupId>
+            <artifactId>goudong-redis-spring-boot-starter</artifactId>
+            <scope>system</scope>
+            <version>1.0.0</version>
+            <systemPath>${pom.basedir}/../libs/goudong-redis-spring-boot-starter-1.0.0.jar</systemPath>
+        </dependency>
+
         <dependency>
             <groupId>com.goudong</groupId>
             <artifactId>common</artifactId>
@@ -157,27 +180,7 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.goudong</groupId>
-            <artifactId>goudong-core</artifactId>
-            <scope>system</scope>
-            <version>1.0.0</version>
-            <systemPath>${pom.basedir}/libs/goudong-core-1.0.0.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.goudong</groupId>
-            <artifactId>goudong-web-spring-boot-starter</artifactId>
-            <scope>system</scope>
-            <version>1.0.0</version>
-            <systemPath>${pom.basedir}/libs/goudong-web-spring-boot-starter-1.0.0.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.goudong</groupId>
-            <artifactId>goudong-redis-spring-boot-starter</artifactId>
-            <scope>system</scope>
-            <version>1.0.0</version>
-            <systemPath>${pom.basedir}/libs/goudong-redis-spring-boot-starter-1.0.0.jar</systemPath>
-        </dependency>
+
     </dependencies>
 
     <build>
