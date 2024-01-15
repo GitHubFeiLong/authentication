@@ -5,6 +5,8 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import com.goudong.authentication.common.core.*;
 import com.goudong.authentication.common.util.HttpRequestUtil;
+import com.goudong.authentication.server.constant.DateConst;
+import com.goudong.authentication.server.constant.UserConst;
 import com.goudong.authentication.server.domain.BaseApp;
 import com.goudong.authentication.server.domain.BaseRole;
 import com.goudong.authentication.server.domain.BaseUser;
@@ -41,22 +43,33 @@ import java.util.stream.Collectors;
  * 类描述：
  * 用户管理服务层接口实现类
  * @author chenf
- * @version 1.0
  */
 @Slf4j
 @Service
 public class BaseUserManagerServiceImpl implements BaseUserManagerService {
     //~fields
     //==================================================================================================================
+    /**
+     * 用户服务接口
+     */
     @Resource
     private BaseUserService baseUserService;
 
+    /**
+     * 应用服务接口
+     */
     @Resource
     private BaseAppService baseAppService;
 
+    /**
+     * 角色服务接口
+     */
     @Resource
     private BaseRoleService baseRoleService;
 
+    /**
+     * 密码编码器
+     */
     @Resource
     private PasswordEncoder passwordEncoder;
 
@@ -94,7 +107,7 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         BaseApp app = baseAppService.findById(myAuthentication.getAppId());
 
         // 创建token
-        Jwt jwt = new Jwt(1, TimeUnit.DAYS, app.getSecret());
+        Jwt jwt = new Jwt(UserConst.JWT_ACCESS_EXPIRATION_DAYS, TimeUnit.DAYS, app.getSecret());
         UserSimple userSimple = new UserSimple(myAuthentication.getId(), myAuthentication.getAppId(), myAuthentication.getRealAppId(), myAuthentication.getUsername(), roles);
         Token token = jwt.generateToken(userSimple);
         loginResp.setToken(token);
@@ -113,7 +126,7 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
     public Token refreshToken(RefreshToken token) {
         Long xAppId = HttpRequestUtil.getXAppId();
         BaseApp app = baseAppService.findById(xAppId);
-        Jwt jwt = new Jwt(1, TimeUnit.DAYS, app.getSecret());
+        Jwt jwt = new Jwt(UserConst.JWT_ACCESS_EXPIRATION_DAYS, TimeUnit.DAYS, app.getSecret());
         UserSimple userSimple = jwt.parseToken(token.getRefreshToken());
         return jwt.generateToken(userSimple);
     }
@@ -202,9 +215,10 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setEnabled(true);
         user.setLocked(false);
-        user.setValidTime(DateUtil.parse("2099-12-31 00:00:00", DatePattern.NORM_DATETIME_FORMATTER));
+        user.setValidTime(DateConst.MAX_DATE_TIME);
         user.setRemark(req.getRemark());
-        user.setRoles(baseRoleService.listByIds(req.getRoleIds())); // 设置角色
+        // 设置角色
+        user.setRoles(baseRoleService.listByIds(req.getRoleIds()));
 
         return baseUserService.save(user);
     }
@@ -226,10 +240,10 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
             user.setRoles(baseRoles);
         }
 
-        user.setEnabled(Optional.ofNullable(req.getEnabled()).orElseGet(() -> user.getLocked()));
-        user.setLocked(Optional.ofNullable(req.getLocked()).orElseGet(() -> user.getLocked()));
-        user.setValidTime(Optional.ofNullable(req.getValidTime()).orElseGet(() -> user.getValidTime()));
-        user.setRemark(Optional.ofNullable(req.getRemark()).orElseGet(() -> user.getRemark()));
+        user.setEnabled(Optional.ofNullable(req.getEnabled()).orElseGet(user::getEnabled));
+        user.setLocked(Optional.ofNullable(req.getLocked()).orElseGet(user::getLocked));
+        user.setValidTime(Optional.ofNullable(req.getValidTime()).orElseGet(user::getValidTime));
+        user.setRemark(Optional.ofNullable(req.getRemark()).orElseGet(user::getRemark));
 
         return baseUserService.save(user);
     }

@@ -11,11 +11,13 @@ import java.util.List;
 
 /**
  * 新增用户
+ * @author chenf
  */
 @Data
 public class BaseUserSimpleCreateReq implements Serializable {
 
 
+    private static final long serialVersionUID = -7466849523525350832L;
     /**
      * 用户名
      */

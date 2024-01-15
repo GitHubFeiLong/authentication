@@ -30,10 +30,6 @@
         <spring-boot-starter.version>2.3.8.RELEASE</spring-boot-starter.version>
         <authentication.version>1.0-SNAPSHOT</authentication.version>
         <!--框架-->
-        <goudong-core.version>1.0.0</goudong-core.version>
-        <goudong-web-spring-boot-starter.version>1.0.0</goudong-web-spring-boot-starter.version>
-        <goudong-redis-spring-boot-starter.version>1.0.0</goudong-redis-spring-boot-starter.version>
-        <!--框架-->
         <knife4j-spring-boot-starter.version>3.0.2</knife4j-spring-boot-starter.version>
         <mysql-connector-java.version>8.0.16</mysql-connector-java.version>
         <java-jwt.version>3.16.0</java-jwt.version>

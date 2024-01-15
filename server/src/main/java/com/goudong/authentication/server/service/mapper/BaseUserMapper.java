@@ -7,11 +7,13 @@ import org.mapstruct.Mapping;
 
 /**
  * Mapper for the entity {@link BaseUser} and its DTO {@link BaseUserDTO}.
+ * @author chenf
  */
 @Mapper(componentModel = "spring", uses = {})
 public interface BaseUserMapper extends EntityMapper<BaseUserDTO, BaseUser> {
 
 
+    @Override
     @Mapping(target = "roles", ignore = true)
     BaseUser toEntity(BaseUserDTO baseUserDTO);
 

@@ -1,7 +1,11 @@
 package com.goudong.authentication.server.constant;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
+
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 /**
  * 类描述：
@@ -37,4 +41,14 @@ public class DateConst {
      * @see DateConst#DATE_TIME_FORMATTER
      */
     public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS = DateTimeFormatter.ofPattern(DATE_TIME_FORMATTER);
+
+    /**
+     * 最小时间
+     */
+    public static final Date MIN_DATE_TIME = DateUtil.parse("1970-01-01 00:00:00", DatePattern.NORM_DATETIME_FORMATTER);
+
+    /**
+     * 最大时间
+     */
+    public static final Date MAX_DATE_TIME = DateUtil.parse("9999-12-31 12:59:59", DatePattern.NORM_DATETIME_FORMATTER);
 }

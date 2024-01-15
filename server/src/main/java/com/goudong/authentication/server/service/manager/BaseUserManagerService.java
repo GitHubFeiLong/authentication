@@ -21,7 +21,6 @@ import java.util.List;
  * 类描述：
  * 用户管理服务层接口
  * @author chenf
- * @version 1.0
  */
 public interface BaseUserManagerService {
 

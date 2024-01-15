@@ -1,5 +1,6 @@
 package com.goudong.authentication.common.core;
 
+import com.goudong.authentication.common.constant.CommonConst;
 import com.goudong.authentication.common.util.JsonUtil;
 import com.goudong.boot.web.core.ClientException;
 import io.jsonwebtoken.Claims;
@@ -16,13 +17,11 @@ import java.util.concurrent.TimeUnit;
  * 类描述：
  * jwt创建和解析
  * @author cfl
- * @version 1.0
- * @date 2023/7/19 17:00
  */
 public class Jwt {
 
     /**
-     * 游戏时长
+     * 有效时长
      */
     private long time;
 
@@ -60,7 +59,7 @@ public class Jwt {
         Date now = new Date();
         long millis = this.timeUnit.toMillis(time);
         Date accessExpiration = new Date(now.getTime() + millis);
-        Date refreshExpiration = new Date(now.getTime() + millis * 2);
+        Date refreshExpiration = new Date(now.getTime() + millis * CommonConst.JWT_REFRESH_EXPIRATION_MULTIPLE);
         String json = JsonUtil.toJsonString(userSimple);
         String accessToken = Jwts.builder()
                 .setSubject(json)

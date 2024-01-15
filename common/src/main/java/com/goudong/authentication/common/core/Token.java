@@ -3,12 +3,12 @@ package com.goudong.authentication.common.core;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 类描述：
  * 用户登录后的token
- * @Author Administrator
- * @Version 1.0
+ * @author Administrator
  */
 @Data
 public class Token {

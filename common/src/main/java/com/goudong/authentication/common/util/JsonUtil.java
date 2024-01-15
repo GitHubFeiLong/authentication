@@ -23,7 +23,7 @@ import java.util.TimeZone;
 public class JsonUtil {
     //~fields
     //==================================================================================================================
-    private static ObjectMapper objectMapper;
+    private static volatile ObjectMapper objectMapper;
 
 
 
@@ -31,8 +31,8 @@ public class JsonUtil {
     //==================================================================================================================
 
     /**
-     * 获取实例
-     * @return
+     * 获取objectMapper实例
+     * @return objectMapper
      */
     public static ObjectMapper getObjectMapper() {
         if (objectMapper == null) {

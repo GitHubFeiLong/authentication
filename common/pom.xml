@@ -41,6 +41,7 @@
             <version>1.0.0</version>
             <systemPath>${pom.basedir}/../libs/goudong-redis-spring-boot-starter-1.0.0.jar</systemPath>
         </dependency>
+        <!--三方jar-->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>

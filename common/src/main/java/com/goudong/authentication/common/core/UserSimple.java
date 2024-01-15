@@ -1,14 +1,16 @@
 package com.goudong.authentication.common.core;
 
+import lombok.Data;
+
 import java.util.List;
 import java.util.Objects;
 
 /**
  * 类描述：
- *
- * @Author Administrator
- * @Version 1.0
+ * 用户简单信息
+ * @author chenf
  */
+@Data
 public class UserSimple {
     //~fields
     //==================================================================================================================
@@ -48,69 +50,5 @@ public class UserSimple {
         this.realAppId = realAppId;
         this.username = username;
         this.roles = roles;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getAppId() {
-        return appId;
-    }
-
-    public void setAppId(Long appId) {
-        this.appId = appId;
-    }
-
-    public Long getRealAppId() {
-        return realAppId;
-    }
-
-    public void setRealAppId(Long realAppId) {
-        this.realAppId = realAppId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public List<String> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UserSimple that = (UserSimple) o;
-        return Objects.equals(id, that.id) && Objects.equals(appId, that.appId) && Objects.equals(realAppId, that.realAppId) && Objects.equals(username, that.username) && Objects.equals(roles, that.roles);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, appId, realAppId, username, roles);
-    }
-
-    @Override
-    public String toString() {
-        return "UserSimple{" +
-                "id=" + id +
-                ", appId=" + appId +
-                ", realAppId=" + realAppId +
-                ", username='" + username + '\'' +
-                ", roles=" + roles +
-                '}';
     }
 }

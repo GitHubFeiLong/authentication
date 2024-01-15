@@ -3,6 +3,7 @@ package com.goudong.authentication.server.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.zhxu.bs.BeanSearcher;
 import cn.zhxu.bs.SearchResult;
+import com.goudong.authentication.server.constant.UserConst;
 import com.goudong.authentication.server.domain.BaseRole;
 import com.goudong.authentication.server.domain.BaseUser;
 import com.goudong.authentication.server.repository.BaseUserRepository;
@@ -42,6 +43,7 @@ import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link BaseUser}.
+ * @author chenf
  */
 @Slf4j
 @Service
@@ -49,36 +51,44 @@ public class BaseUserServiceImpl implements BaseUserService {
 
     //~fields
     //==================================================================================================================
+    /**
+     * 用户持久层
+     */
     @Resource
     private BaseUserRepository baseUserRepository;
 
+    /**
+     * BaseUser实体映射器
+     */
     @Resource
     private BaseUserMapper baseUserMapper;
 
+    /**
+     * 密码编码器
+     */
     @Resource
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * 查询器
+     */
     @Resource
     private BeanSearcher beanSearcher;
-
-    @Resource
-    private RedisTool redisTool;
 
     //~methods
     //==================================================================================================================
     /**
      * 根据应用Id和用户名查询用户
-     *
-     * @param appId    应用Id
-     * @param username 用户名
-     * @return 返回用户
+     * @param appId     应用Id
+     * @param username  用户名
+     * @return          用户
      */
     @Override
     @Transactional
     public BaseUser findOneByAppIdAndUsername(Long appId, String username) {
         BaseUser baseUser = baseUserRepository.findByLogin(appId, username);
         // 懒加载,必须使用才能加载
-        if (baseUser !=null) {
+        if (baseUser != null) {
             List<String> roleNames = baseUser.getRoles().stream().map(BaseRole::getName).collect(Collectors.toList());
         }
         return baseUser;
@@ -146,26 +156,23 @@ public class BaseUserServiceImpl implements BaseUserService {
     public PageResult<BaseUserPageResp> page(BaseUserPageReq req) {
         MyAuthentication myAuthentication = SecurityContextUtil.get();
 
-        Specification<BaseUser> specification = new Specification<BaseUser>() {
-            @Override
-            public Predicate toPredicate(Root<BaseUser> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-                List<Predicate> andPredicateList = new ArrayList<>();
-                andPredicateList.add(criteriaBuilder.equal(root.get("realAppId"), myAuthentication.getRealAppId()));
-                //1.获取比较的属性
-                if (req.getId() != null) {
-                    Path<Object> idPath = root.get("id");
-                    andPredicateList.add(criteriaBuilder.equal(idPath, req.getId()));
-                }
-                if (StringUtil.isNotBlank(req.getUsername())) {
-                    Path<Object> usernamePath = root.get("username");
-                    andPredicateList.add(criteriaBuilder.like(usernamePath.as(String.class), "%" + req.getUsername() + "%"));
-                }
-                if (req.getStartValidTime() != null && req.getEndValidTime() != null) {
-                    andPredicateList.add(criteriaBuilder.between(root.get("validTime"), req.getStartValidTime(), req.getEndValidTime()));
-                }
-
-                return criteriaBuilder.and(andPredicateList.toArray(new Predicate[andPredicateList.size()]));
+        Specification<BaseUser> specification = (root, query, criteriaBuilder) -> {
+            List<Predicate> andPredicateList = new ArrayList<>();
+            andPredicateList.add(criteriaBuilder.equal(root.get("realAppId"), myAuthentication.getRealAppId()));
+            //1.获取比较的属性
+            if (req.getId() != null) {
+                Path<Object> idPath = root.get("id");
+                andPredicateList.add(criteriaBuilder.equal(idPath, req.getId()));
             }
+            if (StringUtil.isNotBlank(req.getUsername())) {
+                Path<Object> usernamePath = root.get("username");
+                andPredicateList.add(criteriaBuilder.like(usernamePath.as(String.class), "%" + req.getUsername() + "%"));
+            }
+            if (req.getStartValidTime() != null && req.getEndValidTime() != null) {
+                andPredicateList.add(criteriaBuilder.between(root.get("validTime"), req.getStartValidTime(), req.getEndValidTime()));
+            }
+
+            return criteriaBuilder.and(andPredicateList.toArray(new Predicate[0]));
         };
 
         // 单独创建排序对象
@@ -270,7 +277,7 @@ public class BaseUserServiceImpl implements BaseUserService {
         Long realAppId = myAuthentication.getRealAppId();
         BaseUser user = this.findById(userId);
         AssertUtil.isEquals(realAppId, user.getRealAppId(), () -> ClientException.clientByForbidden().serverMessage("不能修改其它应用下的用户"));
-        user.setPassword(passwordEncoder.encode("123456"));
+        user.setPassword(passwordEncoder.encode(UserConst.DEFAULT_PASSWORD));
         this.save(user);
         return true;
     }

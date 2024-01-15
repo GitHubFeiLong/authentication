@@ -3,6 +3,7 @@ package com.goudong.authentication.common.core;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 类描述：
@@ -44,5 +45,4 @@ public class UserDetail {
     private List<Menu> menus;
     //~methods
     //==================================================================================================================
-
 }

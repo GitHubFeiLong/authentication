@@ -22,9 +22,9 @@ public interface BaseUserService {
 
     /**
      * 根据应用Id和用户名查询用户
-     * @param appId 应用Id
-     * @param username 用户名
-     * @return 返回用户
+     * @param appId     应用Id
+     * @param username  用户名
+     * @return          用户
      */
     BaseUser findOneByAppIdAndUsername(Long appId, String username);
 

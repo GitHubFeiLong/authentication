@@ -1,158 +1,70 @@
 package com.goudong.authentication.common.core;
 
-import java.util.Objects;
+import lombok.Data;
 
 /**
  * 类描述：
  * 菜单
- * @ClassName Menu
- * @Author Administrator
- * @Date 2023/8/28 20:29
- * @Version 1.0
+ * @author Administrator
  */
+@Data
 public class Menu {
     //~fields
     //==================================================================================================================
-
+    /**
+     * 菜单id
+     */
     private Long id;
 
+    /**
+     * 上级菜单id
+     */
     private Long parentId;
 
+    /**
+     * 权限标识
+     */
     private String permissionId;
 
+    /**
+     * 菜单名称
+     */
     private String name;
 
+    /**
+     * 菜单类型（1：菜单；2：按钮；3：接口）
+     */
     private Integer type;
 
+    /**
+     * 路由或接口地址
+     */
     private String path;
 
+    /**
+     * 请求方式
+     */
     private String method;
 
+    /**
+     * 排序字段（值越小越靠前，仅仅针对前端路由）
+     */
     private Integer sortNum;
 
+    /**
+     * 是否是隐藏菜单
+     */
     private Boolean hide;
 
+    /**
+     * 前端菜单元数据
+     */
     private String meta;
 
+    /**
+     * 备注
+     */
     private String remark;
     //~methods
     //==================================================================================================================
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
-
-    public String getPermissionId() {
-        return permissionId;
-    }
-
-    public void setPermissionId(String permissionId) {
-        this.permissionId = permissionId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getType() {
-        return type;
-    }
-
-    public void setType(Integer type) {
-        this.type = type;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    public Integer getSortNum() {
-        return sortNum;
-    }
-
-    public void setSortNum(Integer sortNum) {
-        this.sortNum = sortNum;
-    }
-
-    public Boolean getHide() {
-        return hide;
-    }
-
-    public void setHide(Boolean hide) {
-        this.hide = hide;
-    }
-
-    public String getMeta() {
-        return meta;
-    }
-
-    public void setMeta(String meta) {
-        this.meta = meta;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Menu menu = (Menu) o;
-        return Objects.equals(id, menu.id) && Objects.equals(parentId, menu.parentId) && Objects.equals(permissionId, menu.permissionId) && Objects.equals(name, menu.name) && Objects.equals(type, menu.type) && Objects.equals(path, menu.path) && Objects.equals(method, menu.method) && Objects.equals(sortNum, menu.sortNum) && Objects.equals(hide, menu.hide) && Objects.equals(meta, menu.meta) && Objects.equals(remark, menu.remark);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, parentId, permissionId, name, type, path, method, sortNum, hide, meta, remark);
-    }
-
-    @Override
-    public String toString() {
-        return "Menu{" +
-                "id=" + id +
-                ", parentId=" + parentId +
-                ", permissionId='" + permissionId + '\'' +
-                ", name='" + name + '\'' +
-                ", type=" + type +
-                ", path='" + path + '\'' +
-                ", method='" + method + '\'' +
-                ", sortNum=" + sortNum +
-                ", hide=" + hide +
-                ", meta='" + meta + '\'' +
-                ", remark='" + remark + '\'' +
-                '}';
-    }
 }

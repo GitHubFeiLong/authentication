@@ -1,5 +1,6 @@
 package com.goudong.authentication.common.util;
 
+import com.goudong.authentication.common.constant.CommonConst;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -7,12 +8,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * 类描述：
  *
- * @Author Administrator
- * @Version 1.0
+ * @author chenf
  */
 @Slf4j
 public class HttpRequestUtil {
@@ -27,8 +28,8 @@ public class HttpRequestUtil {
      * @return 应用Id
      */
     public static Long getXAppId() {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        String appId = request.getHeader("X-App-Id");
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        String appId = request.getHeader(CommonConst.HTTP_HEADER_X_APP_ID);
         return Long.parseLong(appId);
     }
 

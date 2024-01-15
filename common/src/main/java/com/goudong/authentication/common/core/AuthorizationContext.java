@@ -18,10 +18,10 @@ public class AuthorizationContext {
     //==================================================================================================================
     /**
      * Authorization模式
-     * <pre>
-     *     1. "Bearer"
-     *     2. "GOUDONG-SHA256withRSA"
-     * </pre>
+     * <ul>
+     *     <li>Bearer</li>
+     *     <li>GOUDONG-SHA256withRSA</li>
+     * </ul>
      */
     private String model;
 
