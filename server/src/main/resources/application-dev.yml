@@ -3,7 +3,6 @@ logging:
     ROOT: INFO
     cn.zhxu.bs: DEBUG
     com.goudong: DEBUG
-    com.zhy.authentication.server: DEBUG
 #    org.apache.tomcat: DEBUG
 #    org.apache.tomcat.jdbc.pool: DEBUG
 
@@ -14,10 +13,11 @@ server:
 spring:
   main:
     allow-bean-definition-overriding: true #重命名其中一个 bean 或启用覆盖
+  web:
+    resources:
+      add-mappings: false #工程中的资源文件建立映射
   mvc:
     throw-exception-if-no-handler-found: true
-  resources:
-    add-mappings: false #工程中的资源文件建立映射
   application:
     name: authentication-server #微服务名
   jpa:
@@ -66,12 +66,14 @@ bean-searcher:
     default-mapping:
       ignore-fields: org_grails_datastore_gorm_GormValidateable__errors
 
-#goudong:
-#  web:
-#    api-log:
-#      enabled: true
-
 authentication:
   server:
     app:
       adminDefaultPassword: 123456
+
+# libs下的jar配置信息
+goudong:
+  web:
+    api-log:
+      print-log-limit:
+        results-length: -1
