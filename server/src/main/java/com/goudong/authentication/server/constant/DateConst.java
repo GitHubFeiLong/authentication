@@ -35,20 +35,23 @@ public class DateConst {
      */
     public static final String TIME_FORMATTER = "HH:mm:ss";
 
+    /**
+     * 日期时间格式Formatter yyyy-MM-dd HH:mm:ss
+     */
     public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(DATE_TIME_FORMATTER);
     /**
-     * 时间格式Formatter yyyy-MM-dd HH:mm:ss
+     * 日期时间格式格式Formatter yyyy-MM-dd HH:mm:ss
      * @see DateConst#DATE_TIME_FORMATTER
      */
     public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS = DateTimeFormatter.ofPattern(DATE_TIME_FORMATTER);
 
     /**
-     * 最小时间
+     * 最小时间 1970-01-01 00:00:00
      */
     public static final Date MIN_DATE_TIME = DateUtil.parse("1970-01-01 00:00:00", DatePattern.NORM_DATETIME_FORMATTER);
 
     /**
-     * 最大时间
+     * 最大时间（系统内使用它作为”永久“） 9999-12-31 12:59:59
      */
     public static final Date MAX_DATE_TIME = DateUtil.parse("9999-12-31 12:59:59", DatePattern.NORM_DATETIME_FORMATTER);
 }

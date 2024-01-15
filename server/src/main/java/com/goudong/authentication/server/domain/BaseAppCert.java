@@ -2,6 +2,7 @@ package com.goudong.authentication.server.domain;
 
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -13,9 +14,9 @@ import java.util.Date;
 /**
  * 类描述：
  * 应用证书表
- * @author cfl
- * @version 1.0
+ * @author chenf
  */
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "base_app_cert")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)

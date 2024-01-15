@@ -2,6 +2,7 @@ package com.goudong.authentication.server.domain;
 
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -16,7 +17,9 @@ import java.util.List;
 
 /**
  * 菜单表
+ * @author chenf
  */
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "base_menu")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)

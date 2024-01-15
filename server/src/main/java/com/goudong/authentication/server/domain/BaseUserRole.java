@@ -2,6 +2,7 @@ package com.goudong.authentication.server.domain;
 
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -15,6 +16,7 @@ import java.io.Serializable;
 @Table(name = "base_user_role")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class BaseUserRole extends BasePO implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -24,3 +26,5 @@ public class BaseUserRole extends BasePO implements Serializable {
     private Long id;
 
 }
+
+

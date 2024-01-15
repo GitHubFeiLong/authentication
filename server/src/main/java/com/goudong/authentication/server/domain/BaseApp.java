@@ -4,6 +4,7 @@ package com.goudong.authentication.server.domain;
 import cn.zhxu.bs.bean.SearchBean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -16,7 +17,9 @@ import java.util.List;
 
 /**
  * 应用表
+ * @author chenf
  */
+@EqualsAndHashCode(callSuper = true)
 @SearchBean(tables="base_app ba")
 @Entity
 @Table(name = "base_app")
