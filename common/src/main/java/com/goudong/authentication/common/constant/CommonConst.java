@@ -14,7 +14,15 @@ public class CommonConst {
      */
     public static final Integer JWT_REFRESH_EXPIRATION_MULTIPLE = 2;
 
+    /**
+     * 请求头：X-App-Id
+     */
     public static final String HTTP_HEADER_X_APP_ID = "X-App-Id";
+
+    /**
+     * 令牌模式
+     */
+    public static final String TOKEN_MODEL = "Bearer ";
     //~methods
     //==================================================================================================================
 }

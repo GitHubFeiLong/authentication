@@ -94,13 +94,6 @@ public interface BaseRoleService {
     List<BaseMenuDTO> listPermissionsByLoginUser();
 
     /**
-     * 查询应用管理员角色
-     * @return
-     */
-    @Deprecated
-    BaseRole findByAppAdmin();
-
-    /**
      * 查询登录用户真实的应用管理员角色
      * @return 角色
      */

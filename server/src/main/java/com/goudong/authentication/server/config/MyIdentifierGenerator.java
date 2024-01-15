@@ -21,7 +21,9 @@ public class MyIdentifierGenerator implements IdentifierGenerator {
     public static Snowflake ID  = IdUtil.getSnowflake();
     @Override
     public Serializable generate(SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException {
-        if (o == null) throw new HibernateException(new NullPointerException());
+        if (o == null) {
+            throw new HibernateException(new NullPointerException());
+        }
         Long id = ((BasePO) o).getId();
         return id == null ? ID.nextId() : id;
     }

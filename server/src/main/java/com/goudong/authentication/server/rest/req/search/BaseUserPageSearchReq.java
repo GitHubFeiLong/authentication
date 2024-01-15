@@ -14,15 +14,14 @@ import java.util.List;
 /**
  * 类描述：
  *
- * @author cfl
- * @version 1.0
- * @date 2023/7/22 19:59
+ * @author chenf
  */
 @SearchBean(
         tables="base_user bu inner join base_app ba on ba.id = bu.app_id inner join base_user_role bur on bur.user_id = bu.id inner join base_role br on br.id = bur.role_id",
         orderBy = "ba.id desc, bu. created_date desc"
 )
 @Data
+@Deprecated
 public class BaseUserPageSearchReq extends BasePage {
     //~fields
     //==================================================================================================================

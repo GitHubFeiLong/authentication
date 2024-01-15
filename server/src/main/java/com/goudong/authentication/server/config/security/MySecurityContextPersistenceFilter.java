@@ -1,5 +1,6 @@
 package com.goudong.authentication.server.config.security;
 
+import com.goudong.authentication.common.constant.CommonConst;
 import com.goudong.authentication.common.core.Jwt;
 import com.goudong.authentication.common.core.UserSimple;
 import com.goudong.authentication.server.constant.HttpHeaderConst;
@@ -95,7 +96,7 @@ public class MySecurityContextPersistenceFilter extends OncePerRequestFilter {
         AssertUtil.isTrue(matcher.matches(), "请求头Authorization格式错误");
         String model = matcher.group(1);
         UserSimple userSimple;
-        if (model.equals("Bearer ")) { // 直接解析token
+        if (model.equals(CommonConst.TOKEN_MODEL)) { // 直接解析token
             Long appId = getAppId(httpServletRequest);
             // 设置应用id到请求属性中，供后续使用
             httpServletRequest.setAttribute(HttpHeaderConst.X_APP_ID, appId);

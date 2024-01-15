@@ -131,7 +131,7 @@ public class BaseMenuServiceImpl implements BaseMenuService {
             if (StringUtil.isNotBlank(req.getPermissionId())) {
                 andPredicateList.add(criteriaBuilder.like(root.get("permissionId").as(String.class), "%" + req.getPermissionId() + "%"));
             }
-            return criteriaBuilder.and(andPredicateList.toArray(new Predicate[andPredicateList.size()]));
+            return criteriaBuilder.and(andPredicateList.toArray(new Predicate[0]));
         };
 
         return baseMenuMapper.toDto(baseMenuRepository.findAll(specification));
@@ -225,7 +225,7 @@ public class BaseMenuServiceImpl implements BaseMenuService {
     public Boolean changeSortNum(BaseMenuChangeSortNumReq req) {
         MyAuthentication myAuthentication = SecurityContextUtil.get();
         Long realAppId = myAuthentication.getRealAppId();
-        if (req.getBeforeId() != req.getAfterId()) {
+        if (!req.getBeforeId().equals(req.getAfterId())) {
             BaseMenu beforeBaseMenu = this.findById(req.getBeforeId());
             BaseMenu afterBaseMenu = this.findById(req.getAfterId());
             Integer minSortNum;

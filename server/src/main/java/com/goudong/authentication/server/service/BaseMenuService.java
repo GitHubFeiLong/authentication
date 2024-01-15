@@ -41,7 +41,6 @@ public interface BaseMenuService {
      * @param req 条件
      * @return 菜单集合
      */
-    @Deprecated
     List<BaseMenuDTO> findAll(BaseMenuGetAllReq req);
 
     /**

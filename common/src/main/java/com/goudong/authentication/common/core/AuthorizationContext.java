@@ -1,5 +1,6 @@
 package com.goudong.authentication.common.core;
 
+import com.goudong.authentication.common.constant.CommonConst;
 import com.goudong.core.util.AssertUtil;
 import lombok.Data;
 
@@ -68,7 +69,7 @@ public class AuthorizationContext {
         Matcher matcherModel = patternModel.matcher(authorization);
         AssertUtil.isTrue(matcherModel.matches(), "请求头Authorization格式错误");
         String model = matcherModel.group(1);
-        if (model.equals("Bearer ")) { // 直接解析token
+        if (model.equals(CommonConst.TOKEN_MODEL)) { // 直接解析token
             return new AuthorizationContext(model, authorization.substring(model.length()));
         } else {
             // 提取关键信息
