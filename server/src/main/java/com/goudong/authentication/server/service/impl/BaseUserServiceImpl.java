@@ -158,7 +158,13 @@ public class BaseUserServiceImpl implements BaseUserService {
 
         Specification<BaseUser> specification = (root, query, criteriaBuilder) -> {
             List<Predicate> andPredicateList = new ArrayList<>();
-            andPredicateList.add(criteriaBuilder.equal(root.get("realAppId"), myAuthentication.getRealAppId()));
+            // 超级管理员就需要查询其他应用下的管理员
+            if (myAuthentication.superAdmin()) {
+                andPredicateList.add(criteriaBuilder.equal(root.get("appId"), myAuthentication.getAppId()));
+            } else {
+                andPredicateList.add(criteriaBuilder.equal(root.get("realAppId"), myAuthentication.getRealAppId()));
+            }
+
             //1.获取比较的属性
             if (req.getId() != null) {
                 Path<Object> idPath = root.get("id");

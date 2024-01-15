@@ -14,14 +14,13 @@ import static com.goudong.authentication.server.constant.RoleConst.ROLE_APP_SUPE
 
 /**
  * 类描述：
- *
- * @author cfl
- * @version 1.0
- * @date 2023/7/18 9:12
+ * 认证对象
+ * @author chenf
  */
 @Data
 public class MyAuthentication implements Authentication {
 
+    private static final long serialVersionUID = 2854631889050732676L;
     /**
      * 用户id
      */
@@ -104,14 +103,10 @@ public class MyAuthentication implements Authentication {
     }
 
     /**
-     * 是否是超级管理员
-     * @return true 超级管理员，false 不是超级管理员
+     * 判断登录用户，是否是管理员或超级管理员
+     * @return true 管理员，false 普通用户
      */
     public boolean admin() {
-//        return this.roles.stream().filter(f -> Objects.equals(f.getAuthority(), ROLE_APP_SUPER_ADMIN)).findFirst().isPresent();
-        return this.roles.stream().anyMatch(f -> {
-            System.out.println("比较：" + f.getAuthority());
-            return Objects.equals(f.getAuthority(), ROLE_APP_ADMIN) || Objects.equals(f.getAuthority(), ROLE_APP_SUPER_ADMIN);
-        });
+        return this.roles.stream().anyMatch(f -> Objects.equals(f.getAuthority(), ROLE_APP_ADMIN) || Objects.equals(f.getAuthority(), ROLE_APP_SUPER_ADMIN));
     }
 }
