@@ -64,10 +64,9 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
     //==================================================================================================================
     /**
      * 根据应用Id和用户名查询用户
-     *
-     * @param appId    应用Id
-     * @param username 用户名
-     * @return 返回用户
+     * @param appId     应用Id
+     * @param username  用户名
+     * @return          用户信息
      */
     @Override
     public BaseUser findOneByAppIdAndUsername(Long appId, String username) {
@@ -76,8 +75,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
 
     /**
      * 获取登录成功信息
-     * @param myAuthentication 用户认证成功对象
-     * @return 用户基本信息和token
+     * @param myAuthentication  用户认证成功对象
+     * @return                  用户基本信息和token
      */
     @Override
     public LoginResp login(MyAuthentication myAuthentication) {
@@ -107,9 +106,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
 
     /**
      * 刷新token
-     *
      * @param token refreshToken
-     * @return token
+     * @return      token对象
      */
     @Override
     public Token refreshToken(RefreshToken token) {
@@ -122,9 +120,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
 
     /**
      * 根据{@code token}获取用户信息
-     *
-     * @param token token
-     * @return 用户信息
+     * @param token     token
+     * @return          用户信息
      */
     @Override
     @Transactional(readOnly = true)
@@ -170,9 +167,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
 
     /**
      * 分页获取用户下拉，只返回操作人所在真实应用下的用户
-     *
-     * @param req 请求参数
-     * @return 用户下拉列表
+     * @param req   请求参数
+     * @return      用户下拉列表
      */
     @Override
     public PageResult<BaseUserDropDownResp> userDropDown(BaseUserDropDownReq req) {
@@ -181,9 +177,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
 
     /**
      * 分页查询用户
-     *
-     * @param req 分页参数
-     * @return 用户分页对象
+     * @param req   分页参数
+     * @return      用户分页对象
      */
     @Override
     public PageResult<BaseUserPageResp> page(BaseUserPageReq req) {
@@ -192,9 +187,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
 
     /**
      * 简单方式创建用户
-     *
-     * @param req 用户信息
-     * @return 用户对象
+     * @param req   用户信息
+     * @return      用户对象
      */
     @Override
     public BaseUserDTO simpleCreateUser(BaseUserSimpleCreateReq req) {
@@ -217,9 +211,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
 
     /**
      * 简单方式修改用户
-     *
-     * @param req
-     * @return
+     * @param req   修改用户参数
+     * @return      用户信息
      */
     @Override
     public BaseUserDTO simpleUpdateUser(BaseUserSimpleUpdateReq req) {
@@ -243,9 +236,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
 
     /**
      * 批量删除用户
-     *
-     * @param ids 被删除的用户id集合
-     * @return true删除成功；false删除失败
+     * @param ids   被删除的用户id集合
+     * @return      true:删除成功；false:删除失败
      */
     @Override
     public Boolean deleteByIds(List<Long> ids) {
@@ -254,9 +246,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
 
     /**
      * 重置用户密码
-     *
-     * @param userId 用户id
-     * @return
+     * @param userId    用户id
+     * @return          true：修改成功；false：修改失败
      */
     @Override
     public Boolean resetPassword(Long userId) {
@@ -265,9 +256,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
 
     /**
      * 修改用户激活状态
-     *
-     * @param userId 用户id
-     * @return
+     * @param userId    用户id
+     * @return          true：修改成功；false：修改失败
      */
     @Override
     public Boolean changeEnabled(Long userId) {
@@ -276,9 +266,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
 
     /**
      * 修改用户锁定状态
-     *
-     * @param userId 用户id
-     * @return
+     * @param userId    用户id
+     * @return          true：修改成功；false：修改失败
      */
     @Override
     public Boolean changeLocked(Long userId) {

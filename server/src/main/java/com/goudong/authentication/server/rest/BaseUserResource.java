@@ -27,7 +27,7 @@ import java.util.Arrays;
 
 /**
  * REST controller for managing {@link BaseUser}.
- * TODO 创建，删除，修改，分页，
+ * @author cfl
  */
 @RestController
 @RequestMapping("/user")
@@ -37,11 +37,19 @@ public class BaseUserResource {
 
     //~fields
     //==================================================================================================================
+    /**
+     * 用户管理服务层接口
+     */
     @Resource
     private BaseUserManagerService baseUserManagerService;
 
     //~methods
     //==================================================================================================================
+
+    /**
+     * 登录接口
+     * @return  用户token信息
+     */
     @PostMapping("/login")
     @ApiOperation(value = "登录(password)")
     @ApiImplicitParams({
@@ -53,18 +61,31 @@ public class BaseUserResource {
         return Result.ofSuccess(new Token());
     }
 
+    /**
+     * 刷新token
+     * @param token 刷新令牌
+     * @return      用户新token信息
+     */
     @PostMapping("/refresh-token")
     @ApiOperation(value = "刷新token")
     public Result<Token> refreshToken(@RequestBody RefreshToken token) {
         return Result.ofSuccess(baseUserManagerService.refreshToken(token));
     }
 
+    /**
+     * 注销登录
+     */
     @PutMapping("/logout")
     @ApiOperation(value = "注销")
     public Result<Object> logout() {
         return Result.ofSuccess();
     }
 
+    /**
+     * 根据token获取用户信息
+     * @param token 令牌
+     * @return      token用户的详细信息
+     */
     @GetMapping("/base-user/detail/{token}")
     @ApiOperation(value = "查询用户信息(token)")
     @ApiImplicitParams({
@@ -74,41 +95,77 @@ public class BaseUserResource {
         return Result.ofSuccess(baseUserManagerService.getUserDetailByToken(token));
     }
 
+    /**
+     * 分页查询用户列表
+     * @param req   分页参数
+     * @return      分页用户列表
+     */
     @PostMapping("/page/base-users")
     @ApiOperation(value = "分页用户")
     public Result<PageResult<BaseUserPageResp>> page(@RequestBody @Validated BaseUserPageReq req) {
         return Result.ofSuccess(baseUserManagerService.page(req));
     }
+
+    /**
+     * 添加用户
+     * @param req   添加用户参数
+     * @return      新建用户信息
+     */
     @PostMapping("/base-user/simple-create")
     @ApiOperation(value = "简单新增用户")
     public Result<BaseUserDTO> simpleCreateUser(@RequestBody @Validated BaseUserSimpleCreateReq req) {
         return Result.ofSuccess(baseUserManagerService.simpleCreateUser(req));
     }
 
+    /**
+     * 修改用户
+     * @param req   修改用户
+     * @return      修改后用户信息
+     */
     @PutMapping("/base-user/simple-update")
     @ApiOperation(value = "修改用户")
     public Result<BaseUserDTO> update(@RequestBody @Validated BaseUserSimpleUpdateReq req) {
         return Result.ofSuccess(baseUserManagerService.simpleUpdateUser(req));
     }
 
+    /**
+     * 重置密码
+     * @param userId    用户id
+     * @return          true：修改成功；false：修改失败
+     */
     @PutMapping("/base-user/reset-password/{userId}")
     @ApiOperation(value = "重置密码")
     public Result<Boolean> resetPassword(@PathVariable Long userId) {
         return Result.ofSuccess(baseUserManagerService.resetPassword(userId));
     }
 
+    /**
+     * 修改激活状态
+     * @param userId    用户id
+     * @return          true：修改成功；false：修改失败
+     */
     @PutMapping("/base-user/change-enabled/{userId}")
     @ApiOperation(value = "修改激活状态")
     public Result<Boolean> changeEnabled(@PathVariable Long userId) {
         return Result.ofSuccess(baseUserManagerService.changeEnabled(userId));
     }
 
+    /**
+     * 修改锁定状态
+     * @param userId    用户id
+     * @return          true：修改成功；false：修改失败
+     */
     @PutMapping("/base-user/change-locked/{userId}")
     @ApiOperation(value = "修改锁定状态")
     public Result<Boolean> changeLocked(@PathVariable Long userId) {
         return Result.ofSuccess(baseUserManagerService.changeLocked(userId));
     }
 
+    /**
+     * 批量删除用户
+     * @param ids       用户id数组
+     * @return          true：删除成功；false：删除失败
+     */
     @DeleteMapping("/base-users")
     @ApiOperation(value = "批量删除用户")
     public Result<Boolean> deleteByIds(@RequestBody @NotNull Long[] ids) {

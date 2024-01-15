@@ -24,10 +24,7 @@ import java.util.List;
 /**
  * 类描述：
  * 下拉菜单
- * @ClassName DropDownResource
- * @Author Administrator
- * @Date 2023/8/3 21:25
- * @Version 1.0
+ * @author cfl
  */
 @RestController
 @RequestMapping("/drop-down")

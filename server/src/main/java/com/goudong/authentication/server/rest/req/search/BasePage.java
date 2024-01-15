@@ -7,6 +7,10 @@ import lombok.Data;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+/**
+ * 基础分页查询对象
+ * @author wlf
+ */
 @Data
 public class BasePage {
 

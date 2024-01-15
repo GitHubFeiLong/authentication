@@ -29,5 +29,5 @@ public class BaseUserDropDownReq extends BasePage{
     @ApiModelProperty(value = "应用名", hidden = true)
     @DbField(value = "real_app_id", onlyOn = Equal.class)
     @JsonIgnore
-    private Long realAppId ;
+    private Long realAppId;
 }
