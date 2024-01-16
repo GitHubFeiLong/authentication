@@ -17,15 +17,21 @@ import java.io.Serializable;
  *
  * @see AuthenticationDetailsSourceImpl
  * @see Authentication#getDetails() 能获取到这里配置的额外信息
- * @Author msi
- * @Date 2021-05-02 10:41
- * @Version 1.0
+ * @author chenf
  */
 @Getter
 public class WebAuthenticationDetailsImpl extends WebAuthenticationDetails implements Serializable {
 
+    private static final long serialVersionUID = 660000566548310470L;
+
+    /**
+     * 登录时选择的应用Id
+     */
     Long selectAppId;
 
+    /**
+     * 请求头中的应用Id
+     */
     Long xAppId;
 
     WebAuthenticationDetailsImpl(HttpServletRequest httpServletRequest) {

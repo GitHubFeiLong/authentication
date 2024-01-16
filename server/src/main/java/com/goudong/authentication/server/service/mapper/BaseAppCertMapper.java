@@ -5,7 +5,9 @@ import com.goudong.authentication.server.service.dto.BaseAppCertDTO;
 import org.mapstruct.Mapper;
 
 /**
- * Mapper for the entity {@link BaseAppCert} and its DTO {@link BaseAppCertDTO}.
+ * 类描述：
+ * 实体{@link BaseAppCert}和它的DTO{@link BaseAppCertDTO}的映射
+ * @author chenf
  */
 @Mapper(componentModel = "spring", uses = {})
 public interface BaseAppCertMapper extends EntityMapper<BaseAppCertDTO, BaseAppCert>  {

@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 
 /**
  * Spring Data  repository for the BaseRole entity.
@@ -38,4 +40,12 @@ public interface BaseRoleRepository extends JpaRepository<BaseRole, Long>, JpaSp
      */
     @Query("from BaseRole where appId=?1 and name='ROLE_APP_ADMIN'")
     BaseRole findAppAdminByAppId(Long appId);
+
+    /**
+     * 查询指定应用的管理员角色
+     * @param appId 应用id
+     * @return 角色对象
+     */
+    @Query("from BaseRole where appId=?1 and name in ?2")
+    List<BaseRole> findAllByAppIdAndNameIn(Long appId, List<String> names);
 }

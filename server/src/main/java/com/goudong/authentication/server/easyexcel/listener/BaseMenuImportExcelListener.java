@@ -11,6 +11,7 @@ import com.goudong.authentication.server.service.BaseMenuService;
 import com.goudong.authentication.server.service.BaseRoleService;
 import com.goudong.authentication.server.service.dto.BaseMenuDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
+import com.goudong.authentication.server.service.mapper.BaseMenuMapper;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.util.AssertUtil;
 import com.goudong.core.util.CollectionUtil;
@@ -37,32 +38,37 @@ public class BaseMenuImportExcelListener implements ReadListener<BaseMenuImportE
     /**
      * 缓存的数据
      */
-    private List<BaseMenu> cachedDataList = new ArrayList<>();
+    private final List<BaseMenu> cachedDataList = new ArrayList<>();
 
     /**
      * 用户信息
      */
-    private MyAuthentication myAuthentication;
+    private final MyAuthentication myAuthentication;
 
     /**
      * 菜单服务
      */
-    private BaseMenuService baseMenuService;
+    private final BaseMenuService baseMenuService;
 
     /**
      * 菜单服务
      */
-    private BaseRoleService baseRoleService;
+    private final BaseRoleService baseRoleService;
 
     /**
      * 实物
      */
-    private TransactionTemplate transactionTemplate;
+    private final TransactionTemplate transactionTemplate;
 
     /**
      * 导入的菜单类型
      */
     private final Map<String, Integer> types;
+
+    /**
+     * BaseMenu实体映射器
+     */
+    private final BaseMenuMapper baseMenuMapper;
 
     /**
      * 导入的菜单类型
@@ -75,11 +81,13 @@ public class BaseMenuImportExcelListener implements ReadListener<BaseMenuImportE
     public BaseMenuImportExcelListener(MyAuthentication myAuthentication,
                                        BaseMenuService baseMenuService,
                                        BaseRoleService baseRoleService,
-                                       TransactionTemplate transactionTemplate) {
+                                       TransactionTemplate transactionTemplate,
+                                       BaseMenuMapper baseMenuMapper) {
         this.myAuthentication = myAuthentication;
         this.baseMenuService = baseMenuService;
         this.baseRoleService = baseRoleService;
         this.transactionTemplate = transactionTemplate;
+        this.baseMenuMapper = baseMenuMapper;
         this.types = new HashMap<>(3);
         this.types.put("菜单", 1);
         this.types.put("按钮", 2);
@@ -149,7 +157,7 @@ public class BaseMenuImportExcelListener implements ReadListener<BaseMenuImportE
         Collection<String> currentHaveNotParentPermissionIds = CollectionUtil.subtract(parentPermissionIds, map2.keySet());
 
         // 查询所有菜单
-        List<BaseMenuDTO> allMenuDTOList = baseMenuService.findAllByAppId(myAuthentication.getRealAppId());
+        List<BaseMenuDTO> allMenuDTOList = baseMenuMapper.toDto(baseMenuService.findAllByAppId(myAuthentication.getRealAppId()));
         Map<String, BaseMenuDTO> map1 = new HashMap<>();
         AtomicInteger sortNumAtomicInteger = new AtomicInteger(1);
         for (BaseMenuDTO baseMenuDTO : allMenuDTOList) {

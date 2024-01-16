@@ -1,22 +1,32 @@
 package com.goudong.authentication.server.service.manager.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.goudong.authentication.server.domain.BaseMenu;
+import com.goudong.authentication.server.domain.BaseRole;
 import com.goudong.authentication.server.rest.req.BaseMenuChangeSortNumReq;
 import com.goudong.authentication.server.rest.req.BaseMenuCreateReq;
 import com.goudong.authentication.server.rest.req.BaseMenuGetAllReq;
 import com.goudong.authentication.server.rest.req.BaseMenuUpdateReq;
 import com.goudong.authentication.server.rest.resp.BaseMenuGetAllResp;
 import com.goudong.authentication.server.service.BaseMenuService;
+import com.goudong.authentication.server.service.dto.ApiPermissionDTO;
 import com.goudong.authentication.server.service.dto.BaseMenuDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseMenuManagerService;
 import com.goudong.authentication.server.util.SecurityContextUtil;
+import com.goudong.boot.redis.core.RedisTool;
 import com.goudong.core.util.CollectionUtil;
 import com.goudong.core.util.tree.v2.Tree;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.goudong.authentication.server.enums.RedisKeyTemplateProviderEnum.*;
 
 /**
  * 类描述：
@@ -29,9 +39,17 @@ public class BaseMenuManagerServiceImpl implements BaseMenuManagerService {
 
     //~fields
     //==================================================================================================================
+    /**
+     * 菜单服务
+     */
     @Resource
     private BaseMenuService baseMenuService;
 
+    /**
+     * redis工具
+     */
+    @Resource
+    private RedisTool redisTool;
 
     //~methods
     //==================================================================================================================
@@ -107,6 +125,47 @@ public class BaseMenuManagerServiceImpl implements BaseMenuManagerService {
     @Override
     public Boolean changeSortNum(BaseMenuChangeSortNumReq req) {
         return baseMenuService.changeSortNum(req);
+    }
+
+    /**
+     * 查询指定应用下的所有Api权限菜单（类型是按钮或接口）
+     * @param appId 应用id
+     * @return  菜单集合
+     */
+    @Override
+    @Transactional
+    public List<ApiPermissionDTO> listApiPermissionByAppId(Long appId) {
+        String key = APP_API_PERMISSION.getFullKey(appId);
+        if (Boolean.TRUE.equals(redisTool.hasKey(key))) {
+            return redisTool.getList(APP_API_PERMISSION, ApiPermissionDTO.class, appId);
+        }
+
+        synchronized (this) {
+            if (Boolean.TRUE.equals(redisTool.hasKey(key))) {
+                return redisTool.getList(APP_API_PERMISSION, ApiPermissionDTO.class, appId);
+            }
+
+            List<BaseMenu> menus = baseMenuService.findAllByAppId(appId);
+            if (CollectionUtil.isNotEmpty(menus)) {
+                List<ApiPermissionDTO> apiPermissionDTOS = new ArrayList<>();
+                menus.stream().filter(f -> f.getType() == BaseMenu.TypeEnum.BUTTON.getValue()
+                        || f.getType() == BaseMenu.TypeEnum.API.getValue()).forEach(p -> {
+                    ApiPermissionDTO dto = new ApiPermissionDTO();
+                    dto.setId(p.getId());
+                    dto.setName(p.getName());
+                    dto.setPath(p.getPath());
+                    dto.setMethod(p.getMethod());
+                    dto.setRoles(p.getRoles().stream().map(BaseRole::getName).collect(Collectors.toList()));
+                    apiPermissionDTOS.add(dto);
+                });
+
+                redisTool.set(APP_API_PERMISSION, apiPermissionDTOS, appId);
+
+                return apiPermissionDTOS;
+            }
+
+            return new ArrayList<>(0);
+        }
     }
 }
 

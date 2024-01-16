@@ -17,6 +17,7 @@ import com.goudong.authentication.server.service.dto.BaseMenuDTO;
 import com.goudong.authentication.server.service.dto.BaseRoleDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseRoleManagerService;
+import com.goudong.authentication.server.service.mapper.BaseMenuMapper;
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.lang.PageResult;
@@ -46,6 +47,9 @@ public class BaseRoleManagerServiceImpl implements BaseRoleManagerService {
 
     @Resource
     private BaseMenuService baseMenuService;
+
+    @Resource
+    private BaseMenuMapper baseMenuMapper;
 
     //~methods
     //==================================================================================================================
@@ -123,7 +127,7 @@ public class BaseRoleManagerServiceImpl implements BaseRoleManagerService {
         BaseRolePermissionListResp resp = BeanUtil.copyProperties(rolePO, BaseRolePermissionListResp.class);
         // ADMIN 直接返回所有
         if (myAuthentication.admin()) {
-            permissions = baseMenuService.findAllByAppId(myAuthentication.getRealAppId());
+            permissions = baseMenuMapper.toDto(baseMenuService.findAllByAppId(myAuthentication.getRealAppId()));
         } else {
             // 查询角色对应菜单，并去重
             permissions = baseRoleService.listPermissionsByLoginUser();

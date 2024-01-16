@@ -1,5 +1,7 @@
 package com.goudong.authentication.server.service.dto;
 
+import com.goudong.authentication.common.constant.CommonConst;
+import com.goudong.authentication.common.core.UserSimple;
 import lombok.Data;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -8,9 +10,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static com.goudong.authentication.server.constant.RoleConst.ROLE_APP_ADMIN;
-import static com.goudong.authentication.server.constant.RoleConst.ROLE_APP_SUPER_ADMIN;
 
 /**
  * 类描述：
@@ -99,7 +100,7 @@ public class MyAuthentication implements Authentication {
      * @return true 超级管理员，false 不是超级管理员
      */
     public boolean superAdmin() {
-        return this.roles.stream().anyMatch(f -> Objects.equals(f.getAuthority(), ROLE_APP_SUPER_ADMIN));
+        return this.roles.stream().anyMatch(f -> Objects.equals(f.getAuthority(), CommonConst.ROLE_APP_SUPER_ADMIN));
     }
 
     /**
@@ -107,6 +108,22 @@ public class MyAuthentication implements Authentication {
      * @return true 管理员，false 普通用户
      */
     public boolean admin() {
-        return this.roles.stream().anyMatch(f -> Objects.equals(f.getAuthority(), ROLE_APP_ADMIN) || Objects.equals(f.getAuthority(), ROLE_APP_SUPER_ADMIN));
+        return this.roles.stream().anyMatch(f -> Objects.equals(f.getAuthority(), CommonConst.ROLE_APP_ADMIN) || Objects.equals(f.getAuthority(), CommonConst.ROLE_APP_SUPER_ADMIN));
+    }
+
+    /**
+     * 转换成{@link UserSimple}对象
+     * @return UserSimple对象
+     */
+    public UserSimple convertUserSimple() {
+        UserSimple userSimple = new UserSimple();
+        userSimple.setId(this.getId());
+        userSimple.setAppId(this.getAppId());
+        userSimple.setRealAppId(this.getRealAppId());
+        userSimple.setUsername(this.getUsername());
+        userSimple.setRoles(this.getRoles().stream().map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toList()));
+
+        return userSimple;
+
     }
 }

@@ -3,6 +3,8 @@ package com.goudong.authentication.server.rest.req;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 类描述：
  * 菜单分页查询
@@ -25,6 +27,6 @@ public class BaseMenuGetAllReq {
     @ApiModelProperty("资源路径")
     private String path;
 
-    @ApiModelProperty(value = "资源路径", hidden = true)
+    @ApiModelProperty(value = "应用Id", hidden = true)
     private Long appId;
 }

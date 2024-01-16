@@ -22,6 +22,7 @@ import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.boot.redis.core.RedisTool;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.util.AssertUtil;
+import com.goudong.core.util.CollectionUtil;
 import com.goudong.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
@@ -72,8 +73,8 @@ public class BaseMenuServiceImpl implements BaseMenuService {
      * @return 菜单集合
      */
     @Override
-    public List<BaseMenuDTO> findAllByAppId(Long appId) {
-        return baseMenuMapper.toDto(baseMenuRepository.findAllByAppId(appId));
+    public List<BaseMenu> findAllByAppId(Long appId) {
+        return baseMenuRepository.findAllByAppId(appId);
     }
 
     /**
@@ -131,6 +132,8 @@ public class BaseMenuServiceImpl implements BaseMenuService {
             if (StringUtil.isNotBlank(req.getPermissionId())) {
                 andPredicateList.add(criteriaBuilder.like(root.get("permissionId").as(String.class), "%" + req.getPermissionId() + "%"));
             }
+
+
             return criteriaBuilder.and(andPredicateList.toArray(new Predicate[0]));
         };
 

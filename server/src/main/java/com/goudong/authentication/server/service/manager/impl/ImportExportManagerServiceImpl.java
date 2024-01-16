@@ -13,6 +13,7 @@ import com.goudong.authentication.server.easyexcel.template.BaseUserExportTempla
 import com.goudong.authentication.server.easyexcel.template.BaseUserImportExcelTemplate;
 import com.goudong.authentication.server.enums.option.ActivateEnum;
 import com.goudong.authentication.server.enums.option.LockEnum;
+import com.goudong.authentication.server.properties.AuthenticationServerProperties;
 import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.resp.BaseRoleDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseUserPageResp;
@@ -67,6 +68,12 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
     @Resource
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * 认证服务配置
+     */
+    @Resource
+    private AuthenticationServerProperties authenticationServerProperties;
+
     //~methods
     //==================================================================================================================
     /**
@@ -109,7 +116,13 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
         MyAuthentication myAuthentication = SecurityContextUtil.get();
         try {
             EasyExcel.read(req.getFile().getInputStream(), BaseUserImportExcelTemplate.class,
-                    new BaseUserImportExcelListener(myAuthentication, baseUserService, transactionTemplate, passwordEncoder))
+                    new BaseUserImportExcelListener(
+                            authenticationServerProperties,
+                            myAuthentication,
+                            baseUserService,
+                            baseRoleService,
+                            transactionTemplate,
+                            passwordEncoder))
                     .sheet()
                     // 第二行开始解析
                     .headRowNumber(2)

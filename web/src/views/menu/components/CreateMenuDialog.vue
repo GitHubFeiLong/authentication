@@ -225,6 +225,14 @@ export default {
             placeholder: '请输入路由地址'
           }
           break;
+        case 2:
+          this.menu.method = undefined
+          this.menu.hide = false
+          this.routePath = {
+            label: '请求地址:',
+            placeholder: '请输入路由或接口地址'
+          }
+          break;
         case 3:
           this.menu.hide = true
           this.routePath = {

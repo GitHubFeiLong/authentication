@@ -1,6 +1,7 @@
 package com.goudong.authentication.server.service.manager.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import com.goudong.authentication.common.core.*;
@@ -10,6 +11,7 @@ import com.goudong.authentication.server.constant.UserConst;
 import com.goudong.authentication.server.domain.BaseApp;
 import com.goudong.authentication.server.domain.BaseRole;
 import com.goudong.authentication.server.domain.BaseUser;
+import com.goudong.authentication.server.properties.AuthenticationServerProperties;
 import com.goudong.authentication.server.rest.req.BaseUserPageReq;
 import com.goudong.authentication.server.rest.req.BaseUserSimpleCreateReq;
 import com.goudong.authentication.server.rest.req.BaseUserSimpleUpdateReq;
@@ -18,6 +20,7 @@ import com.goudong.authentication.server.rest.req.search.BaseUserDropDownReq;
 import com.goudong.authentication.server.rest.resp.BaseUserDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseUserPageResp;
 import com.goudong.authentication.server.service.BaseAppService;
+import com.goudong.authentication.server.service.BaseMenuService;
 import com.goudong.authentication.server.service.BaseRoleService;
 import com.goudong.authentication.server.service.BaseUserService;
 import com.goudong.authentication.server.service.dto.BaseUserDTO;
@@ -68,10 +71,22 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
     private BaseRoleService baseRoleService;
 
     /**
+     * 菜单服务接口
+     */
+    @Resource
+    private BaseMenuService baseMenuService;
+
+    /**
      * 密码编码器
      */
     @Resource
     private PasswordEncoder passwordEncoder;
+
+    /**
+     * 认证服务配置
+     */
+    @Resource
+    private AuthenticationServerProperties authenticationServerProperties;
 
     //~methods
     //==================================================================================================================
@@ -107,7 +122,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         BaseApp app = baseAppService.findById(myAuthentication.getAppId());
 
         // 创建token
-        Jwt jwt = new Jwt(UserConst.JWT_ACCESS_EXPIRATION_DAYS, TimeUnit.DAYS, app.getSecret());
+        AuthenticationServerProperties.TokenConfigInner tokenConfig = authenticationServerProperties.getToken();
+        Jwt jwt = new Jwt(tokenConfig.getAccessTokenExpiration(), tokenConfig.getAccessTokenExpirationTimeUnit(), tokenConfig.getRefreshTokenExpiration(), tokenConfig.getRefreshTokenExpirationTimeUnit(), app.getSecret());
         UserSimple userSimple = new UserSimple(myAuthentication.getId(), myAuthentication.getAppId(), myAuthentication.getRealAppId(), myAuthentication.getUsername(), roles);
         Token token = jwt.generateToken(userSimple);
         loginResp.setToken(token);
@@ -126,7 +142,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
     public Token refreshToken(RefreshToken token) {
         Long xAppId = HttpRequestUtil.getXAppId();
         BaseApp app = baseAppService.findById(xAppId);
-        Jwt jwt = new Jwt(UserConst.JWT_ACCESS_EXPIRATION_DAYS, TimeUnit.DAYS, app.getSecret());
+        AuthenticationServerProperties.TokenConfigInner tokenConfig = authenticationServerProperties.getToken();
+        Jwt jwt = new Jwt(tokenConfig.getAccessTokenExpiration(), tokenConfig.getAccessTokenExpirationTimeUnit(), tokenConfig.getRefreshTokenExpiration(), tokenConfig.getRefreshTokenExpirationTimeUnit(), app.getSecret());
         UserSimple userSimple = jwt.parseToken(token.getRefreshToken());
         return jwt.generateToken(userSimple);
     }
@@ -140,8 +157,10 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
     @Transactional(readOnly = true)
     public UserDetail getUserDetailByToken(String token) {
         BaseApp baseApp = baseAppService.findByHeader();
-        Jwt jwt = new Jwt(baseApp.getSecret());
-        UserSimple userSimple = jwt.parseToken(token);
+        UserSimple userSimple = Jwt.parseToken(baseApp.getSecret(), token);
+
+        // token用户是否是超级管理员
+        boolean isSuperAdmin = userSimple.superAdmin();
 
         // 查询用户角色菜单
         BaseUser baseUser = baseUserService.findDetailById(userSimple.getId());
@@ -158,11 +177,21 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         roles.forEach(p -> {
             roleNames.add(p.getName());
 
-            p.getMenus().forEach(p2 -> {
-                menuHashSet.add(BeanUtil.copyProperties(p2, Menu.class));
-            });
+            // 不是超级管理员，使用本身拥有的菜单
+            if (!isSuperAdmin) {
+                p.getMenus().forEach(p2 -> {
+                    menuHashSet.add(BeanUtil.copyProperties(p2, Menu.class));
+                });
+            }
+
 
         });
+
+        // 是超级管理员，查询应用下所有菜单
+        if (isSuperAdmin) {
+            List<Menu> menus = BeanUtil.copyToList(baseMenuService.findAllByAppId(baseUser.getAppId()), Menu.class, CopyOptions.create());
+            menuHashSet.addAll(menus);
+        }
 
         List<Menu> menuArrayList = new ArrayList<>(menuHashSet);
         menuArrayList.sort(new Comparator<Menu>() {
@@ -286,5 +315,25 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
     @Override
     public Boolean changeLocked(Long userId) {
         return baseUserService.changeLocked(userId);
+    }
+
+    /**
+     * 补充token信息
+     * @param req 填充的内容
+     * @return  填充后新生成的token
+     */
+    @Override
+    public Token supplementToken(Map<String, Object> req) {
+        // 获取userSimple对象
+        MyAuthentication myAuthentication = SecurityContextUtil.get();
+        UserSimple userSimple = myAuthentication.convertUserSimple();
+        userSimple.setDetail(req);
+
+        // 构造新的token
+        Long xAppId = HttpRequestUtil.getXAppId();
+        BaseApp app = baseAppService.findById(xAppId);
+        AuthenticationServerProperties.TokenConfigInner tokenConfig = authenticationServerProperties.getToken();
+        Jwt jwt = new Jwt(tokenConfig.getAccessTokenExpiration(), tokenConfig.getAccessTokenExpirationTimeUnit(), tokenConfig.getRefreshTokenExpiration(), tokenConfig.getRefreshTokenExpirationTimeUnit(), app.getSecret());
+        return jwt.generateToken(userSimple);
     }
 }

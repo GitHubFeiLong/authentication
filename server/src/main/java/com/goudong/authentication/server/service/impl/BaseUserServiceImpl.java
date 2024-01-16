@@ -6,6 +6,7 @@ import cn.zhxu.bs.SearchResult;
 import com.goudong.authentication.server.constant.UserConst;
 import com.goudong.authentication.server.domain.BaseRole;
 import com.goudong.authentication.server.domain.BaseUser;
+import com.goudong.authentication.server.properties.AuthenticationServerProperties;
 import com.goudong.authentication.server.repository.BaseUserRepository;
 import com.goudong.authentication.server.rest.req.BaseUserPageReq;
 import com.goudong.authentication.server.rest.req.search.BaseUserDropDownReq;
@@ -38,6 +39,7 @@ import javax.annotation.Resource;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -74,6 +76,12 @@ public class BaseUserServiceImpl implements BaseUserService {
      */
     @Resource
     private BeanSearcher beanSearcher;
+
+    /**
+     * 认证服务配置
+     */
+    @Resource
+    private AuthenticationServerProperties authenticationServerProperties;
 
     //~methods
     //==================================================================================================================
@@ -158,12 +166,7 @@ public class BaseUserServiceImpl implements BaseUserService {
 
         Specification<BaseUser> specification = (root, query, criteriaBuilder) -> {
             List<Predicate> andPredicateList = new ArrayList<>();
-            // 超级管理员就需要查询其他应用下的管理员
-            if (myAuthentication.superAdmin()) {
-                andPredicateList.add(criteriaBuilder.equal(root.get("appId"), myAuthentication.getAppId()));
-            } else {
-                andPredicateList.add(criteriaBuilder.equal(root.get("realAppId"), myAuthentication.getRealAppId()));
-            }
+            andPredicateList.add(criteriaBuilder.equal(root.get("realAppId"), myAuthentication.getRealAppId()));
 
             //1.获取比较的属性
             if (req.getId() != null) {
@@ -274,7 +277,7 @@ public class BaseUserServiceImpl implements BaseUserService {
      * 重置用户密码
      *
      * @param userId 用户id
-     * @return
+     * @return true：修改成功；false：修改失败
      */
     @Override
     @Transactional
@@ -283,7 +286,14 @@ public class BaseUserServiceImpl implements BaseUserService {
         Long realAppId = myAuthentication.getRealAppId();
         BaseUser user = this.findById(userId);
         AssertUtil.isEquals(realAppId, user.getRealAppId(), () -> ClientException.clientByForbidden().serverMessage("不能修改其它应用下的用户"));
-        user.setPassword(passwordEncoder.encode(UserConst.DEFAULT_PASSWORD));
+        if (Objects.equals(user.getAppId(), user.getRealAppId())) {
+            log.info("用户不是应用管理员，重置密码");
+            user.setPassword(passwordEncoder.encode(authenticationServerProperties.getApp().getUserDefaultPassword()));
+        } else {
+            log.info("用户是应用管理员，重置密码");
+            user.setPassword(passwordEncoder.encode(authenticationServerProperties.getApp().getAdminDefaultPassword()));
+        }
+
         this.save(user);
         return true;
     }

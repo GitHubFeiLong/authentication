@@ -15,10 +15,7 @@ import java.io.IOException;
 /**
  * 类描述：
  * 自定义权限不足处理器：返回状态码403
- *
  * @author msi
- * @date 2022/1/15 20:00
- * @version 1.0
  */
 @Slf4j
 @Component
@@ -26,10 +23,9 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 
     /**
      * 请求被拒绝处理方法
-     * @param httpServletRequest
-     * @param httpServletResponse
-     * @param e 访问拒绝异常对象
-     * @throws IOException
+     * @param httpServletRequest    请求对象
+     * @param httpServletResponse   响应对象
+     * @param e                     访问拒绝异常对象
      */
     @Override
     public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) throws IOException {

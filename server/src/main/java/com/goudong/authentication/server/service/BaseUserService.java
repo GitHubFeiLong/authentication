@@ -83,7 +83,7 @@ public interface BaseUserService {
     /**
      * 重置用户密码
      * @param userId 用户id
-     * @return
+     * @return true：修改成功；false：修改失败
      */
     Boolean resetPassword(Long userId);
 

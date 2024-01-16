@@ -19,9 +19,7 @@ import java.io.IOException;
 /**
  * 类描述：
  * 认证失败处理器
- * @author msi
- * @date 2022/1/15 19:56
- * @version 1.0
+ * @author chenf
  */
 @Slf4j
 @SuppressWarnings("Duplicates")
@@ -29,6 +27,12 @@ import java.io.IOException;
 public class AuthenticationFailureHandlerImpl implements AuthenticationFailureHandler {
 
 
+    /**
+     * 当认证过程失败时
+     * @param httpServletRequest    请求对象
+     * @param httpServletResponse   响应对象
+     * @param e                     认证过程中发生的异常
+     */
     @Override
     public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException {
         ClientExceptionEnum exceptionEnum = ClientExceptionEnum.UNAUTHORIZED;
@@ -46,7 +50,6 @@ public class AuthenticationFailureHandlerImpl implements AuthenticationFailureHa
         } else {
             result.setClientMessage(e.getMessage());
         }
-
 
         httpServletResponse.setStatus(exceptionEnum.getStatus());
         httpServletResponse.setCharacterEncoding("UTF-8");

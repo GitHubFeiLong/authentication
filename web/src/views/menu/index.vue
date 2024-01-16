@@ -44,8 +44,12 @@
     <!--顶部操作栏-->
     <div class="el-table-tool">
       <div class="left-tool">
+        <el-button v-permission="'sys:menu:add'" class="el-button--small" icon="el-icon-plus" type="primary"
+                   @click="addMenu"
+        >新增
+        </el-button>
         <el-button v-permission="'sys:menu:init'" class="el-button--small" icon="el-icon-edit" type="primary"
-                   @click="initMenu"
+                   @click="initMenu" v-show="false"
         >初始菜单
         </el-button>
         <el-button class="el-button--small" icon="el-icon-s-promotion" type="primary"
@@ -54,11 +58,6 @@
         </el-button>
         <el-button class="el-button--small" type="primary" @click="openTable(true)">展开</el-button>
         <el-button class="el-button--small" type="primary" @click="openTable(false)">折叠</el-button>
-        <el-button v-permission="'sys:menu:add'" class="el-button--small" icon="el-icon-plus" type="primary"
-                   @click="addMenu"
-        >新增
-        </el-button>
-
       </div>
       <div class="right-tool">
         <el-tooltip class="right-tool-btn-tooltip" effect="dark" content="刷新" placement="top">
@@ -196,7 +195,6 @@
               icon="el-icon-edit"
               :underline="false"
               type="primary"
-              :disabled="Number(scope.row.id) <= 2147483647"
               @click="updateMenu(scope.row)"
             >编辑</el-link>
             <el-link
@@ -204,7 +202,6 @@
               icon="el-icon-delete"
               :underline="false"
               type="danger"
-              :disabled="Number(scope.row.id) <= 2147483647"
               @click="deleteMenu(scope.row)"
             >删除</el-link>
           </div>
@@ -302,7 +299,6 @@ export default {
       } else {
         this.rowDrop()
         this.switchClassName = "open-switch-drag"
-
       }
     },
     load() {

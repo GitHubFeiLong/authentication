@@ -3,6 +3,7 @@ package com.goudong.authentication.server.domain;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -119,4 +120,32 @@ public class BaseMenu extends BasePO implements Serializable {
      */
     @Transient
     private String parentPermissionId;
+
+    /**
+     * 类描述：
+     * 菜单类型枚举
+     * @author chenf
+     */
+    @Getter
+    public enum TypeEnum {
+        //菜单类型（1：菜单；2：按钮；3：接口）
+        MENU(1, "菜单"),
+        BUTTON(2, "按钮"),
+        API(3, "接口"),
+        ;
+        /**
+         * 值
+         */
+        private final int value;
+
+        /**
+         * 标签
+         */
+        private final String label;
+
+        TypeEnum(int value, String label) {
+            this.value = value;
+            this.label = label;
+        }
+    }
 }

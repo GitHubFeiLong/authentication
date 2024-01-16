@@ -212,8 +212,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
                 AssertUtil.isNotBlank(req.getUri(), () -> ClientException.client("uri参数丢失"));
                 AssertUtil.isNotBlank(req.getMethod(), () -> ClientException.client("method参数丢失"));
                 AssertUtil.isNotBlank(req.getToken(), () -> ClientException.client("token参数丢失"));
-                Jwt jwt = new Jwt(baseApp.getSecret());
-                UserSimple userSimple = jwt.parseToken(req.getToken());
+                UserSimple userSimple = Jwt.parseToken(baseApp.getSecret(), req.getToken());
                 List<String> userRoles = userSimple.getRoles();
 
                 boolean check = check(appId, req.getUri(), req.getMethod(), userRoles);

@@ -2,6 +2,7 @@ package com.goudong.authentication.server.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.goudong.authentication.common.core.LoginResp;
+import com.goudong.authentication.common.util.JsonUtil;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseUserManagerService;
 import com.goudong.core.lang.Result;
@@ -20,31 +21,27 @@ import java.io.IOException;
 /**
  * 类描述：
  * 认证成功处理器
- *
- * @author msi
- * @date 2022/1/15 21:46
- * @version 1.0
+ * @author chenf
  */
 @Slf4j
 @Component
 public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHandler {
     //~fields
     //==================================================================================================================
+    /**
+     * 用户管理服务接口
+     */
     @Resource
     private BaseUserManagerService baseUserManagerService;
 
-    @Resource
-    private ObjectMapper objectMapper;
 
     //~methods
     //==================================================================================================================
     /**
-     *
-     * @param httpServletRequest
-     * @param httpServletResponse
-     * @param authentication 保存当前用户的登录信息
-     * @throws IOException
-     * @throws ServletException
+     * 认证成功处理
+     * @param httpServletRequest    请求对象
+     * @param httpServletResponse   响应对象
+     * @param authentication        认证成功对象
      */
     @Override
     @Transactional
@@ -61,7 +58,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         // 查询用户，角色，菜单
         LoginResp login = baseUserManagerService.login(myAuthentication);
 
-        String json = objectMapper.writeValueAsString(Result.ofSuccess(login));
+        String json = JsonUtil.toJsonString(Result.ofSuccess(login));
 
         httpServletResponse.getWriter().write(json);
     }

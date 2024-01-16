@@ -1,11 +1,15 @@
 package com.goudong.authentication.server.service.manager;
 
+import com.goudong.authentication.server.domain.BaseMenu;
 import com.goudong.authentication.server.rest.req.BaseMenuChangeSortNumReq;
 import com.goudong.authentication.server.rest.req.BaseMenuCreateReq;
 import com.goudong.authentication.server.rest.req.BaseMenuGetAllReq;
 import com.goudong.authentication.server.rest.req.BaseMenuUpdateReq;
 import com.goudong.authentication.server.rest.resp.BaseMenuGetAllResp;
+import com.goudong.authentication.server.service.dto.ApiPermissionDTO;
 import com.goudong.authentication.server.service.dto.BaseMenuDTO;
+
+import java.util.List;
 
 /**
  * 类描述：
@@ -55,5 +59,10 @@ public interface BaseMenuManagerService {
      */
     Boolean changeSortNum(BaseMenuChangeSortNumReq req);
 
-
+    /**
+     * 查询指定应用下的所有Api权限菜单（类型是按钮或接口）
+     * @param appId 应用id
+     * @return  API权限集合
+     */
+    List<ApiPermissionDTO> listApiPermissionByAppId(Long appId);
 }

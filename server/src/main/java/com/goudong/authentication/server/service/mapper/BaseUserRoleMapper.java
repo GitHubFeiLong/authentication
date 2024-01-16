@@ -1,11 +1,16 @@
 package com.goudong.authentication.server.service.mapper;
 
+import com.goudong.authentication.server.domain.BaseUser;
 import com.goudong.authentication.server.domain.BaseUserRole;
+import com.goudong.authentication.server.service.dto.BaseUserDTO;
 import com.goudong.authentication.server.service.dto.BaseUserRoleDTO;
 import org.mapstruct.Mapper;
 
+
 /**
- * Mapper for the entity {@link BaseUserRole} and its DTO {@link BaseUserRoleDTO}.
+ * 类描述：
+ * 实体{@link BaseUserRole}和它的DTO{@link BaseUserRoleDTO}的映射
+ * @author chenf
  */
 @Mapper(componentModel = "spring", uses = {BaseUserMapper.class, BaseRoleMapper.class})
 public interface BaseUserRoleMapper extends EntityMapper<BaseUserRoleDTO, BaseUserRole> {

@@ -3,6 +3,7 @@ package com.goudong.authentication.server.enums;
 import com.goudong.authentication.server.rest.req.search.BaseAppDropDownReq;
 import com.goudong.authentication.server.rest.req.search.BaseUserDropDownReq;
 import com.goudong.authentication.server.rest.resp.BaseUserDropDownResp;
+import com.goudong.authentication.server.service.dto.ApiPermissionDTO;
 import com.goudong.authentication.server.service.dto.PermissionDTO;
 import com.goudong.boot.redis.core.RedisKeyProvider;
 import org.springframework.data.redis.connection.DataType;
@@ -50,7 +51,12 @@ public enum RedisKeyTemplateProviderEnum  implements RedisKeyProvider {
     /**
      * 应用权限
      */
-    APP_PERMISSION("server:app:permission:${appId}", DataType.LIST, PermissionDTO.class, 24, TimeUnit.HOURS)
+    APP_PERMISSION("server:app:permission:${appId}", DataType.LIST, PermissionDTO.class, 24, TimeUnit.HOURS),
+
+    /**
+     * 应用API权限
+     */
+    APP_API_PERMISSION("server:app:api-permission:${appId}", DataType.LIST, ApiPermissionDTO.class, 24, TimeUnit.HOURS),
     ;
 
     public String key;

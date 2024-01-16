@@ -3,7 +3,6 @@ package com.goudong.authentication.server.service.impl;
 import cn.hutool.core.lang.Assert;
 import cn.zhxu.bs.BeanSearcher;
 import cn.zhxu.bs.SearchResult;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.goudong.authentication.common.util.JsonUtil;
 import com.goudong.authentication.server.constant.HttpHeaderConst;
@@ -29,6 +28,7 @@ import com.goudong.boot.web.core.ServerException;
 import com.goudong.core.lang.PageResult;
 import com.goudong.core.util.AssertUtil;
 import com.goudong.core.util.ListUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -49,40 +49,61 @@ import static com.goudong.authentication.server.enums.RedisKeyTemplateProviderEn
 /**
  * Service Implementation for managing {@link BaseApp}.
  */
+@Slf4j
 @Service
 public class BaseAppServiceImpl implements BaseAppService {
 
-    private final Logger log = LoggerFactory.getLogger(BaseAppServiceImpl.class);
-
+    /**
+     * 应用表持久层
+     */
     @Resource
     private BaseAppRepository baseAppRepository;
+
+    /**
+     * 应用映射器
+     */
     @Resource
     private BaseAppMapper baseAppMapper;
 
+    /**
+     * redis工具
+     */
     @Resource
     private RedisTool redisTool;
 
-    @Resource
-    private ObjectMapper objectMapper;
-
+    /**
+     * 实体查询器
+     */
     @Resource
     private BeanSearcher beanSearcher;
 
+    /**
+     * 角色表持久层
+     */
     @Resource
     private BaseRoleRepository baseRoleRepository;
 
+    /**
+     * 用户表持久层
+     */
     @Resource
     private BaseUserRepository baseUserRepository;
 
+    /**
+     * 菜单表持久层
+     */
     @Resource
     private BaseMenuRepository baseMenuRepository;
 
+    /**
+     * 事务模板
+     */
     @Resource
     private TransactionTemplate transactionTemplate;
 
-    @Resource
-    private PasswordEncoder passwordEncoder;
-
+    /**
+     * 请求对象
+     */
     @Resource
     private HttpServletRequest httpServletRequest;
 
@@ -97,8 +118,7 @@ public class BaseAppServiceImpl implements BaseAppService {
      */
     @Override
     public BaseApp getById(Long id) {
-        BaseApp baseApp = baseAppRepository.findById(id).orElseThrow(() -> ClientException.client("应用不存在"));
-        return baseApp;
+        return baseAppRepository.findById(id).orElseThrow(() -> ClientException.client("应用不存在"));
     }
 
     /**
@@ -109,22 +129,14 @@ public class BaseAppServiceImpl implements BaseAppService {
     @Override
     public BaseApp findById(Long id) {
         String key = APP_ID.getFullKey(id);
-        if (redisTool.hasKey(key)) {
+        if (Boolean.TRUE.equals(redisTool.hasKey(key))) {
             String appStr = (String)redisTool.get(APP_ID, id);
-            try {
-                return objectMapper.readValue(appStr, BaseApp.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            return JsonUtil.toObject(appStr, BaseApp.class);
         }
         synchronized (this) {
-            if (redisTool.hasKey(key)) {
+            if (Boolean.TRUE.equals(redisTool.hasKey(key))) {
                 String appStr = (String)redisTool.get(APP_ID, id);
-                try {
-                    return objectMapper.readValue(appStr, BaseApp.class);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
+                return JsonUtil.toObject(appStr, BaseApp.class);
             }
 
             BaseApp baseApp = baseAppRepository.findById(id).orElseThrow(() -> ClientException.client("应用不存在"));
@@ -235,11 +247,11 @@ public class BaseAppServiceImpl implements BaseAppService {
     public List<BaseAppDropDownReq> allDropDown(BaseAppDropDownReq req) {
         // 超级管理员返回所有应用
         String key = APP_DROP_DOWN.getFullKey();
-        if (redisTool.hasKey(key)) {
+        if (Boolean.TRUE.equals(redisTool.hasKey(key))) {
             return redisTool.getList(APP_DROP_DOWN, BaseAppDropDownReq.class);
         }
         synchronized (this) {
-            if (redisTool.hasKey(key)) {
+            if (Boolean.TRUE.equals(redisTool.hasKey(key))) {
                 return redisTool.getList(APP_DROP_DOWN, BaseAppDropDownReq.class);
             }
 

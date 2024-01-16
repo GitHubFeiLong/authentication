@@ -5,7 +5,7 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.Assert;
 import cn.zhxu.bs.BeanSearcher;
 import cn.zhxu.bs.SearchResult;
-import com.goudong.authentication.server.constant.RoleConst;
+import com.goudong.authentication.common.constant.CommonConst;
 import com.goudong.authentication.server.domain.BaseMenu;
 import com.goudong.authentication.server.domain.BaseRole;
 import com.goudong.authentication.server.repository.BaseRoleRepository;
@@ -174,8 +174,8 @@ public class BaseRoleServiceImpl implements BaseRoleService {
     @Override
     @Transactional
     public BaseRoleDTO save(BaseRoleCreateReq req) {
-        Assert.isFalse(Objects.equals(RoleConst.ROLE_APP_SUPER_ADMIN, req.getName()), () -> ClientException.client("添加角色失败"));
-        Assert.isFalse(Objects.equals(RoleConst.ROLE_APP_ADMIN, req.getName()), () -> ClientException.client("添加角色失败"));
+        Assert.isFalse(Objects.equals(CommonConst.ROLE_APP_SUPER_ADMIN, req.getName()), () -> ClientException.client("添加角色失败"));
+        Assert.isFalse(Objects.equals(CommonConst.ROLE_APP_ADMIN, req.getName()), () -> ClientException.client("添加角色失败"));
 
         MyAuthentication myAuthentication = SecurityContextUtil.get();
 
@@ -307,5 +307,18 @@ public class BaseRoleServiceImpl implements BaseRoleService {
         MyAuthentication myAuthentication = SecurityContextUtil.get();
         Long realAppId = myAuthentication.getRealAppId();
         return baseRoleRepository.findAppAdminByAppId(realAppId);
+    }
+
+    /**
+     * 查询应用下的指定角色列表
+     * @param appId 应用id
+     * @param names 角色名称列表
+     * @return      角色列表
+     */
+    @Override
+    public List<BaseRole> listByAppIdAndNames(Long appId, List<String> names) {
+        AssertUtil.isNotNull(appId, "应用id不能为空");
+        AssertUtil.isNotEmpty(names, "角色名称列表不能为空");
+        return baseRoleRepository.findAllByAppIdAndNameIn(appId, names);
     }
 }

@@ -26,10 +26,7 @@ import java.util.stream.Collectors;
 /**
  * 类描述：
  * 自定义认证处理
- *
- * @author msi
- * @date 2022/1/15 20:26
- * @version 1.0
+ * @author chenf
  */
 @Slf4j
 @Component
@@ -39,21 +36,26 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
      * BCrypt格式的字符串
      * {@code BCryptPasswordEncoder#BCRYPT_PATTERN}
      */
-    private Pattern BCRYPT_PATTERN = Pattern.compile("\\A\\$2(a|y|b)?\\$(\\d\\d)\\$[./0-9A-Za-z]{53}");
+    private final Pattern BCRYPT_PATTERN = Pattern.compile("\\A\\$2(a|y|b)?\\$(\\d\\d)\\$[./0-9A-Za-z]{53}");
 
+    /**
+     * 密码编码器
+     */
     @Resource
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * 用户管理服务接口
+     */
     @Resource
     private BaseUserManagerService baseUserManagerService;
 
     /**
      * 自定义登录认证
-     *
-     * @param authentication 前端传递的认证参数，包含用户名密码
-     * @throws UsernameNotFoundException
-     * @throws AccountExpiredException
-     * @throws BadCredentialsException
+     * @param authentication            前端传递的认证参数，包含用户名密码
+     * @see UsernameNotFoundException   用户未找到异常
+     * @see AccountExpiredException     账户失效异常
+     * @see BadCredentialsException     密码错误异常
      * @return 认证成功对象
      */
     @Override

@@ -14,9 +14,7 @@ import java.io.IOException;
 /**
  * 类描述：
  * 自定义注销成功处理器：返回状态码200
- * @author msi
- * @date 2022/1/15 20:07
- * @version 1.0
+ * @author chenf
  */
 @Component
 public class LogoutSuccessHandlerImpl implements LogoutSuccessHandler {
@@ -25,8 +23,6 @@ public class LogoutSuccessHandlerImpl implements LogoutSuccessHandler {
      * redis 工具
      */
     private final RedisTool redisTool;
-
-
 
     public LogoutSuccessHandlerImpl(RedisTool redisTool) {
         this.redisTool = redisTool;

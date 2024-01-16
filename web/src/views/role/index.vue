@@ -122,7 +122,6 @@
               icon="el-icon-edit"
               :underline="false"
               type="primary"
-              :disabled="Number(scope.row.id) < 2147483647"
               @click="editRole(scope.row)"
             >编辑</el-link>
             <el-link
@@ -130,7 +129,6 @@
               icon="el-icon-finished"
               :underline="false"
               type="primary"
-              :disabled="Number(scope.row.id) < 2147483647"
               @click="editRoleMenu(scope.row)"
             >权限</el-link>
             <el-link
@@ -138,7 +136,6 @@
               icon="el-icon-delete"
               :underline="false"
               type="danger"
-              :disabled="Number(scope.row.id) < 2147483647"
               @click="deleteRole(scope.row.id)"
             >删除</el-link>
           </div>

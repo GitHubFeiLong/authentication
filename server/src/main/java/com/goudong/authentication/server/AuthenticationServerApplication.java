@@ -14,6 +14,7 @@ import com.goudong.boot.web.properties.ApiLogProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
@@ -37,6 +38,7 @@ import java.util.stream.Stream;
 @EnableJpaRepositories(basePackages = {"com.goudong.authentication.server.repository"})
 @EnableCommonsWebMvcConfig
 @EnableCommonsRedisConfig
+@ConfigurationPropertiesScan(value = "com.goudong.authentication.server.properties")
 public class AuthenticationServerApplication {
 
     public static void main(String[] args) {
@@ -51,6 +53,10 @@ public class AuthenticationServerApplication {
         LogApplicationStartup.logApplicationStartup(environment, (int)stopWatch.getTotalTimeSeconds());
     }
 
+    /**
+     * 密码编码器
+     * @return passwordEncoder Bean
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -58,7 +64,7 @@ public class AuthenticationServerApplication {
 
     /**
      * 数据库索引异常配置
-     * @return
+     * @return databaseKey Bean
      */
     @Bean
     public DatabaseKey databaseKey() {

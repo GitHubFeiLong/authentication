@@ -1,14 +1,15 @@
 package com.goudong.authentication.server.service.manager.impl;
 
-import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
-import com.goudong.authentication.server.constant.RoleConst;
+import com.goudong.authentication.common.constant.CommonConst;
+import com.goudong.authentication.server.constant.DateConst;
 import com.goudong.authentication.server.domain.BaseApp;
 import com.goudong.authentication.server.domain.BaseAppCert;
 import com.goudong.authentication.server.domain.BaseRole;
 import com.goudong.authentication.server.domain.BaseUser;
+import com.goudong.authentication.server.properties.AuthenticationServerProperties;
 import com.goudong.authentication.server.rest.req.BaseAppCertCreateReq;
 import com.goudong.authentication.server.rest.req.BaseAppCreate;
 import com.goudong.authentication.server.rest.req.BaseAppUpdate;
@@ -44,39 +45,66 @@ import java.util.*;
 
 /**
  * 类描述：
- *
- * @author  Administrator
- * @version 1.0
+ * 应用管理服务接口实现类
+ * @author  chenf
  */
 @Service
 public class BaseAppManagerServiceImpl implements BaseAppManagerService {
     //~fields
     //==================================================================================================================
-
+    /**
+     * 应用服务层接口
+     */
     @Resource
     private BaseAppService baseAppService;
 
+    /**
+     * 用户服务层接口
+     */
     @Resource
     private BaseUserService baseUserService;
 
+    /**
+     * 角色服务层接口
+     */
     @Resource
     private BaseRoleService baseRoleService;
 
-
+    /**
+     * 应用证书服务层接口
+     */
     @Resource
     private BaseAppCertService baseAppCertService;
 
+    /**
+     * 事务模板
+     */
     @Resource
     private TransactionTemplate transactionTemplate;
 
+    /**
+     * 密码编码器
+     */
     @Resource
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * BaseApp对象映射器
+     */
     @Resource
     private BaseAppMapper baseAppMapper;
 
+    /**
+     * BaseAppCert对象映射器
+     */
     @Resource
     private BaseAppCertMapper baseAppCertMapper;
+
+    /**
+     * 认证服务配置
+     */
+    @Resource
+    private AuthenticationServerProperties authenticationServerProperties;
 
     //~methods
     //==================================================================================================================
@@ -110,8 +138,9 @@ public class BaseAppManagerServiceImpl implements BaseAppManagerService {
      */
     @Override
     public BaseAppDTO save(BaseAppCreate req) {
-        AssertUtil.isFalse(req.getName().equals(RoleConst.ROLE_APP_SUPER_ADMIN), () -> ClientException.client("应用已存在"));
-        AssertUtil.isFalse(req.getName().equals(RoleConst.ROLE_APP_ADMIN), () -> ClientException.client("应用已存在"));
+        // 应用名不能使用关键字
+        AssertUtil.isFalse(req.getName().equals(CommonConst.ROLE_APP_SUPER_ADMIN), () -> ClientException.client("应用已存在"));
+        AssertUtil.isFalse(req.getName().equals(CommonConst.ROLE_APP_ADMIN), () -> ClientException.client("应用已存在"));
 
         MyAuthentication authentication = SecurityContextUtil.get();
 
@@ -125,8 +154,9 @@ public class BaseAppManagerServiceImpl implements BaseAppManagerService {
         baseApp.setEnabled(req.getEnabled());
 
         // 生成公钥私钥和证书
-        DateTime validTime = DateUtil.offsetDay(new Date(), 30);
-        CertificateUtil.Cer cer = CertificateUtil.create("goudong", req.getName(), validTime);
+        AuthenticationServerProperties.CertConfigInner cert = authenticationServerProperties.getApp().getCert();
+        DateTime validTime = DateUtil.offsetDay(new Date(), (int)cert.getValidTimeUnit().toDays(cert.getValidTime()));
+        CertificateUtil.Cer cer = CertificateUtil.create(cert.getIssuer(), req.getName(), validTime);
         BaseAppCert baseAppCert = new BaseAppCert();
         baseAppCert.setAppId(baseApp.getId());
         try {
@@ -147,17 +177,17 @@ public class BaseAppManagerServiceImpl implements BaseAppManagerService {
         // 用户真实所在应用
         baseUser.setRealAppId(baseApp.getId());
         baseUser.setUsername(req.getName());
-        baseUser.setPassword(passwordEncoder.encode("123456"));
+        baseUser.setPassword(passwordEncoder.encode(authenticationServerProperties.getApp().getAdminDefaultPassword()));
         baseUser.setEnabled(true);
         baseUser.setLocked(false);
-        baseUser.setValidTime(DateUtil.parse("2099-12-31 00:00:00", DatePattern.NORM_DATETIME_FORMATTER));
-        baseUser.setRemark("应用管理员");
+        baseUser.setValidTime(DateConst.MAX_DATE_TIME);
+        baseUser.setRemark(req.getName() + "应用管理员");
 
         // 创建角色
         BaseRole baseRole = new BaseRole();
         baseRole.setAppId(baseApp.getId());
-        baseRole.setName(RoleConst.ROLE_APP_ADMIN);
-        baseRole.setRemark("应用管理员角色");
+        baseRole.setName(CommonConst.ROLE_APP_ADMIN);
+        baseRole.setRemark(req.getName() + "应用管理员角色");
 
         // 设置角色
         baseUser.setRoles(ListUtil.newArrayList(baseRole));
@@ -256,28 +286,32 @@ public class BaseAppManagerServiceImpl implements BaseAppManagerService {
      * @return 证书记录
      */
     @Override
+    @Transactional
     public BaseAppCertDTO createCert(BaseAppCertCreateReq req) {
         // 校验应用是否存在
         BaseAppCert cert = transactionTemplate.execute(status -> {
             try {
                 BaseApp baseApp = baseAppService.getById(req.getAppId());
                 AssertUtil.isNotNull(baseApp, () -> ClientException.client("应用无效"));
-                req.setAppName(Optional.ofNullable(req.getAppName()).orElseGet(() -> baseApp.getName())); // 应用名没传就是用应用原名
+                req.setAppName(Optional.ofNullable(req.getAppName()).orElseGet(baseApp::getName)); // 应用名没传就是用应用原名
 
                 // 校验过期时间是未来
                 AssertUtil.isTrue(req.getValidTime().after(new Date()), () -> ClientException.client("证书过期时间参数有误"));
 
+                List<BaseAppCert> certs = baseApp.getCerts();
+
                 BaseAppCert baseAppCert = new BaseAppCert();
 
+                AuthenticationServerProperties.CertConfigInner certConfig = authenticationServerProperties.getApp().getCert();
                 // 创建证书
-                CertificateUtil.Cer cer = CertificateUtil.create("goudong", req.getAppName(), req.getValidTime());
+                CertificateUtil.Cer cer = CertificateUtil.create(certConfig.getIssuer(), req.getAppName(), req.getValidTime());
                 baseAppCert.setAppId(baseApp.getId());
                 baseAppCert.setSerialNumber(cer.getCer().getSerialNumber().toString(16)); // 16进制序列号
                 baseAppCert.setCert(Base64.getEncoder().encodeToString(cer.getCer().getEncoded())); // 证书
                 baseAppCert.setPrivateKey(Base64.getEncoder().encodeToString(cer.getKeyPair().getPrivate().getEncoded()));
                 baseAppCert.setPublicKey(Base64.getEncoder().encodeToString(cer.getKeyPair().getPublic().getEncoded()));
                 baseAppCert.setValidTime(req.getValidTime());
-                List<BaseAppCert> certs = baseApp.getCerts();
+
                 certs.add(baseAppCert);
                 baseAppCert.setBaseApp(baseApp);
                 baseAppService.save(baseApp);

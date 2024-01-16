@@ -20,7 +20,7 @@ public interface BaseMenuService {
      * @param appId 应用id
      * @return 菜单集合
      */
-    List<BaseMenuDTO> findAllByAppId(Long appId);
+    List<BaseMenu> findAllByAppId(Long appId);
 
     /**
      * 查询菜单

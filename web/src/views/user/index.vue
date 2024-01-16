@@ -180,7 +180,6 @@
               icon="el-icon-edit"
               :underline="false"
               type="primary"
-              :disabled="Number(scope.row.id) <= 2147483647"
               @click="editUser(scope.row)"
             >编辑</el-link>
             <el-link
@@ -188,7 +187,6 @@
               icon="el-icon-key"
               :underline="false"
               type="warning"
-              :disabled="Number(scope.row.id) <= 2147483647"
               @click="resetPassword(scope.row)"
             >重置密码</el-link>
             <el-link
@@ -196,7 +194,6 @@
               icon="el-icon-delete"
               :underline="false"
               type="danger"
-              :disabled="Number(scope.row.id) <= 2147483647"
               @click="deleteUser(scope.row)"
             >删除</el-link>
           </div>

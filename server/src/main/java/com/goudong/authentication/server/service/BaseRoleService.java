@@ -98,4 +98,12 @@ public interface BaseRoleService {
      * @return 角色
      */
     BaseRole findAppAdmin();
+
+    /**
+     * 查询应用下的指定角色列表
+     * @param appId 应用id
+     * @param names 角色名称列表
+     * @return      角色列表
+     */
+    List<BaseRole> listByAppIdAndNames(Long appId, List<String> names);
 }

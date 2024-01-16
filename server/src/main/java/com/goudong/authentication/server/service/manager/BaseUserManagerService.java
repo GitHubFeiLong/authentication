@@ -16,6 +16,7 @@ import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.core.lang.PageResult;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：
@@ -108,4 +109,11 @@ public interface BaseUserManagerService {
      * @return          true：修改成功；false：修改失败
      */
     Boolean changeLocked(Long userId);
+
+    /**
+     * 补充token信息
+     * @param req 填充的内容
+     * @return  填充后新生成的token
+     */
+    Token supplementToken(Map<String, Object> req);
 }

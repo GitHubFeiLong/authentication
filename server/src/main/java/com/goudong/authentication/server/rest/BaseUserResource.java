@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
+import java.util.Map;
 
 
 /**
@@ -172,5 +173,14 @@ public class BaseUserResource {
         return Result.ofSuccess(baseUserManagerService.deleteByIds(Arrays.asList(ids)));
     }
 
-    // TODO 导出用户
+    /**
+     * 补充token信息
+     * @param req 填充的内容
+     * @return  填充后新生成的token
+     */
+    @PostMapping("/supplement-token")
+    @ApiOperation(value = "补充token")
+    public Result<Token> supplementToken(@RequestBody Map<String, Object> req) {
+        return Result.ofSuccess(baseUserManagerService.supplementToken(req));
+    }
 }

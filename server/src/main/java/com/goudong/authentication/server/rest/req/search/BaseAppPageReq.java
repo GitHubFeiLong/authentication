@@ -6,6 +6,7 @@ import cn.zhxu.bs.operator.Contain;
 import cn.zhxu.bs.operator.StartWith;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
@@ -14,6 +15,7 @@ import java.util.Date;
  * BeanSearch查询参数和返回值
  * @author cfl
  */
+@EqualsAndHashCode(callSuper = true)
 @SearchBean(tables="base_app", orderBy = "id asc")
 @Data
 public class BaseAppPageReq extends BasePage {

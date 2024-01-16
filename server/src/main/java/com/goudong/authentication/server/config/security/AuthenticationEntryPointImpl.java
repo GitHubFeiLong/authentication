@@ -17,10 +17,7 @@ import java.io.IOException;
 /**
  * 类描述：
  * 未经身份验证
- *
- * @Author msi
- * @Date 2021-04-03 9:01
- * @Version 1.0
+ * @author chenf
  */
 @Component
 public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {

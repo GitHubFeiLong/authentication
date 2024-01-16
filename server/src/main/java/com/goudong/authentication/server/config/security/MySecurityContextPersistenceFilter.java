@@ -37,16 +37,17 @@ import java.util.stream.Collectors;
 /**
  * 类描述：
  * 自定义填充 SecurityContextHolder
- * @author msi
- * @version 1.0
- * @date 2022/1/22 12:59
+ * @author chenf
  */
 @Component
 @Slf4j
 public class MySecurityContextPersistenceFilter extends OncePerRequestFilter {
     //~fields
     //==================================================================================================================
-    private static List<String> STATIC_URIS = ListUtil.newArrayList(
+    /**
+     * 静态资源
+     */
+    private static final List<String> STATIC_URIS = ListUtil.newArrayList(
             "/**/*.html*",
             "/**/*.css*",
             "/**/*.js*",
@@ -56,11 +57,19 @@ public class MySecurityContextPersistenceFilter extends OncePerRequestFilter {
             "/druid/**",
             "/actuator/**"
     );
-    private static List<String> IGNORE_URIS = ListUtil.newArrayList(
+
+    /**
+     * 白名单接口
+     */
+    private static final List<String> IGNORE_URIS = ListUtil.newArrayList(
             "/**/user/login",
             "/**/base-user/info/*",
             "/**/drop-down/base-app/all-drop-down" // 应用下拉
     );
+
+    /**
+     * 应用管理服务接口
+     */
     @Resource
     private BaseAppManagerService baseAppManagerService;
 
@@ -73,8 +82,7 @@ public class MySecurityContextPersistenceFilter extends OncePerRequestFilter {
         // 本次请求是静态资源，不需要进行后面的token校验
         AntPathMatcher antPathMatcher = new AntPathMatcher();
         boolean staticUri = STATIC_URIS.stream()
-                .filter(f -> antPathMatcher.match(f, requestURI))
-                .findFirst().isPresent();
+                .anyMatch(f -> antPathMatcher.match(f, requestURI));
         if (staticUri) {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
@@ -96,7 +104,7 @@ public class MySecurityContextPersistenceFilter extends OncePerRequestFilter {
         AssertUtil.isTrue(matcher.matches(), "请求头Authorization格式错误");
         String model = matcher.group(1);
         UserSimple userSimple;
-        if (model.equals(CommonConst.TOKEN_MODEL)) { // 直接解析token
+        if (model.equals(CommonConst.TOKEN_MODEL_BEARER)) { // 直接解析token
             Long appId = getAppId(httpServletRequest);
             // 设置应用id到请求属性中，供后续使用
             httpServletRequest.setAttribute(HttpHeaderConst.X_APP_ID, appId);
@@ -107,8 +115,7 @@ public class MySecurityContextPersistenceFilter extends OncePerRequestFilter {
                     .clientMessageParams(appId)
                     .build());
             String token = authorization.substring(7);
-            Jwt jwt = new Jwt(app.getSecret());
-            userSimple = jwt.parseToken(token);
+            userSimple = Jwt.parseToken(app.getSecret(), token);
 
             log.debug("解析token：{}", userSimple);
         } else {
