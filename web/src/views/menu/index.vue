@@ -48,11 +48,7 @@
                    @click="addMenu"
         >新增
         </el-button>
-        <el-button v-permission="'sys:menu:init'" class="el-button--small" icon="el-icon-edit" type="primary"
-                   @click="initMenu" v-show="false"
-        >初始菜单
-        </el-button>
-        <el-button class="el-button--small" icon="el-icon-s-promotion" type="primary"
+        <el-button v-permission="'sys:menu:sort'" class="el-button--small" icon="el-icon-s-promotion" type="primary"
                    @click="switchOpenDrag"
         >{{ switchButtonName }}
         </el-button>

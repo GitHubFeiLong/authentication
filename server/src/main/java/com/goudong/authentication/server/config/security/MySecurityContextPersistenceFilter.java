@@ -9,17 +9,17 @@ import com.goudong.authentication.server.domain.BaseRole;
 import com.goudong.authentication.server.domain.BaseUser;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseAppManagerService;
+import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.boot.web.core.BasicException;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.util.AssertUtil;
-import com.goudong.core.util.ListUtil;
+import com.goudong.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.annotation.Resource;
@@ -28,8 +28,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -44,28 +42,6 @@ import java.util.stream.Collectors;
 public class MySecurityContextPersistenceFilter extends OncePerRequestFilter {
     //~fields
     //==================================================================================================================
-    /**
-     * 静态资源
-     */
-    private static final List<String> STATIC_URIS = ListUtil.newArrayList(
-            "/**/*.html*",
-            "/**/*.css*",
-            "/**/*.js*",
-            "/**/*.ico*",
-            "/**/swagger-resources*",
-            "/**/api-docs*",
-            "/druid/**",
-            "/actuator/**"
-    );
-
-    /**
-     * 白名单接口
-     */
-    private static final List<String> IGNORE_URIS = ListUtil.newArrayList(
-            "/**/user/login",
-            "/**/base-user/info/*",
-            "/**/drop-down/base-app/all-drop-down" // 应用下拉
-    );
 
     /**
      * 应用管理服务接口
@@ -76,28 +52,21 @@ public class MySecurityContextPersistenceFilter extends OncePerRequestFilter {
     //~methods
     //==================================================================================================================
 
+    /**
+     * 将用户解析保存到上下文中，程序中使用{@link SecurityContextUtil#get()}
+     * @param httpServletRequest    请求对象
+     * @param httpServletResponse   响应对象
+     * @param filterChain           过滤器链
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        String requestURI = httpServletRequest.getRequestURI();
-        // 本次请求是静态资源，不需要进行后面的token校验
-        AntPathMatcher antPathMatcher = new AntPathMatcher();
-        boolean staticUri = STATIC_URIS.stream()
-                .anyMatch(f -> antPathMatcher.match(f, requestURI));
-        if (staticUri) {
-            filterChain.doFilter(httpServletRequest, httpServletResponse);
-            return;
-        }
-
-        // 本次请求时白名单，直接放行
-        Optional<String> first = IGNORE_URIS.stream()
-                .filter(f -> antPathMatcher.match(f, requestURI))
-                .findFirst();
-        if (first.isPresent()) {
-            filterChain.doFilter(httpServletRequest, httpServletResponse);
-            return;
-        }
-
         String authorization = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+        // 未携带令牌，就直接放行
+        if (StringUtil.isBlank(authorization)) {
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
+            return;
+        }
+        // 携带了令牌，需要将其解析成用户
         AssertUtil.isNotBlank(authorization, () -> ClientException.clientByUnauthorized());
         Pattern pattern = Pattern.compile("(Bearer || GOUDONG-SHA256withRSA ).*");
         Matcher matcher = pattern.matcher(authorization);

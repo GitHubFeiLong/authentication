@@ -44,10 +44,10 @@
         <el-button v-permission="'sys:user:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteUsers">
           删除
         </el-button>
-        <el-button class="el-button--small" icon="el-icon-upload2" @click="importUserDialog=true">
+        <el-button v-permission="'sys:user:import'" class="el-button--small" icon="el-icon-upload2" @click="importUserDialog=true">
           导入
         </el-button>
-        <el-button class="el-button--small" icon="el-icon-download" @click="exportExcel">
+        <el-button v-permission="'sys:user:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
           导出
         </el-button>
       </div>

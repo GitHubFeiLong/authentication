@@ -3,7 +3,7 @@
   <el-dialog title="分配权限" width="600px" :visible.sync="visible" @close="close">
     <div style="margin: -15px 0px 15px 0px">
       <el-button size="medium" plain @click="reset">重置</el-button>
-      <el-button size="medium" type="primary" plain @click="submit">提交</el-button>
+      <el-button v-permission="'sys:role:permission:edit'" size="medium" type="primary" plain @click="submit">提交</el-button>
     </div>
     <div class="edit-role-menu-dialog">
       <el-tree

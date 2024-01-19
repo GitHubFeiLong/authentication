@@ -1,6 +1,6 @@
 package com.goudong.authentication.server.config.security;
 
-import com.goudong.authentication.common.constant.CommonConst;
+import com.goudong.authentication.server.constant.CommonConst;
 import com.goudong.authentication.server.service.dto.ApiPermissionDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseMenuManagerService;
@@ -43,13 +43,12 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
     public Collection<ConfigAttribute> getAttributes(Object o) {
         // 获取上下文路径
         String contextPath = ((FilterInvocation) o).getHttpRequest().getContextPath();
-        // mvc 错误接口
-        if (Objects.equals(contextPath, "/error")) {
-            return null;
-        }
-
         // 获取请求地址，不包含上下文（server.servlet.context-path），这样方便迁移。
         String requestUrl = ((FilterInvocation) o).getRequestUrl();
+
+        if(this.isIgnoreUrl(contextPath, requestUrl)){
+            return null;
+        }
 
         // 资源需要的权限集合，如果是空集合就不需要校验权限。
         Set<ConfigAttribute> set = new HashSet<>();
@@ -87,5 +86,32 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
     @Override
     public boolean supports(Class<?> aClass) {
         return FilterInvocation.class.isAssignableFrom(aClass);
+    }
+
+    /**
+     * 判断请求路径是否需要鉴权
+     * @param contextPath   上下文路径
+     * @param requestUrl    真实接口地址
+     * @return  true：不需要鉴权；false：需要鉴权
+     */
+    private boolean isIgnoreUrl(String contextPath, String requestUrl) {
+        // mvc 错误接口
+        if (Objects.equals(contextPath, "/error") || Objects.equals(requestUrl, "/error")) {
+            return true;
+        }
+
+        // 本次请求是静态资源，不需要进行后面的token校验
+        AntPathMatcher antPathMatcher = new AntPathMatcher();
+        boolean staticUri = CommonConst.STATIC_URIS.stream()
+                .anyMatch(f -> antPathMatcher.match(f, requestUrl));
+        if (staticUri) {
+            return true;
+        }
+
+        // 本次请求时白名单，直接放行
+        Optional<String> first = CommonConst.IGNORE_URIS.stream()
+                .filter(f -> antPathMatcher.match(f, requestUrl))
+                .findFirst();
+        return first.isPresent();
     }
 }

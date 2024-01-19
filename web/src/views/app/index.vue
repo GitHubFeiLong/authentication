@@ -51,11 +51,11 @@
     <!--顶部操作栏-->
     <div class="el-table-tool">
       <div class="left-tool">
-        <el-button v-permission="'sys:app:apply'" class="el-button--small" icon="el-icon-plus" type="primary"
+        <el-button v-permission="'sys:app:add'" class="el-button--small" icon="el-icon-plus" type="primary"
                    @click="dialog.create.open=true">
           新增
         </el-button>
-        <el-button class="el-button--small" icon="el-icon-document" type="primary"
+        <el-button v-permission="'sys:app:cert:add'" class="el-button--small" icon="el-icon-document" type="primary"
                    @click="dialog.createCert.open=true">
           创建证书
         </el-button>
@@ -159,6 +159,7 @@
         <template v-slot="scope">
           <div class="el-link-parent">
             <el-link
+              v-permission="'sys:app:cert:query'"
               icon="el-icon-edit"
               :underline="false"
               type="primary"
@@ -166,7 +167,7 @@
             >证书
             </el-link>
             <el-link
-              v-permission="'sys:app:audit'"
+              v-permission="'sys:app:edit'"
               icon="el-icon-edit"
               :underline="false"
               type="primary"

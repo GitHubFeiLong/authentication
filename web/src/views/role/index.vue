@@ -125,7 +125,7 @@
               @click="editRole(scope.row)"
             >编辑</el-link>
             <el-link
-              v-permission="'sys:role:permission'"
+              v-permission="'sys:role:permission:query'"
               icon="el-icon-finished"
               :underline="false"
               type="primary"
