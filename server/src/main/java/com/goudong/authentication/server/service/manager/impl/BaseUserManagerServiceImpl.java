@@ -6,6 +6,7 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import com.goudong.authentication.common.core.*;
 import com.goudong.authentication.common.util.HttpRequestUtil;
+import com.goudong.authentication.common.util.JsonUtil;
 import com.goudong.authentication.server.constant.CommonConst;
 import com.goudong.authentication.server.constant.DateConst;
 import com.goudong.authentication.server.constant.UserConst;
@@ -111,7 +112,6 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
      */
     @Override
     public LoginResp login(MyAuthentication myAuthentication) {
-        log.info("认证成功，响应用户登录信息:{}", myAuthentication);
         LoginResp loginResp = new LoginResp();
         // 设置角色
         List<String> roles = myAuthentication.getRoles().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
@@ -132,7 +132,7 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         loginResp.setToken(token);
         // 设置应用首页地址
         loginResp.setHomePage(app.getHomePage());
-
+        log.info("认证成功，响应用户登录信息:{}", JsonUtil.toJsonString(loginResp));
         return loginResp;
     }
 
