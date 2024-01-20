@@ -13,17 +13,20 @@ import com.goudong.authentication.server.rest.resp.BaseRolePageResp;
 import com.goudong.authentication.server.rest.resp.BaseRolePermissionListResp;
 import com.goudong.authentication.server.service.BaseMenuService;
 import com.goudong.authentication.server.service.BaseRoleService;
+import com.goudong.authentication.server.service.dto.ApiPermissionDTO;
 import com.goudong.authentication.server.service.dto.BaseMenuDTO;
 import com.goudong.authentication.server.service.dto.BaseRoleDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseRoleManagerService;
 import com.goudong.authentication.server.service.mapper.BaseMenuMapper;
 import com.goudong.authentication.server.util.SecurityContextUtil;
+import com.goudong.boot.redis.core.RedisTool;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.lang.PageResult;
 import com.goudong.core.util.AssertUtil;
 import com.goudong.core.util.CollectionUtil;
 import com.goudong.core.util.tree.v2.Tree;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,24 +35,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.goudong.authentication.server.enums.RedisKeyTemplateProviderEnum.APP_API_PERMISSION;
+
 /**
  * 类描述：
  * 角色管理服务层接口实现类
- * @author cfl
- * @version 1.0
+ * @author chenf
  */
 @Service
+@Slf4j
 public class BaseRoleManagerServiceImpl implements BaseRoleManagerService {
     //~fields
     //==================================================================================================================
+    /**
+     * 角色服务接口
+     */
     @Resource
     private BaseRoleService baseRoleService;
 
+    /**
+     * 菜单服务接口
+     */
     @Resource
     private BaseMenuService baseMenuService;
 
+    /**
+     * BaseMenu映射器
+     */
     @Resource
     private BaseMenuMapper baseMenuMapper;
+
+    /**
+     * redis工具
+     */
+    @Resource
+    private RedisTool redisTool;
 
     //~methods
     //==================================================================================================================
@@ -168,6 +188,10 @@ public class BaseRoleManagerServiceImpl implements BaseRoleManagerService {
         menus.forEach(menu -> AssertUtil.isEquals(menu.getAppId(), myAuthentication.getRealAppId(), () -> ClientException.clientByForbidden()));
 
         rolePO.setMenus(menus);
+
+        // 删除应用的权限缓存
+        log.info("删除应用权限缓存：{}", rolePO.getAppId());
+        redisTool.deleteKey(APP_API_PERMISSION, rolePO.getAppId());
         return true;
     }
 

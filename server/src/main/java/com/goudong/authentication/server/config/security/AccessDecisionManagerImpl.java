@@ -37,11 +37,12 @@ public class AccessDecisionManagerImpl implements AccessDecisionManager {
         for (ConfigAttribute configAttribute : collection) {
             // 当前请求需要的权限
             String needRole = configAttribute.getAttribute();
-            if (CommonConst.ROLE_ANONYMOUS.equals(needRole)) {
-                return;
-            }
             // 包含其中一个角色即可访问
             if (authorities.stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(needRole))) {
+                return;
+            }
+
+            if (CommonConst.ROLE_ANONYMOUS.equals(needRole)) {
                 return;
             }
         }

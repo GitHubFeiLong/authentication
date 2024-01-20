@@ -1,7 +1,9 @@
 package com.goudong.authentication.server.config.security;
 
+import com.goudong.authentication.server.domain.BaseApp;
 import com.goudong.authentication.server.domain.BaseUser;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
+import com.goudong.authentication.server.service.manager.BaseAppManagerService;
 import com.goudong.authentication.server.service.manager.BaseUserManagerService;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.boot.web.enumerate.ClientExceptionEnum;
@@ -49,6 +51,12 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
      */
     @Resource
     private BaseUserManagerService baseUserManagerService;
+
+    /**
+     * 应用管理服务接口
+     */
+    @Resource
+    private BaseAppManagerService baseAppManagerService;
 
     /**
      * 自定义登录认证
@@ -101,6 +109,10 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
      */
     public MyAuthentication selectAppIdAuthentication(Long selectAppId, String username, String password) {
         log.info("选择了应用：{}", selectAppId);
+        // 校验应用，应用未激活，应用下所有用户都不能使用
+        BaseApp app = baseAppManagerService.findById(selectAppId);
+        AssertUtil.isTrue(app.getEnabled(), () -> new DisabledException("应用未激活"));
+
         BaseUser user = baseUserManagerService.findOneByAppIdAndUsername(selectAppId, username);
         AssertUtil.isNotNull(user, () -> {
             log.warn("选择了应用,用户名不存在");
@@ -157,6 +169,10 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
     @Transactional
     public MyAuthentication xAppIdAuthentication(Long xAppId, String username, String password) {
         log.info("开始根据X-App-Id:{} 校验用户:{}", xAppId, username);
+        // 校验应用，应用未激活，应用下所有用户都不能使用
+        BaseApp app = baseAppManagerService.findById(xAppId);
+        AssertUtil.isTrue(app.getEnabled(), () -> new DisabledException("应用未激活"));
+
         // 未选择应用,或者选择的应用校验用户失败
         BaseUser user = baseUserManagerService.findOneByAppIdAndUsername(xAppId, username);
         AssertUtil.isNotNull(user, () -> {

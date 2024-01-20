@@ -22,6 +22,7 @@ const actions = {
    */
   getUserDetailByToken({commit}) {
     return new Promise((resolve, reject) => {
+      console.log("执行获取token信息");
       const token = LocalStorageUtil.getToken()
       getUserDetailApi(token.accessToken).then(data => {
         // 设置用户

@@ -6,9 +6,11 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import com.goudong.authentication.common.core.*;
 import com.goudong.authentication.common.util.HttpRequestUtil;
+import com.goudong.authentication.server.constant.CommonConst;
 import com.goudong.authentication.server.constant.DateConst;
 import com.goudong.authentication.server.constant.UserConst;
 import com.goudong.authentication.server.domain.BaseApp;
+import com.goudong.authentication.server.domain.BaseMenu;
 import com.goudong.authentication.server.domain.BaseRole;
 import com.goudong.authentication.server.domain.BaseUser;
 import com.goudong.authentication.server.properties.AuthenticationServerProperties;
@@ -32,6 +34,7 @@ import com.goudong.core.lang.PageResult;
 import com.goudong.core.util.AssertUtil;
 import com.goudong.core.util.CollectionUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -145,6 +148,10 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         AuthenticationServerProperties.TokenConfigInner tokenConfig = authenticationServerProperties.getToken();
         Jwt jwt = new Jwt(tokenConfig.getAccessTokenExpiration(), tokenConfig.getAccessTokenExpirationTimeUnit(), tokenConfig.getRefreshTokenExpiration(), tokenConfig.getRefreshTokenExpirationTimeUnit(), app.getSecret());
         UserSimple userSimple = jwt.parseToken(token.getRefreshToken());
+
+        // 校验应用，应用未激活，应用下所有用户都不能使用
+        BaseApp realApp = baseAppService.findById(userSimple.getRealAppId());
+        AssertUtil.isTrue(realApp.getEnabled(), () -> new DisabledException("应用未激活"));
         return jwt.generateToken(userSimple);
     }
 
@@ -159,8 +166,13 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         BaseApp baseApp = baseAppService.findByHeader();
         UserSimple userSimple = Jwt.parseToken(baseApp.getSecret(), token);
 
+        // 校验应用，应用未激活，应用下所有用户都不能使用
+        BaseApp realApp = baseAppService.findById(userSimple.getRealAppId());
+        AssertUtil.isTrue(realApp.getEnabled(), () -> new DisabledException("应用未激活"));
+
         // token用户是否是超级管理员
         boolean isSuperAdmin = userSimple.superAdmin();
+        boolean isAdmin = userSimple.admin();
 
         // 查询用户角色菜单
         BaseUser baseUser = baseUserService.findDetailById(userSimple.getId());
@@ -177,19 +189,41 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         roles.forEach(p -> {
             roleNames.add(p.getName());
 
-            // 不是超级管理员，使用本身拥有的菜单
-            if (!isSuperAdmin) {
+            // 不是管理员(超级管理员)，使用本身拥有的菜单
+            if (!isAdmin && !isSuperAdmin) {
                 p.getMenus().forEach(p2 -> {
                     menuHashSet.add(BeanUtil.copyProperties(p2, Menu.class));
                 });
             }
-
-
         });
 
-        // 是超级管理员，查询应用下所有菜单
+        // 是超级管理员||管理员，查询应用下所有菜单
         if (isSuperAdmin) {
             List<Menu> menus = BeanUtil.copyToList(baseMenuService.findAllByAppId(baseUser.getAppId()), Menu.class, CopyOptions.create());
+            menuHashSet.addAll(menus);
+        } else if (isAdmin) {    // 管理员，查询应用下所有菜单
+            // 查询管理后台菜单
+            List<BaseMenu> menus1 = baseMenuService.findAllByAppId(baseUser.getAppId());
+            // 排除某些只能超级管理员才能拥有的权限
+            menus1 = menus1.stream().filter(f -> {
+                boolean flag = true;
+                for (Long im : CommonConst.ROLE_APP_ADMIN_IGNORE_MENUS) {
+                    // 菜单
+                    if (Objects.equals(f.getId(), im) || Objects.equals(f.getParentId(), im)) {
+                        flag = false;
+                        break;
+                    }
+                }
+                return flag;
+            }).collect(Collectors.toList());
+
+            // 查询自己应用的所有菜单
+            if (!Objects.equals(baseUser.getAppId(), baseUser.getRealAppId())) {
+                List<BaseMenu> menus2 = baseMenuService.findAllByAppId(baseUser.getRealAppId());
+                menus1.addAll(menus2);
+            }
+
+            List<Menu> menus = BeanUtil.copyToList(menus1, Menu.class, CopyOptions.create());
             menuHashSet.addAll(menus);
         }
 

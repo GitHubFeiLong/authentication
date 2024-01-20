@@ -73,7 +73,7 @@ public class BaseRoleResource {
     }
 
     @PostMapping("/base-role/permission-list")
-    @ApiOperation(value = "分配角色权限(菜单权限)")
+    @ApiOperation(value = "分配角色权限")
     public Result<Boolean> changePermission(@RequestBody @Validated BaseRoleChangePermissionReq req) {
         return Result.ofSuccess(baseRoleManagerService.changePermission(req));
     }

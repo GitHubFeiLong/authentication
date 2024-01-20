@@ -65,9 +65,10 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
             AntPathMatcher antPathMatcher = new AntPathMatcher();
             for (ApiPermissionDTO permissionDTO : apiPermissionDTOS) {
                 if (antPathMatcher.match(permissionDTO.getPath(), requestUrl) && permissionDTO.getMethod().contains(requestMethod)) {
-                    // 如果菜单未配置角色，那么就默认只能是超级管理员才能访问
+                    // 如果菜单未配置角色，那么就默认只能是超级管理员||管理员才能访问
                     if (CollectionUtil.isEmpty(permissionDTO.getRoles())) {
                         set.add(new SecurityConfig(CommonConst.ROLE_APP_SUPER_ADMIN));
+                        set.add(new SecurityConfig(CommonConst.ROLE_APP_ADMIN));
                     } else {
                         set.addAll(permissionDTO.getRoles().stream().map(SecurityConfig::new).collect(Collectors.toList()));
                     }
