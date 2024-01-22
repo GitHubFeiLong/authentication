@@ -13,6 +13,7 @@ import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.boot.web.core.BasicException;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.util.AssertUtil;
+import com.goudong.core.util.ListUtil;
 import com.goudong.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -60,40 +61,53 @@ public class MySecurityContextPersistenceFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        String authorization = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-        // 未携带令牌，就直接放行
-        if (StringUtil.isBlank(authorization)) {
-            filterChain.doFilter(httpServletRequest, httpServletResponse);
-            return;
-        }
-        // 携带了令牌，需要将其解析成用户
-        AssertUtil.isNotBlank(authorization, () -> ClientException.clientByUnauthorized());
-        Pattern pattern = Pattern.compile("(Bearer || GOUDONG-SHA256withRSA ).*");
-        Matcher matcher = pattern.matcher(authorization);
-        AssertUtil.isTrue(matcher.matches(), "请求头Authorization格式错误");
-        String model = matcher.group(1);
-        UserSimple userSimple;
-        if (model.equals(CommonConst.TOKEN_MODEL_BEARER)) { // 直接解析token
-            Long appId = getAppId(httpServletRequest);
-            // 设置应用id到请求属性中，供后续使用
-            httpServletRequest.setAttribute(HttpHeaderConst.X_APP_ID, appId);
-            BaseApp app = baseAppManagerService.findById(appId);
-            AssertUtil.isTrue(app.getEnabled(), () -> ClientException
-                    .builder()
-                    .clientMessageTemplate("X-App-Id:{}未激活")
-                    .clientMessageParams(appId)
-                    .build());
-            String token = authorization.substring(7);
-            userSimple = Jwt.parseToken(app.getSecret(), token);
-
-            log.debug("解析token：{}", userSimple);
-        } else {
-            userSimple = getAppAdminUser(authorization);
-        }
-
-
-        // 获取认证用户，并将其设置到 SecurityContext中
         try {
+            Long appId = getAppId(httpServletRequest);
+            String authorization = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+            // 未携带令牌，就直接放行
+            if (StringUtil.isBlank(authorization)) {
+                // 填充上下文用户，使用匿名用户
+                MyAuthentication myAuthentication = new MyAuthentication();
+                myAuthentication.setId(-1L);
+                // 设置应用id，后续请求鉴权时需要根据应用查询是否需要权限。
+                myAuthentication.setAppId(appId);
+                myAuthentication.setRealAppId(appId);
+                myAuthentication.setUsername(CommonConst.USER_ANONYMOUS);
+                myAuthentication.setRoles(ListUtil.newArrayList(new SimpleGrantedAuthority(CommonConst.ROLE_ANONYMOUS)));
+                myAuthentication.setAuthenticated(false);
+                // 官网建议，避免跨多个线程的竞态条件
+                SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
+                emptyContext.setAuthentication(myAuthentication);
+                SecurityContextHolder.setContext(emptyContext);
+                filterChain.doFilter(httpServletRequest, httpServletResponse);
+                return;
+            }
+            // 携带了令牌，需要将其解析成用户
+            AssertUtil.isNotBlank(authorization, () -> ClientException.clientByUnauthorized());
+            Pattern pattern = Pattern.compile("(Bearer || GOUDONG-SHA256withRSA ).*");
+            Matcher matcher = pattern.matcher(authorization);
+            AssertUtil.isTrue(matcher.matches(), "请求头Authorization格式错误");
+            String model = matcher.group(1);
+            UserSimple userSimple;
+            if (model.equals(CommonConst.TOKEN_MODEL_BEARER)) { // 直接解析token
+
+                // 设置应用id到请求属性中，供后续使用
+                httpServletRequest.setAttribute(HttpHeaderConst.X_APP_ID, appId);
+                BaseApp app = baseAppManagerService.findById(appId);
+                AssertUtil.isTrue(app.getEnabled(), () -> ClientException
+                        .builder()
+                        .clientMessageTemplate("X-App-Id:{}未激活")
+                        .clientMessageParams(appId)
+                        .build());
+                String token = authorization.substring(7);
+                userSimple = Jwt.parseToken(app.getSecret(), token);
+
+                log.debug("解析token：{}", userSimple);
+            } else {
+                userSimple = getAppAdminUser(authorization);
+            }
+
+            // 获取认证用户，并将其设置到 SecurityContext中
             MyAuthentication myAuthentication = new MyAuthentication();
             myAuthentication.setId(userSimple.getId());
             myAuthentication.setAppId(userSimple.getAppId());

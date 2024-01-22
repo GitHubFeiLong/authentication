@@ -56,6 +56,11 @@ public class CommonConst {
      * 注意，创建角色时不能再创建该同名角色。
      */
     public static final String ROLE_ANONYMOUS = "ROLE_ANONYMOUS";
+
+    /**
+     * 匿名用户
+     */
+    public static final String USER_ANONYMOUS = "USER_ANONYMOUS";
     //~methods
     //==================================================================================================================
 }

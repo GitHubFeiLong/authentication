@@ -1,6 +1,9 @@
 package com.goudong.authentication.server.util;
 
 import com.goudong.authentication.server.service.dto.MyAuthentication;
+import com.goudong.boot.web.core.BasicException;
+import com.goudong.boot.web.core.ClientException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -15,6 +18,10 @@ public class SecurityContextUtil {
      * @return 用户
      */
     public static MyAuthentication get() {
-        return (MyAuthentication)SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof MyAuthentication) {
+            return (MyAuthentication) authentication;
+        }
+        throw ClientException.clientByUnauthorized();
     }
 }

@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.stereotype.Component;
@@ -50,27 +51,25 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
             return null;
         }
 
-        // 资源需要的权限集合，如果是空集合就不需要校验权限。
-        Set<ConfigAttribute> set = new HashSet<>();
-
         // 获取请求的方法
         String requestMethod = ((FilterInvocation) o).getHttpRequest().getMethod().toUpperCase();
         log.debug("requestUrl >> {}，requestMethod >> {}", requestUrl, requestMethod);
 
         MyAuthentication myAuthentication = SecurityContextUtil.get();
-        // 不是超级管理员，就需要校验权限
-        if (!myAuthentication.superAdmin()) {
+        // 资源需要的权限集合，如果是空集合就不需要校验权限。
+        Set<ConfigAttribute> set = new HashSet<>();
+        // 不是超级管理员，不是管理员 就需要校验权限
+        if (!myAuthentication.superAdmin() && !myAuthentication.admin()) {
             // 查询指定应用，包含指定请求方式
             List<ApiPermissionDTO> apiPermissionDTOS = baseMenuManagerService.listApiPermissionByAppId(myAuthentication.getRealAppId());
             AntPathMatcher antPathMatcher = new AntPathMatcher();
             for (ApiPermissionDTO permissionDTO : apiPermissionDTOS) {
                 if (antPathMatcher.match(permissionDTO.getPath(), requestUrl) && permissionDTO.getMethod().contains(requestMethod)) {
-                    // 如果菜单未配置角色，那么就默认只能是超级管理员||管理员才能访问
-                    if (CollectionUtil.isEmpty(permissionDTO.getRoles())) {
-                        set.add(new SecurityConfig(CommonConst.ROLE_APP_SUPER_ADMIN));
-                        set.add(new SecurityConfig(CommonConst.ROLE_APP_ADMIN));
-                    } else {
+                    if (CollectionUtil.isNotEmpty(permissionDTO.getRoles())) {
                         set.addAll(permissionDTO.getRoles().stream().map(SecurityConfig::new).collect(Collectors.toList()));
+                    } else {
+                        // 避免菜单未设置权限，就默认超级管理员能用！防止匿名用户访问到还未设置权限的菜单！！！
+                        set.add(new SecurityConfig(CommonConst.ROLE_APP_SUPER_ADMIN));
                     }
                 }
             }

@@ -92,19 +92,57 @@ service.interceptors.request.use(async config => {
   if (validateUrlNotAuthentication(config.url)) {
     const now = new Date()
     // 判断是否需要请求刷新令牌接口（当前时间大于accessExpires，但小于refreshExpires 先刷新令牌在正常请求）
-    const flag = token && validateDate(token.accessExpires) && validateDate(token.refreshExpires) && now > new Date(token.accessExpires) && now < new Date(token.refreshExpires)
-    // 需要请求刷新令牌接口
-    if (flag) {
-      // 当没有token时，发送了添加购物车的请求，此时取消本次请求
-      config.cancelToken = source.token;
-      // cancel函数可以不用传参，也可以传入取消后执行的操作，取消后可提示用户需要登录
-      cancelTokens.push(() => source.cancel("令牌无效取消请求"));
+    const tokenExists = token && validateDate(token.accessExpires) && validateDate(token.refreshExpires);
+    if (tokenExists) {
+      // access token 有效
+      if (now < new Date(token.accessExpires)) {
+        // 有效不处理
+        console.log(1)
+      } else if (now >= new Date(token.accessExpires) && now < new Date(token.refreshExpires)) { // access token 无效，refresh token 有效,调用刷新令牌接口
+        console.log(2)
+        // 当没有token时，发送了添加购物车的请求，此时取消本次请求
+        config.cancelToken = source.token;
+        // cancel函数可以不用传参，也可以传入取消后执行的操作，取消后可提示用户需要登录
+        cancelTokens.push(() => source.cancel("令牌无效取消请求"));
 
-      // 将本次请求放入待取消请求集合
-      // cancelTokens.push(service.CancelToken.source())
-      console.log("即将刷新令牌")
-      // 调用刷新令牌方法，开始刷新本地令牌
-      await refreshingToken(token, config)
+        // 将本次请求放入待取消请求集合
+        // cancelTokens.push(service.CancelToken.source())
+        console.log("即将刷新令牌")
+        // 调用刷新令牌方法，开始刷新本地令牌
+        await refreshingToken(token, config)
+      } else { //  access token 和 refresh token 都无效
+        await new Promise(resolve => {
+          console.log("eles " + config.url)
+          const token = LocalStorageUtil.getToken();
+          if (token) {
+            console.log("eles 1 " + config.url)
+            console.log(3)
+            Message({
+              message: "登录失效",
+              type: 'error',
+              duration: 5 * 1000
+            })
+            // 清空用户登录状态
+            LocalStorageUtil.removeUser()
+            LocalStorageUtil.removeToken()
+            LocalStorageUtil.removePermissionRoutes()
+            LocalStorageUtil.removePermissionButtons()
+
+            cancelTokens.push(() => source.cancel("令牌无效取消请求"));
+            // 跳转到登录页
+            Router.push({ path: '/login' })
+            return Promise.reject("");
+          } else {
+            console.log("eles 2 " + config.url)
+            cancelTokens.push(() => source.cancel("令牌无效取消请求"));
+            // 跳转到登录页
+            Router.push({ path: '/login' })
+            return Promise.reject()
+          }
+        })
+      }
+    } else { // token无效
+
     }
   }
 
