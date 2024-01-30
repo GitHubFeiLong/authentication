@@ -24,21 +24,21 @@ DROP TABLE IF EXISTS `base_app`;
 CREATE TABLE `base_app`
 (
     `id`                 bigint(20)                                              NOT NULL AUTO_INCREMENT,
-    `secret`             varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  NOT NULL COMMENT '应用密钥',
-    `name`               varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  NOT NULL COMMENT '应用名称',
-    `home_page`          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL     DEFAULT NULL COMMENT '首页',
+    `secret`             varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL COMMENT '应用密钥',
+    `name`               varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL COMMENT '应用名称',
+    `home_page`          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '首页',
     `enabled`            bit(1)                                                  NOT NULL DEFAULT b'0' COMMENT '是否激活',
-    `remark`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL     DEFAULT NULL COMMENT '备注',
+    `remark`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '备注',
     `created_date`       datetime(0)                                             NULL     DEFAULT NULL COMMENT '创建时间',
     `last_modified_date` datetime(0)                                             NULL     DEFAULT NULL COMMENT '最后修改时间',
-    `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL     DEFAULT NULL COMMENT '创建人',
-    `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL     DEFAULT NULL COMMENT '最后修改人',
+    `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '创建人',
+    `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '最后修改人',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE INDEX `uk_app_name` (`name`) USING BTREE COMMENT '应用名称唯一'
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1748326743003348993
   CHARACTER SET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '应用表'
+  COLLATE = utf8mb4_bin COMMENT = '应用表'
   ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -56,22 +56,22 @@ CREATE TABLE `base_app_cert`
 (
     `id`                 bigint(20)                                               NOT NULL,
     `app_id`             bigint(20)                                               NOT NULL COMMENT '应用id',
-    `serial_number`      varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci   NOT NULL COMMENT '证书序号',
-    `cert`               varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '证书',
-    `private_key`        varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '私钥',
-    `public_key`         varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '公钥',
+    `serial_number`      varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin   NOT NULL COMMENT '证书序号',
+    `cert`               varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '证书',
+    `private_key`        varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '私钥',
+    `public_key`         varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '公钥',
     `valid_time`         datetime(0)                                              NOT NULL COMMENT '有效期截止时间',
-    `remark`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  NULL DEFAULT NULL COMMENT '备注',
+    `remark`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NULL DEFAULT NULL COMMENT '备注',
     `created_date`       datetime(0)                                              NULL DEFAULT NULL COMMENT '创建时间',
     `last_modified_date` datetime(0)                                              NULL DEFAULT NULL COMMENT '修改时间',
-    `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  NULL DEFAULT NULL COMMENT '创建人',
-    `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  NULL DEFAULT NULL COMMENT '修改人',
+    `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NULL DEFAULT NULL COMMENT '创建人',
+    `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NULL DEFAULT NULL COMMENT '修改人',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE INDEX `uk_app_id_serial_number` (`app_id`, `serial_number`) USING BTREE COMMENT '应用证书唯一',
     CONSTRAINT `fx_app_id` FOREIGN KEY (`app_id`) REFERENCES `base_app` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB
   CHARACTER SET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '应用证书密钥信息'
+  COLLATE = utf8mb4_bin COMMENT = '应用证书密钥信息'
   ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -93,24 +93,24 @@ CREATE TABLE `base_menu`
     `id`                 bigint(20)                                              NOT NULL AUTO_INCREMENT,
     `app_id`             bigint(20)                                              NOT NULL COMMENT '应用id',
     `parent_id`          bigint(20)                                              NULL     DEFAULT NULL COMMENT '父级主键id',
-    `permission_id`      varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  NOT NULL COMMENT '权限标识',
-    `name`               varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  NOT NULL COMMENT '菜单名称',
+    `permission_id`      varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL COMMENT '权限标识',
+    `name`               varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL COMMENT '菜单名称',
     `type`               int(11)                                                 NOT NULL COMMENT '菜单类型（1：菜单；2：按钮；3：接口）',
-    `path`               varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL     DEFAULT NULL COMMENT '路由或接口地址',
-    `method`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL     DEFAULT NULL COMMENT '请求方式',
+    `path`               varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '路由或接口地址',
+    `method`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '请求方式',
     `sort_num`           int(11)                                                 NOT NULL DEFAULT 0 COMMENT '排序字段（值越小越靠前，仅仅针对前端路由）',
     `hide`               bit(1)                                                  NOT NULL COMMENT '是否是隐藏菜单',
-    `meta`               varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL     DEFAULT NULL COMMENT '前端菜单元数据',
-    `remark`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL     DEFAULT NULL COMMENT '备注',
+    `meta`               varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '前端菜单元数据',
+    `remark`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '备注',
     `created_date`       datetime(0)                                             NULL     DEFAULT NULL COMMENT '创建时间',
     `last_modified_date` datetime(0)                                             NULL     DEFAULT NULL COMMENT '最后修改时间',
-    `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL     DEFAULT NULL COMMENT '创建人',
-    `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL     DEFAULT NULL COMMENT '最后修改人',
+    `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '创建人',
+    `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '最后修改人',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1676562074974236673
   CHARACTER SET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '菜单表'
+  COLLATE = utf8mb4_bin COMMENT = '菜单表'
   ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -223,18 +223,18 @@ CREATE TABLE `base_role`
 (
     `id`                 bigint(20)                                              NOT NULL AUTO_INCREMENT,
     `app_id`             bigint(20)                                              NOT NULL COMMENT '应用id',
-    `name`               varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  NOT NULL COMMENT '角色名称',
-    `remark`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+    `name`               varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL COMMENT '角色名称',
+    `remark`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '备注',
     `created_date`       datetime(0)                                             NULL DEFAULT NULL COMMENT '创建时间',
     `last_modified_date` datetime(0)                                             NULL DEFAULT NULL COMMENT '最后修改时间',
-    `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人',
-    `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '最后修改人',
+    `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '创建人',
+    `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '最后修改人',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE INDEX `uk_base_role_app_id_name` (`app_id`, `name`) USING BTREE COMMENT '角色应用下唯一'
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1748326745427656705
   CHARACTER SET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '角色表'
+  COLLATE = utf8mb4_bin COMMENT = '角色表'
   ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -257,8 +257,8 @@ CREATE TABLE `base_role_menu`
     `menu_id`            bigint(20)                                              NULL DEFAULT NULL,
     `created_date`       datetime(6)                                             NULL DEFAULT NULL,
     `last_modified_date` datetime(6)                                             NULL DEFAULT NULL,
-    `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-    `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+    `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+    `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
     PRIMARY KEY (`id`) USING BTREE,
     INDEX `fk_base_role_menu_role_id` (`role_id`) USING BTREE,
     INDEX `fk_base_role_menu_menu_id` (`menu_id`) USING BTREE,
@@ -267,7 +267,7 @@ CREATE TABLE `base_role_menu`
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 72
   CHARACTER SET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '菜单角色中间表'
+  COLLATE = utf8mb4_bin COMMENT = '菜单角色中间表'
   ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -283,22 +283,22 @@ CREATE TABLE `base_user`
     `id`                 bigint(20)                                              NOT NULL AUTO_INCREMENT,
     `app_id`             bigint(20)                                              NOT NULL COMMENT '应用id',
     `real_app_id`        bigint(20)                                              NOT NULL COMMENT '真实应用id（例如xx应用管理员，app_id是认证服务应用的app_id，但是real_app_id是自己所管理xx应用的app_id）',
-    `username`           varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  NOT NULL COMMENT '用户名',
-    `password`           varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  NOT NULL COMMENT '密码',
+    `username`           varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL COMMENT '用户名',
+    `password`           varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL COMMENT '密码',
     `valid_time`         datetime(6)                                             NOT NULL COMMENT '过期时间，不填永久有效',
     `enabled`            bit(1)                                                  NOT NULL COMMENT '激活状态：true 激活；false 未激活',
     `locked`             bit(1)                                                  NOT NULL COMMENT '锁定状态：true 锁定；false 未锁定',
-    `remark`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+    `remark`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '备注',
     `created_date`       datetime(0)                                             NULL DEFAULT NULL COMMENT '创建时间',
     `last_modified_date` datetime(0)                                             NULL DEFAULT NULL COMMENT '最后修改时间',
-    `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人',
-    `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '最后修改人',
+    `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '创建人',
+    `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '最后修改人',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE INDEX `uk_app_id_username` (`app_id`, `username`) USING BTREE COMMENT '用户名应用下唯一'
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1747545560254488577
   CHARACTER SET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '基础用户'
+  COLLATE = utf8mb4_bin COMMENT = '基础用户'
   ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -319,8 +319,8 @@ CREATE TABLE `base_user_role`
     `role_id`            bigint(20)                                              NULL DEFAULT NULL,
     `created_date`       datetime(6)                                             NULL DEFAULT NULL,
     `last_modified_date` datetime(6)                                             NULL DEFAULT NULL,
-    `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-    `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+    `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
+    `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
     PRIMARY KEY (`id`) USING BTREE,
     INDEX `fk_base_user_role_user_id` (`user_id`) USING BTREE,
     INDEX `fk_base_user_role_role_id` (`role_id`) USING BTREE,
@@ -329,7 +329,7 @@ CREATE TABLE `base_user_role`
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 24
   CHARACTER SET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '用户角色中间表'
+  COLLATE = utf8mb4_bin COMMENT = '用户角色中间表'
   ROW_FORMAT = Dynamic;
 
 -- ----------------------------

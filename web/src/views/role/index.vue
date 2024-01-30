@@ -80,8 +80,11 @@
         class-name="selection"
       />
       <el-table-column
+        fixed
         label="序号"
         prop="serialNumber"
+        width="50"
+        align="center"
       >
       </el-table-column>
       <el-table-column

@@ -6,6 +6,7 @@ import com.goudong.authentication.server.enums.DatabaseKeyEnum;
 import com.goudong.boot.redis.EnableCommonsRedisConfig;
 import com.goudong.boot.web.EnableCommonsWebMvcConfig;
 import com.goudong.boot.web.aop.ApiLogAop;
+import com.goudong.boot.web.bean.ApiLogBean;
 import com.goudong.boot.web.bean.DatabaseKey;
 import com.goudong.boot.web.bean.DatabaseKeyInterface;
 import com.goudong.boot.web.core.ErrorAttributesService;
@@ -92,5 +93,16 @@ public class AuthenticationServerApplication {
     @Bean
     public ApiLogAop apiLogAop(Environment environment, ObjectMapper objectMapper, ApiLogProperties apiLogProperties) {
         return new ApiLogAop(environment, objectMapper, apiLogProperties);
+    }
+
+    /**
+     * 主动打印请求日志
+     * @param objectMapper      对象映射器
+     * @param apiLogProperties  日志配置Bean
+     * @return  apiLogBean
+     */
+    @Bean
+    public ApiLogBean apiLogBean(ObjectMapper objectMapper, ApiLogProperties apiLogProperties) {
+        return new ApiLogBean(objectMapper, apiLogProperties);
     }
 }

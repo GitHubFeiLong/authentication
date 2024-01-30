@@ -1,10 +1,10 @@
 package com.goudong.authentication.server.config.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.goudong.authentication.common.core.LoginResp;
 import com.goudong.authentication.common.util.JsonUtil;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseUserManagerService;
+import com.goudong.boot.web.bean.ApiLogBean;
 import com.goudong.core.lang.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -34,6 +33,11 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
     @Resource
     private BaseUserManagerService baseUserManagerService;
 
+    /**
+     * api日志bean
+     */
+    @Resource
+    private ApiLogBean apiLogBean;
 
     //~methods
     //==================================================================================================================
@@ -60,6 +64,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
 
         String json = JsonUtil.toJsonString(Result.ofSuccess(login));
 
+        apiLogBean.print(login);
         httpServletResponse.getWriter().write(json);
     }
 
