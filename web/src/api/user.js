@@ -29,14 +29,27 @@ export function refreshTokenApi(refreshToken) {
 }
 
 /**
- * 根据token获取用户信息
+ * 根据token获取用户信息 - get请求
  * @param token
  * @returns {*}
  */
 export function getUserDetailApi(token) {
   return request({
-    url: `${API_PREFIX}/user/base-user/detail/${token}`,
+    url: `${API_PREFIX}/user/base-user/token/detail/${token}`,
     method: 'get'
+  })
+}
+
+/**
+ * 根据token获取用户信息 - get请求
+ * @param token
+ * @returns {*}
+ */
+export function getUserDetailApiByPost(token) {
+  return request({
+    url: `${API_PREFIX}/user/base-user/token/detail`,
+    method: 'post',
+    data: {token: token},
   })
 }
 

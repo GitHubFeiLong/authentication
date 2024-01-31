@@ -12,6 +12,7 @@ import com.goudong.authentication.server.service.manager.BaseAppManagerService;
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.boot.web.core.BasicException;
 import com.goudong.boot.web.core.ClientException;
+import com.goudong.boot.web.enumerate.ClientExceptionEnum;
 import com.goudong.core.util.AssertUtil;
 import com.goudong.core.util.ListUtil;
 import com.goudong.core.util.StringUtil;
@@ -96,8 +97,10 @@ public class MySecurityContextPersistenceFilter extends OncePerRequestFilter {
                 BaseApp app = baseAppManagerService.findById(appId);
                 AssertUtil.isTrue(app.getEnabled(), () -> ClientException
                         .builder()
-                        .clientMessageTemplate("X-App-Id:{}未激活")
-                        .clientMessageParams(appId)
+                        .exceptionEnum(ClientExceptionEnum.UNAUTHORIZED)
+                        .clientMessage("当前应用已冻结，用户无法访问")
+                        .serverMessageTemplate("X-App-Id:{} 未激活")
+                        .serverMessageParams(appId)
                         .build());
                 String token = authorization.substring(7);
                 userSimple = Jwt.parseToken(app.getSecret(), token);

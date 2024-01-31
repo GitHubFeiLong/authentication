@@ -71,6 +71,8 @@
 import { dropDownAllAppApi } from '@/api/dropDown';
 import { loginApi } from "@/api/user";
 import log from "echarts/src/scale/Log";
+import LocalStorageUtil from "@/utils/LocalStorageUtil";
+import * as commons from "@/constant/commons";
 
 export default {
   name: 'Login',
@@ -134,6 +136,9 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
+          // 设置应用id到本次存储，请求时取出放在请求头
+          let selectAppId = this.loginForm.selectAppId;
+          LocalStorageUtil.setXAppId(selectAppId !== '' ? selectAppId : commons.X_APP_ID)
           loginApi(this.loginForm.username.trim(), encodeURIComponent(this.loginForm.password), this.loginForm.selectAppId).then(data => {
             const { homePage, token } = data
             const {accessToken, refreshToken, accessExpires, refreshExpires} = token

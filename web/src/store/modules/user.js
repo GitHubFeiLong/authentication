@@ -1,4 +1,4 @@
-import {getUserDetailApi} from '@/api/user'
+import {getUserDetailApi, getUserDetailApiByPost} from '@/api/user'
 import {resetRouter} from '@/router'
 import LocalStorageUtil from '@/utils/LocalStorageUtil'
 import {arrayToTree} from "@/utils/tree";
@@ -24,7 +24,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       console.log("执行获取token信息");
       const token = LocalStorageUtil.getToken()
-      getUserDetailApi(token.accessToken).then(data => {
+      getUserDetailApiByPost(token.accessToken).then(data => {
         // 设置用户
         const user = {
           id: data.id,
@@ -89,6 +89,7 @@ const actions = {
    */
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
+      LocalStorageUtil.removeXAppId()
       LocalStorageUtil.removeUser()
       LocalStorageUtil.removeToken()
       LocalStorageUtil.removePermissionRoutes()

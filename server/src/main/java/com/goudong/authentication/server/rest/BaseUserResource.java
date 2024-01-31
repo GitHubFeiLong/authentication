@@ -3,10 +3,7 @@ package com.goudong.authentication.server.rest;
 import com.goudong.authentication.common.core.Token;
 import com.goudong.authentication.common.core.UserDetail;
 import com.goudong.authentication.server.domain.BaseUser;
-import com.goudong.authentication.server.rest.req.BaseUserPageReq;
-import com.goudong.authentication.server.rest.req.BaseUserSimpleCreateReq;
-import com.goudong.authentication.server.rest.req.BaseUserSimpleUpdateReq;
-import com.goudong.authentication.server.rest.req.RefreshToken;
+import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.resp.BaseUserPageResp;
 import com.goudong.authentication.server.service.dto.BaseUserDTO;
 import com.goudong.authentication.server.service.manager.BaseUserManagerService;
@@ -87,13 +84,24 @@ public class BaseUserResource {
      * @param token 令牌
      * @return      token用户的详细信息
      */
-    @GetMapping("/base-user/detail/{token}")
+    @GetMapping("/base-user/token/detail/{token}")
     @ApiOperation(value = "查询用户信息(token)")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "token", value = "令牌", required = true),
     })
     public Result<UserDetail> getUserDetailByToken(@PathVariable String token) {
         return Result.ofSuccess(baseUserManagerService.getUserDetailByToken(token));
+    }
+
+    /**
+     * 根据token获取用户信息，post方法可以避免在不同浏览器使用时，超过url的长度限制
+     * @param req   令牌相关参数
+     * @return      token用户的详细信息
+     */
+    @PostMapping("/base-user/token/detail")
+    @ApiOperation(value = "查询用户信息(token)")
+    public Result<UserDetail> getUserDetailByToken(@RequestBody @Validated BaseUserGetUserDetailByTokenReq req) {
+        return Result.ofSuccess(baseUserManagerService.getUserDetailByToken(req.getToken()));
     }
 
     /**

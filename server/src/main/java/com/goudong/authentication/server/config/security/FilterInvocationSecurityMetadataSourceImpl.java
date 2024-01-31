@@ -59,9 +59,13 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
         // 资源需要的权限集合，如果是空集合就不需要校验权限。
         Set<ConfigAttribute> set = new HashSet<>();
         // 不是超级管理员，不是管理员 就需要校验权限
-        if (!myAuthentication.superAdmin() && !myAuthentication.admin()) {
+        if (!myAuthentication.admin()) {
             // 查询指定应用，包含指定请求方式
             List<ApiPermissionDTO> apiPermissionDTOS = baseMenuManagerService.listApiPermissionByAppId(myAuthentication.getRealAppId());
+            if (!Objects.equals(CommonConst.AUTHENTICATION_SERVER_APP_ID, myAuthentication.getRealAppId())) {
+                log.debug("查询认证服务的相关权限");
+                apiPermissionDTOS.addAll(baseMenuManagerService.listApiPermissionByAppId(CommonConst.AUTHENTICATION_SERVER_APP_ID));
+            }
             AntPathMatcher antPathMatcher = new AntPathMatcher();
             for (ApiPermissionDTO permissionDTO : apiPermissionDTOS) {
                 if (antPathMatcher.match(permissionDTO.getPath(), requestUrl) && permissionDTO.getMethod().contains(requestMethod)) {
@@ -75,6 +79,11 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
             }
         }
 
+        if (CollectionUtil.isNotEmpty(set)) {
+            log.debug("本次请求需要拥有角色【{}】才可访问", set);
+        } else {
+            log.debug("本次请求无需任何角色即可访问");
+        }
         return set;
     }
 

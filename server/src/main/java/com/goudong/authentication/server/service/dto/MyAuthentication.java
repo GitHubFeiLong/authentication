@@ -124,6 +124,5 @@ public class MyAuthentication implements Authentication {
         userSimple.setRoles(this.getRoles().stream().map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toList()));
 
         return userSimple;
-
     }
 }

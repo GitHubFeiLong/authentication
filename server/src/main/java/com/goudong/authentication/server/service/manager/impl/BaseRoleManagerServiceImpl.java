@@ -1,6 +1,8 @@
 package com.goudong.authentication.server.service.manager.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.lang.Assert;
+import com.goudong.authentication.server.constant.CommonConst;
 import com.goudong.authentication.server.domain.BaseMenu;
 import com.goudong.authentication.server.domain.BaseRole;
 import com.goudong.authentication.server.rest.req.BaseRoleChangePermissionReq;
@@ -19,9 +21,12 @@ import com.goudong.authentication.server.service.dto.BaseRoleDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseRoleManagerService;
 import com.goudong.authentication.server.service.mapper.BaseMenuMapper;
+import com.goudong.authentication.server.util.RoleUtil;
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.boot.redis.core.RedisTool;
+import com.goudong.boot.web.core.BasicException;
 import com.goudong.boot.web.core.ClientException;
+import com.goudong.boot.web.enumerate.ClientExceptionEnum;
 import com.goudong.core.lang.PageResult;
 import com.goudong.core.util.AssertUtil;
 import com.goudong.core.util.CollectionUtil;
@@ -33,6 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.goudong.authentication.server.enums.RedisKeyTemplateProviderEnum.APP_API_PERMISSION;
@@ -141,21 +148,46 @@ public class BaseRoleManagerServiceImpl implements BaseRoleManagerService {
         MyAuthentication myAuthentication = SecurityContextUtil.get();
         AssertUtil.isEquals(rolePO.getAppId(), myAuthentication.getRealAppId(), () -> ClientException.clientByForbidden());
         // 当前用户所拥有的菜单权限，不能越级设置权限
-
         List<BaseMenuDTO> permissions;
-
+        List<Long> menuIds;
         BaseRolePermissionListResp resp = BeanUtil.copyProperties(rolePO, BaseRolePermissionListResp.class);
-        // ADMIN 直接返回所有
-        if (myAuthentication.admin()) {
-            permissions = baseMenuMapper.toDto(baseMenuService.findAllByAppId(myAuthentication.getRealAppId()));
+
+        // 用户的两个应用id属性一致
+        if (Objects.equals(myAuthentication.getAppId(), myAuthentication.getRealAppId())
+                && Objects.equals(CommonConst.AUTHENTICATION_SERVER_APP_ID, myAuthentication.getRealAppId())) {
+            log.debug("用户是真正的认证服务的用户，查询认证服务下的所有菜单");
+            permissions = baseMenuMapper.toDto(baseMenuService.findAllByAppId(CommonConst.AUTHENTICATION_SERVER_APP_ID));
         } else {
-            // 查询角色对应菜单，并去重
-            permissions = baseRoleService.listPermissionsByLoginUser();
+            log.debug("用户不是真正的认证服务的用户，可能是其他应用下的用户，查询两个应用下的菜单");
+            // 查询认证服务的菜单
+            List<BaseMenu> baseMenusByAppId = baseMenuService.findAllByAppId(CommonConst.AUTHENTICATION_SERVER_APP_ID);
+            // 排除不需要显示的菜单
+            baseMenusByAppId = baseMenusByAppId.stream()
+                    .filter(f -> !CommonConst.ROLE_APP_ADMIN_IGNORE_MENUS.contains(f.getId())
+                            && !CommonConst.ROLE_APP_ADMIN_IGNORE_MENUS.contains(f.getParentId())
+                    ).collect(Collectors.toList());
+            // 查询自己应用下的所有菜单
+            List<BaseMenu> baseMenusByRealAppId = baseMenuService.findAllByAppId(myAuthentication.getRealAppId());
+            List<BaseMenu> all = new ArrayList<>(baseMenusByAppId.size() + baseMenusByRealAppId.size());
+            all.addAll(baseMenusByAppId);
+            all.addAll(baseMenusByRealAppId);
+            // 转dto
+            permissions = baseMenuMapper.toDto(all);
         }
 
-        List<Long> menuIds = rolePO.getMenus().stream().map(BaseMenu::getId).collect(Collectors.toList());
+        // 角色拥有的权限
+        log.debug("获取角色拥有的权限");
+        if (RoleUtil.isAdmin(rolePO.getName())) {
+            log.debug("管理员拥有所有权限");
+            menuIds = permissions.stream().map(BaseMenuDTO::getId).collect(Collectors.toList());
+        } else {
+            // 角色拥有的权限
+            log.debug("普通角色拥有已设置的权限");
+            menuIds = rolePO.getMenus().stream().map(BaseMenu::getId).collect(Collectors.toList());
+        }
+
         // 拥有的权限
-        permissions.stream().forEach(p -> {
+        permissions.forEach(p -> {
             if (menuIds.contains(p.getId())) {
                 p.setChecked(true);
             }
@@ -177,6 +209,14 @@ public class BaseRoleManagerServiceImpl implements BaseRoleManagerService {
     @Transactional
     public Boolean changePermission(BaseRoleChangePermissionReq req) {
         BaseRole rolePO = baseRoleService.findById(req.getId());
+        // 校验角色是否能修改权限，保留角色不能修改（比如 ROLE_APP_SUPER_ADMIN、ROLE_APP_ADMIN）
+        Assert.isFalse(Objects.equals(rolePO.getName(), CommonConst.ROLE_APP_SUPER_ADMIN)
+                || Objects.equals(rolePO.getName(), CommonConst.ROLE_APP_ADMIN), () -> BasicException.builder()
+                .exceptionEnum(ClientExceptionEnum.BAD_REQUEST)
+                .clientMessageTemplate("不能修改【{}】角色的权限")
+                .clientMessageParams(rolePO.getName())
+                .build());
+
         MyAuthentication myAuthentication = SecurityContextUtil.get();
         AssertUtil.isEquals(rolePO.getAppId(), myAuthentication.getRealAppId(), () -> ClientException.clientByForbidden());
         if (CollectionUtil.isEmpty(req.getMenuIds())) {
@@ -185,13 +225,38 @@ public class BaseRoleManagerServiceImpl implements BaseRoleManagerService {
         }
 
         List<BaseMenu> menus = baseMenuService.findAllById(req.getMenuIds());
-        menus.forEach(menu -> AssertUtil.isEquals(menu.getAppId(), myAuthentication.getRealAppId(), () -> ClientException.clientByForbidden()));
+        // 设置的菜单权限是否是认证服务的菜单
+        AtomicBoolean isNeedDeleteAuthenticationServerCache = new AtomicBoolean(false);
+        // 校验用户是否能设置菜单
+        menus.forEach(menu -> {
+            // 还未标记true && 角色不是认证服务 && 菜单属于认证服务
+            if (!isNeedDeleteAuthenticationServerCache.get()
+                    && !Objects.equals(CommonConst.AUTHENTICATION_SERVER_APP_ID, rolePO.getAppId())
+                    && Objects.equals(menu.getAppId(), CommonConst.AUTHENTICATION_SERVER_APP_ID)) {
+                isNeedDeleteAuthenticationServerCache.set(true);
+            }
+            AssertUtil.isTrue(
+                    Objects.equals(menu.getAppId(), CommonConst.AUTHENTICATION_SERVER_APP_ID)
+                            || Objects.equals(menu.getAppId(), myAuthentication.getAppId())
+                            || Objects.equals(menu.getAppId(), myAuthentication.getRealAppId()),
+                    () -> BasicException.builder()
+                            .exceptionEnum(ClientExceptionEnum.BAD_REQUEST)
+                            .clientMessageTemplate("不能设置【{}】菜单的权限")
+                            .clientMessageParams(menu.getName())
+                            .build());
+        });
 
         rolePO.setMenus(menus);
 
         // 删除应用的权限缓存
         log.info("删除应用权限缓存：{}", rolePO.getAppId());
         redisTool.deleteKey(APP_API_PERMISSION, rolePO.getAppId());
+        // 有修改认证服务的权限
+        if (isNeedDeleteAuthenticationServerCache.get()) {
+            log.debug("本次修改了认证服务的菜单权限，需要删除认证服务的权限缓存");
+            redisTool.deleteKey(APP_API_PERMISSION, CommonConst.AUTHENTICATION_SERVER_APP_ID);
+        }
+
         return true;
     }
 

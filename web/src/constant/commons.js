@@ -1,7 +1,17 @@
 /** 一些公用的信息*/
 
-// 接口前缀
+/**
+ * 接口前缀
+ * @type {string}
+ */
 export const API_PREFIX = "/api/authentication-server";
+
+/**
+ * 默认请求头中x-app-id的值
+ * @type {string}
+ */
+export const X_APP_ID = '1';
+
 /**
  * 用户下拉选
  */

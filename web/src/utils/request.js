@@ -8,11 +8,11 @@ import LocalStorageUtil from '@/utils/LocalStorageUtil'
 import {refreshTokenApi} from '@/api/user'
 import {AUTHORIZATION, BEARER, X_APP_ID} from '@/constant/HttpHeaderConst'
 import {DO_NOT_HANDLE_ERROR_MESSAGE} from "@/constant/DataMapConst";
+import * as commons from "@/constant/commons";
 
 // 按照axios官方提示需要引入这两步
 const CancelToken = axios.CancelToken;
 const source = CancelToken.source();
-const appId = '1'
 /*
   记录下笔记：
   1. 顺序大致如下 ：请求拦截器 -> 响应拦截器 -> 自定义的catch -> 响应拦截器里的catch
@@ -153,6 +153,8 @@ service.interceptors.request.use(async config => {
   }
 
   // 添加请求头 appId
+  let appId = LocalStorageUtil.getXAppId();
+  appId = (appId === undefined || appId === null) ? commons.X_APP_ID : appId;
   config.headers[X_APP_ID] = appId;
 
   console.log("请求拦截器", config)

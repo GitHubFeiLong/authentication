@@ -14,6 +14,10 @@ public class CommonConst {
     //~fields
     //==================================================================================================================
     /**
+     * 认证服务appId
+     */
+    public static final Long AUTHENTICATION_SERVER_APP_ID = 1L;
+    /**
      * 超级管理员角色
      */
     public static final String ROLE_APP_SUPER_ADMIN = "ROLE_APP_SUPER_ADMIN";

@@ -1,4 +1,11 @@
 /* LocalStorage相关常量*/
+
+/**
+ * 请求头应用id存储到本地
+ * @type {string}
+ */
+export const X_APP_ID_LOCAL_STORAGE = 'x-app-id'
+
 /**
  * 用户的基本信息存储到本地
  */

@@ -1,6 +1,7 @@
 package com.goudong.authentication.server.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.goudong.boot.web.bean.ApiLogBean;
 import com.goudong.boot.web.enumerate.ClientExceptionEnum;
 import com.goudong.core.lang.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -20,7 +22,16 @@ import java.io.IOException;
 @Slf4j
 @Component
 public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
+    //~fields
+    //==================================================================================================================
+    /**
+     * 日志打印
+     */
+    @Resource
+    private ApiLogBean apiLogBean;
 
+    //~methods
+    //==================================================================================================================
     /**
      * 请求被拒绝处理方法
      * @param httpServletRequest    请求对象
@@ -36,6 +47,8 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
         httpServletResponse.setCharacterEncoding("UTF-8");
         httpServletResponse.setContentType("application/json;charset=UTF-8");
         String json = new ObjectMapper().writeValueAsString(result);
+
+        apiLogBean.print(result);
         httpServletResponse.getWriter().write(json);
     }
 }

@@ -1,6 +1,7 @@
 package com.goudong.authentication.server.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.goudong.boot.web.bean.ApiLogBean;
 import com.goudong.boot.web.core.BasicException;
 import com.goudong.boot.web.enumerate.ClientExceptionEnum;
 import com.goudong.core.lang.Result;
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -26,6 +28,16 @@ import java.io.IOException;
 @Component
 public class AuthenticationFailureHandlerImpl implements AuthenticationFailureHandler {
 
+    //~fields
+    //==================================================================================================================
+    /**
+     * 日志打印
+     */
+    @Resource
+    private ApiLogBean apiLogBean;
+
+    //~methods
+    //==================================================================================================================
 
     /**
      * 当认证过程失败时
@@ -55,6 +67,7 @@ public class AuthenticationFailureHandlerImpl implements AuthenticationFailureHa
         httpServletResponse.setCharacterEncoding("UTF-8");
         httpServletResponse.setContentType("application/json;charset=UTF-8");
         String json = new ObjectMapper().writeValueAsString(result);
+        apiLogBean.print(result);
         httpServletResponse.getWriter().write(json);
     }
 }

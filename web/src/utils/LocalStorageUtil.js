@@ -2,7 +2,8 @@ import {
   PERMISSION_BUTTONS_LOCAL_STORAGE,
   PERMISSION_ROUTES_LOCAL_STORAGE,
   TOKEN_LOCAL_STORAGE,
-  USER_LOCAL_STORAGE
+  USER_LOCAL_STORAGE,
+  X_APP_ID_LOCAL_STORAGE
 } from '@/constant/LocalStorageConst'
 
 /**
@@ -33,6 +34,7 @@ export default class LocalStorageUtil {
    */
   static get(key) {
     const item = LocalStorageUtil.s.getItem(key)
+    console.log("localStorage get " + key + " = " + item + " json = " + JSON.parse(item))
     try {
       return JSON.parse(item)
     } catch (e) {
@@ -99,5 +101,15 @@ export default class LocalStorageUtil {
 
   static removePermissionButtons() {
     LocalStorageUtil.s.removeItem(PERMISSION_BUTTONS_LOCAL_STORAGE)
+  }
+
+  static getXAppId() {
+    return LocalStorageUtil.s.getItem(X_APP_ID_LOCAL_STORAGE)
+  }
+  static setXAppId(appId) {
+    return LocalStorageUtil.set(X_APP_ID_LOCAL_STORAGE, appId)
+  }
+  static removeXAppId() {
+    LocalStorageUtil.s.removeItem(X_APP_ID_LOCAL_STORAGE)
   }
 }

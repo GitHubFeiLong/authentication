@@ -65,7 +65,7 @@ public class Jwt {
         this.accessTokenExpirationTimeUnit = accessTokenExpirationTimeUnit;
         this.refreshTokenExpiration = refreshTokenExpiration;
         this.refreshTokenExpirationTimeUnit = refreshTokenExpirationTimeUnit;
-        this.secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8));
+        this.secretKey = secretKey;
     }
 
     /**
@@ -124,7 +124,7 @@ public class Jwt {
     public static UserSimple parseToken(String secretKey, String token) {
         try {
             Claims body = Jwts.parser()
-                    .setSigningKey(Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8)))
+                    .setSigningKey(secretKey)
                     .parseClaimsJws(token)
                     .getBody();
             return JsonUtil.toObject(body.getSubject(), UserSimple.class);
