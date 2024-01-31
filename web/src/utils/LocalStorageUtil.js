@@ -34,7 +34,6 @@ export default class LocalStorageUtil {
    */
   static get(key) {
     const item = LocalStorageUtil.s.getItem(key)
-    console.log("localStorage get " + key + " = " + item + " json = " + JSON.parse(item))
     try {
       return JSON.parse(item)
     } catch (e) {
@@ -111,5 +110,16 @@ export default class LocalStorageUtil {
   }
   static removeXAppId() {
     LocalStorageUtil.s.removeItem(X_APP_ID_LOCAL_STORAGE)
+  }
+
+  /**
+   * 退出登录缓存清理
+   */
+  static cleanByLogout() {
+    LocalStorageUtil.removeUser()
+    LocalStorageUtil.removeToken()
+    LocalStorageUtil.removePermissionRoutes()
+    LocalStorageUtil.removePermissionButtons()
+    LocalStorageUtil.removeXAppId()
   }
 }

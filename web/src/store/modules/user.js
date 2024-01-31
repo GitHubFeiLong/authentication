@@ -89,11 +89,7 @@ const actions = {
    */
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      LocalStorageUtil.removeXAppId()
-      LocalStorageUtil.removeUser()
-      LocalStorageUtil.removeToken()
-      LocalStorageUtil.removePermissionRoutes()
-      LocalStorageUtil.removePermissionButtons()
+      LocalStorageUtil.cleanByLogout();
       resetRouter()
       resolve()
     })

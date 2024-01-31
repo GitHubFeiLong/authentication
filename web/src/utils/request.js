@@ -80,6 +80,7 @@ let isRefreshing = false
 const cancelTokens = []
 
 service.interceptors.request.use(async config => {
+  console.log("cancelTokens = " + cancelTokens)
   /*
     判断当前时间 accessExpires refreshExpires 三个时间
     1. 当前时间小于accessExpires 正常请求
@@ -87,10 +88,10 @@ service.interceptors.request.use(async config => {
     3. 当前时间大于refreshExpires正常请求（响应拦截器会将其重定向登录页）
    */
   // 自定义的方法，用来获取toke对象，token的格式就是上面令牌的格式（有4个属性）
-  const token = LocalStorageUtil.getToken();
+  let token = LocalStorageUtil.getToken();
+  const now = new Date()
   // 判断当前请求接口既不是登录请求，也不是刷新令牌请求时
   if (validateUrlNotAuthentication(config.url)) {
-    const now = new Date()
     // 判断是否需要请求刷新令牌接口（当前时间大于accessExpires，但小于refreshExpires 先刷新令牌在正常请求）
     const tokenExists = token && validateDate(token.accessExpires) && validateDate(token.refreshExpires);
     if (tokenExists) {
@@ -112,29 +113,22 @@ service.interceptors.request.use(async config => {
         await refreshingToken(token, config)
       } else { //  access token 和 refresh token 都无效
         await new Promise(resolve => {
-          console.log("eles " + config.url)
           const token = LocalStorageUtil.getToken();
           if (token) {
-            console.log("eles 1 " + config.url)
-            console.log(3)
             Message({
               message: "登录失效",
               type: 'error',
               duration: 5 * 1000
             })
             // 清空用户登录状态
-            LocalStorageUtil.removeUser()
-            LocalStorageUtil.removeToken()
-            LocalStorageUtil.removePermissionRoutes()
-            LocalStorageUtil.removePermissionButtons()
+            LocalStorageUtil.cleanByLogout();
 
-            cancelTokens.push(() => source.cancel("令牌无效取消请求"));
+            cancelTokens.splice(0);
             // 跳转到登录页
             Router.push({ path: '/login' })
             return Promise.reject("");
           } else {
-            console.log("eles 2 " + config.url)
-            cancelTokens.push(() => source.cancel("令牌无效取消请求"));
+            cancelTokens.splice(0);
             // 跳转到登录页
             Router.push({ path: '/login' })
             return Promise.reject()
@@ -146,8 +140,10 @@ service.interceptors.request.use(async config => {
     }
   }
 
+  // 获取最新的token信息，避免前面使用刷新token后token的值不正确。
+  token = LocalStorageUtil.getToken();
   // 在请求头中添加token(这里再次使用方法获取实时的令牌，因为刷新令牌会修改本地存储的token)
-  if (token && token.accessToken) {
+  if (token && now < new Date(token.accessExpires) && token.accessToken) {
     // eslint-disable-next-line require-atomic-updates
     config.headers[AUTHORIZATION] = BEARER + token.accessToken
   }
@@ -331,6 +327,7 @@ async function refreshingToken(token, config) {
         cancelTokens.forEach(cancel => {
           cancel().catch()
         })
+        cancelTokens.splice(0)
         reject(data)
       }).finally(() => {
         // 恢复变量值
