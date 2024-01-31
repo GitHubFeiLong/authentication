@@ -18,7 +18,7 @@ public class BaseUserExportTemplate {
     //==================================================================================================================
     @ApiModelProperty("序号")
     @ExcelProperty("序号")
-    @ColumnWidth(10)
+    @ColumnWidth(5)
     private Integer sequenceNumber;
 
     @ApiModelProperty("用户名")

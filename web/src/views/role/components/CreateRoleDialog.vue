@@ -3,10 +3,10 @@
   <el-dialog title="新增角色" width="600px" :visible.sync="visible" @close="close">
     <el-form ref="addRoleForm" :model="role" :rules="rules" label-width="80px">
       <el-form-item label="角色名称" prop="name">
-        <el-input v-model="role.name" clearable />
+        <el-input v-model="role.name" placeholder="请输入角色名称，建议使用 ROLE_ 开头且全用大写" clearable />
       </el-form-item>
       <el-form-item label="备注" prop="remark">
-        <el-input v-model="role.remark" clearable />
+        <el-input v-model="role.remark" placeholder="请输入角色备注" clearable />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { addRole, addRoleApi, createRoleApi } from '@/api/role'
+import { createRoleApi } from '@/api/role'
 
 export default {
   name: 'CreateRoleDialog',
@@ -40,7 +40,7 @@ export default {
       },
       rules: {
         name: [
-          { required: true, min: 4, max: 16, message: '角色名称限制4~16字符', trigger: 'blur' },
+          { required: true, min: 4, max: 32, message: '角色名称限制4~32字符', trigger: 'blur' },
         ],
         remark: [
           { required: false, max: 255, message: '备注限制最多255字符', triangle: 'blur' }

@@ -3,7 +3,7 @@
   <el-dialog title="编辑用户" width="600px" :visible.sync="visible" @close="close">
     <el-form ref="editUser" :model="user" :rules="rules" label-width="80px">
       <el-form-item label="用户名" prop="username">
-        <el-input v-model="user.username" :disabled="true" />
+        <el-input v-model="user.username" placeholder="请输入用户名" :disabled="true" />
       </el-form-item>
       <el-form-item label="角色" prop="roles">
         <RoleSelect :role-multiple="true" :default-roles="user.roles" @getSelectRoles="getSelectRoles" />
@@ -13,7 +13,7 @@
           <el-date-picker
             v-model="user.validTime"
             type="datetime"
-            placeholder="选择日期时间"
+            placeholder="请选择日期时间"
             value-format="yyyy-MM-dd HH:mm:ss"
           />
         </div>
@@ -37,7 +37,7 @@
         />
       </el-form-item>
       <el-form-item label="备注" prop="avatar">
-        <el-input v-model="user.remark" clearable />
+        <el-input v-model="user.remark" placeholder="请输入用户备注" clearable />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">

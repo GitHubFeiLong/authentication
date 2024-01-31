@@ -101,13 +101,13 @@
       />
       <el-table-column
         label="用户名"
-        width="75"
+        min-width="50"
         prop="username"
         sortable
       />
       <el-table-column
         label="角色"
-        min-width="50"
+        min-width="100"
         sortable
         show-overflow-tooltip
       >

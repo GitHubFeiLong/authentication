@@ -45,7 +45,7 @@ CREATE TABLE `base_app`
 -- Records of base_app
 -- ----------------------------
 INSERT INTO `base_app`
-VALUES (1, '0b32758851f04e92bc0f874a4f82c4c2', 'admin', 'http://192.168.0.111:9999/#/login-success', b'1',
+VALUES (1, '0b32758851f04e92bc0f874a4f82c4c2', 'admin', 'http://127.0.0.1:9999/#/login-success', b'1',
         '认证服务应用', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 
 -- ----------------------------

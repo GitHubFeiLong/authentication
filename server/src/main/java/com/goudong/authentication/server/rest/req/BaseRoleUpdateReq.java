@@ -22,7 +22,7 @@ public class BaseRoleUpdateReq implements Serializable {
     private Long id;
 
     @NotBlank
-    @Size(min = 4, max = 16)
+    @Size(min = 4, max = 32)
     @ApiModelProperty(value = "角色名称", required = true)
     private String name;
 

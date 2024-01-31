@@ -3,10 +3,10 @@
   <el-dialog title="新增用户" width="600px" :visible.sync="visible" @close="close">
     <el-form ref="user" :model="user" :rules="rules" label-width="80px" class="demo-ruleForm">
       <el-form-item label="用户名" prop="username">
-        <el-input v-model="user.username" clearable />
+        <el-input v-model="user.username" placeholder="请输入用户名" clearable />
       </el-form-item>
-      <el-form-item label="登录密码" prop="password">
-        <el-input v-model="user.password" clearable />
+      <el-form-item label="密码" prop="password">
+        <el-input v-model="user.password" placeholder="请输入登录密码，如不输入，即使用默认密码" clearable />
       </el-form-item>
       <el-form-item label="角色" prop="roleIds">
         <RoleSelect ref="roleSelectRef" :role-multiple="true" @getSelectRoles="getSelectRoles" />
@@ -48,7 +48,7 @@ export default {
         username: [
           { required: true, trigger: 'blur', message: '请输入用户名' },
         ],
-        password: [
+        password_del: [
           { required: true, trigger: 'blur', message: '请输入登录密码' },
           {validator: ComplexPwd, trigger: 'blur'}
         ],

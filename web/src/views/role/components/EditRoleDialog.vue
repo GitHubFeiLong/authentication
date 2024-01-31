@@ -3,10 +3,10 @@
   <el-dialog title="编角色" width="600px" :visible.sync="visible" @close="close">
     <el-form ref="editRoleForm" :model="role" :rules="rules" label-width="80px">
       <el-form-item label="角色名称" prop="name">
-        <el-input v-model="role.name" clearable />
+        <el-input v-model="role.name" placeholder="请输入角色名称，建议使用 ROLE_ 开头且全用大写" clearable />
       </el-form-item>
       <el-form-item label="备注" prop="remark">
-        <el-input v-model="role.remark" clearable />
+        <el-input v-model="role.remark" placeholder="请输入角色备注" clearable />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">

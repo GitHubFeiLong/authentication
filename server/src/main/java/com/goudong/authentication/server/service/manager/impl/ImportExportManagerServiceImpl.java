@@ -6,6 +6,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.converters.longconverter.LongStringConverter;
 import com.alibaba.excel.write.metadata.WriteSheet;
+import com.goudong.authentication.server.constant.CommonConst;
 import com.goudong.authentication.server.easyexcel.listener.BaseRoleImportExcelListener;
 import com.goudong.authentication.server.easyexcel.listener.BaseUserImportExcelListener;
 import com.goudong.authentication.server.easyexcel.template.BaseRoleImportExcelTemplate;
@@ -188,7 +189,7 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
                     BaseUserExportTemplate resp = new BaseUserExportTemplate();
                     resp.setSequenceNumber(sequenceNumber.getAndIncrement());
                     resp.setUsername(p.getUsername());
-                    resp.setRoles(p.getRoles().stream().map(BaseRoleDropDownResp::getName).collect(Collectors.joining()));
+                    resp.setRoles(p.getRoles().stream().map(BaseRoleDropDownResp::getName).collect(Collectors.joining(CommonConst.COMMA)));
                     resp.setValidTime(p.getValidTime());
                     resp.setEnabled(IEnum.getById(ActivateEnum.class, p.getEnabled()).getLabel());
                     resp.setLocked(IEnum.getById(LockEnum.class, p.getLocked()).getLabel());

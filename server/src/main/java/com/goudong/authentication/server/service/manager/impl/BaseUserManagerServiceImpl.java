@@ -31,6 +31,7 @@ import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.lang.PageResult;
 import com.goudong.core.util.AssertUtil;
 import com.goudong.core.util.CollectionUtil;
+import com.goudong.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
@@ -272,7 +273,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         user.setAppId(realAppId);
         user.setRealAppId(realAppId);
         user.setUsername(req.getUsername());
-        user.setPassword(passwordEncoder.encode(req.getPassword()));
+        String password = StringUtil.isNotBlank(req.getPassword()) ? req.getPassword() : authenticationServerProperties.getApp().getUserDefaultPassword();
+        user.setPassword(passwordEncoder.encode(password));
         user.setEnabled(true);
         user.setLocked(false);
         user.setValidTime(DateConst.MAX_DATE_TIME);

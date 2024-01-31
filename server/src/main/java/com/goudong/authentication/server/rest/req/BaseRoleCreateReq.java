@@ -17,7 +17,7 @@ public class BaseRoleCreateReq implements Serializable {
      * 名称
      */
     @NotBlank
-    @Size(min = 4, max = 16)
+    @Size(min = 4, max = 32)
     @ApiModelProperty(value = "名称", required = true)
     private String name;
 
