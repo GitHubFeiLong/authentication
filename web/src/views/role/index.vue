@@ -30,14 +30,12 @@
       <div class="left-tool">
         <el-button v-permission="'sys:role:add'" class="el-button--small" icon="el-icon-plus" type="primary" @click="addRole">新增</el-button>
         <el-button v-permission="'sys:role:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteRoles">删除</el-button>
-        <!--        <el-button class="el-button&#45;&#45;small" icon="el-icon-upload2">导入</el-button>
-        <el-button class="el-button&#45;&#45;small" icon="el-icon-download">导出</el-button>-->
-        <!--        <el-button class="el-button&#45;&#45;small" icon="el-icon-upload2" @click="importUserDialog=true">
+        <el-button v-permission="'sys:user:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
           导入
         </el-button>
-        <el-button class="el-button&#45;&#45;small" icon="el-icon-download" @click="exportExcel">
+        <el-button v-permission="'sys:user:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
           导出
-        </el-button>-->
+        </el-button>
       </div>
       <div class="right-tool">
         <el-tooltip class="right-tool-btn-tooltip" effect="dark" content="刷新" placement="top">
@@ -200,6 +198,16 @@
         />
       </el-table>
     </el-dialog>
+
+    <!--  导入角色  -->
+    <UploadSingleExcel
+        @close="closeUploadSingleExcelHandler"
+        :import-dialog-title="uploadSingleExcelAttr.title"
+        :show-import-dialog="uploadSingleExcelAttr.showImportDialog"
+        :action="uploadSingleExcelAttr.action"
+        :on-success-callback="loadPageRole"
+        :download-template="downloadImportTemplate"
+    />
   </div>
 </template>
 
@@ -209,6 +217,8 @@ import { deleteRoleByIdsApi, pageRolesApi } from '@/api/role'
 import { initMenuApi } from '@/api/menu'
 
 import { isNotEmpty } from "@/utils/assertUtil";
+import {API_PREFIX} from "@/constant/commons";
+import {exportRoleApi, exportRoleTemplateApi} from "@/api/file";
 
 export default {
   name: 'RolePage',
@@ -217,6 +227,7 @@ export default {
     CreateRoleDialog: () => import('@/views/role/components/CreateRoleDialog'),
     EditRoleDialog: () => import('@/views/role/components/EditRoleDialog'),
     EditRoleMenuDialog: () => import('@/views/role/components/EditRoleMenuDialog'),
+    UploadSingleExcel: () => import('@/components/UploadExcel/UploadSingleExcel.vue'),
   },
   directives: { waves },
   data() {
@@ -252,6 +263,13 @@ export default {
       EL_TABLE: {
         // 显示大小
         size: 'medium'
+      },
+
+      // 导入组件所需相关参数
+      uploadSingleExcelAttr: {
+        title: '导入角色',
+        showImportDialog: false,
+        action: `${API_PREFIX}/import-export/import-role`
       },
     }
   },
@@ -426,6 +444,27 @@ export default {
     editRoleMenu(row) {
       this.editRoleMenuInfo = row
       this.editRoleMenuDialog = true
+    },
+
+    // 下载模板
+    downloadImportTemplate() {
+      exportRoleTemplateApi();
+    },
+    // 关闭弹窗
+    closeUploadSingleExcelHandler() {
+      this.uploadSingleExcelAttr.showImportDialog = false
+    },
+    // 导出角色
+    exportExcel() {
+      const pageParam = this.filter
+      // 如果勾选了就导出勾选的
+      const data = {
+        ids: this.checkRoleIds,
+        pageReq: { // 查询条件
+          ...pageParam
+        },
+      }
+      exportRoleApi(data);
     }
   }
 

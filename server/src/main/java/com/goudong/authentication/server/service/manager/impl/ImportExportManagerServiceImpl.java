@@ -9,6 +9,7 @@ import com.alibaba.excel.write.metadata.WriteSheet;
 import com.goudong.authentication.server.constant.CommonConst;
 import com.goudong.authentication.server.easyexcel.listener.BaseRoleImportExcelListener;
 import com.goudong.authentication.server.easyexcel.listener.BaseUserImportExcelListener;
+import com.goudong.authentication.server.easyexcel.template.BaseRoleExportTemplate;
 import com.goudong.authentication.server.easyexcel.template.BaseRoleImportExcelTemplate;
 import com.goudong.authentication.server.easyexcel.template.BaseUserExportTemplate;
 import com.goudong.authentication.server.easyexcel.template.BaseUserImportExcelTemplate;
@@ -17,6 +18,7 @@ import com.goudong.authentication.server.enums.option.LockEnum;
 import com.goudong.authentication.server.properties.AuthenticationServerProperties;
 import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.resp.BaseRoleDropDownResp;
+import com.goudong.authentication.server.rest.resp.BaseRolePageResp;
 import com.goudong.authentication.server.rest.resp.BaseUserPageResp;
 import com.goudong.authentication.server.service.BaseRoleService;
 import com.goudong.authentication.server.service.BaseUserService;
@@ -25,6 +27,7 @@ import com.goudong.authentication.server.service.manager.ImportExportManagerServ
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.core.lang.IEnum;
 import com.goudong.core.lang.PageResult;
+import com.goudong.core.util.CollectionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -227,6 +230,76 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
             throw new RuntimeException(e);
         }
         return true;
+    }
+
+    /**
+     * 导出角色
+     * @param response  响应
+     * @param req       导出参数
+     */
+    @Override
+    public void exportRole(HttpServletResponse response, BaseRoleExportReq req) {
+        log.info("开始执行角色导出");
+        String fileName = "导出角色" + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
+        // 这里注意 有同学反应使用swagger 会导致各种问题，请直接用浏览器或者用postman
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
+        try {
+            fileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        response.setHeader("Content-disposition", "attachment;filename*=" + fileName + ".xlsx");
+
+        // 这里 需要指定写用哪个class去写
+        try (ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream(), BaseRoleExportTemplate.class)
+                .registerConverter(new LongStringConverter())
+                .build()) {
+            // 这里注意 如果同一个sheet只要创建一次
+            WriteSheet writeSheet = EasyExcel.writerSheet("sheet01").build();
+            /*
+                分页写入excel，对内存友好
+             */
+            // 分页查询
+            BaseRolePageReq pageReq = req.getPageReq();
+            // 每次查询100条
+            pageReq.setSize(100);
+            // 优先使用表格勾选的记录作为条件
+            pageReq.setIds(CollectionUtil.isNotEmpty(req.getIds()) ? req.getIds() : pageReq.getIds());
+            // 初始分页设置0
+            int page = 0;
+            // 总店铺数量
+            long total = 0;
+            AtomicInteger sequenceNumber = new AtomicInteger(1);
+            do {
+                List<BaseRoleExportTemplate> result = new ArrayList<>();
+                // 页码加一
+                page += 1;
+                pageReq.setPage(page);
+                // 分页查询(展开的)
+                PageResult<BaseRolePageResp> pageResult = baseRoleService.page(pageReq);
+                // 获取总数量
+                total = pageResult.getTotal();
+
+                // 将数据放入resule中
+                pageResult.getContent().forEach(p -> {
+                    BaseRoleExportTemplate resp = new BaseRoleExportTemplate();
+                    resp.setSequenceNumber(sequenceNumber.getAndIncrement());
+                    resp.setName(p.getName());
+                    resp.setUserNumber(p.getUsers().size());
+                    resp.setRemark(p.getRemark());
+                    resp.setCreatedDate(p.getCreatedDate());
+                    result.add(resp);
+                });
+
+                // 调用写入
+                excelWriter.write(result, writeSheet);
+            } while (((long) page * pageReq.getSize()) < total);
+
+        } catch (IOException e) {
+            throw new RuntimeException("导出角色失败：" + e.getMessage(), e);
+        }
     }
 
     /**

@@ -1,9 +1,6 @@
 package com.goudong.authentication.server.service.manager;
 
-import com.goudong.authentication.server.rest.req.BaseMenuImportReq;
-import com.goudong.authentication.server.rest.req.BaseRoleImportReq;
-import com.goudong.authentication.server.rest.req.BaseUserExportReq;
-import com.goudong.authentication.server.rest.req.BaseUserImportReq;
+import com.goudong.authentication.server.rest.req.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -46,9 +43,18 @@ public interface ImportExportManagerService {
     Boolean importRole(BaseRoleImportReq req);
 
     /**
+     * 导出角色
+     * @param response  响应
+     * @param req       导出参数
+     */
+    void exportRole(HttpServletResponse response, BaseRoleExportReq req);
+
+    /**
      * 导入菜单
      * @param req
      * @return
      */
     Boolean importMenu(BaseMenuImportReq req);
+
+
 }

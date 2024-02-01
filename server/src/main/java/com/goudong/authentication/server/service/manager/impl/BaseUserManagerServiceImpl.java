@@ -188,7 +188,7 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
             roleNames.add(p.getName());
 
             // 不是管理员(超级管理员)，使用本身拥有的菜单
-            if (!isAdmin && !isSuperAdmin) {
+            if (!isAdmin) {
                 p.getMenus().forEach(p2 -> {
                     menuHashSet.add(BeanUtil.copyProperties(p2, Menu.class));
                 });
@@ -197,11 +197,13 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
 
         // 是超级管理员||管理员，查询应用下所有菜单
         if (isSuperAdmin) {
-            List<Menu> menus = BeanUtil.copyToList(baseMenuService.findAllByAppId(baseUser.getAppId()), Menu.class, CopyOptions.create());
+            log.info("用户是超级管理员，查询认证服务下的所有菜单");
+            List<Menu> menus = BeanUtil.copyToList(baseMenuService.findAllByAppId(CommonConst.AUTHENTICATION_SERVER_APP_ID), Menu.class, CopyOptions.create());
             menuHashSet.addAll(menus);
         } else if (isAdmin) {    // 管理员，查询应用下所有菜单
+            log.info("用户是管理员，查询认证服务下的所有菜单");
             // 查询管理后台菜单
-            List<BaseMenu> menus1 = baseMenuService.findAllByAppId(baseUser.getAppId());
+            List<BaseMenu> menus1 = baseMenuService.findAllByAppId(CommonConst.AUTHENTICATION_SERVER_APP_ID);
             // 排除某些只能超级管理员才能拥有的权限
             menus1 = menus1.stream().filter(f -> {
                 boolean flag = true;
@@ -216,22 +218,24 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
             }).collect(Collectors.toList());
 
             // 查询自己应用的所有菜单
-            if (!Objects.equals(baseUser.getAppId(), baseUser.getRealAppId())) {
-                List<BaseMenu> menus2 = baseMenuService.findAllByAppId(baseUser.getRealAppId());
-                menus1.addAll(menus2);
-            }
+            log.info("用户是管理员，查询自己应用下的所有菜单");
+            List<BaseMenu> menus2 = baseMenuService.findAllByAppId(baseUser.getRealAppId());
+            menus1.addAll(menus2);
 
             List<Menu> menus = BeanUtil.copyToList(menus1, Menu.class, CopyOptions.create());
             menuHashSet.addAll(menus);
         }
 
         List<Menu> menuArrayList = new ArrayList<>(menuHashSet);
+        // 进行菜单排序
+        log.info("将菜单进行排序");
         menuArrayList.sort(new Comparator<Menu>() {
             @Override
             public int compare(Menu o1, Menu o2) {
                 return Optional.ofNullable(o1.getSortNum()).orElseGet(() ->Integer.MAX_VALUE).compareTo(Optional.ofNullable(o2.getSortNum()).orElseGet(() ->Integer.MAX_VALUE));
             }
         });
+
         // 处理菜单
         userDetail.setRoles(roleNames);
         userDetail.setMenus(menuArrayList);

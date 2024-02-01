@@ -19,8 +19,6 @@ export function simpleUpload(file) {
 // =====================================================================================================================
 /**
  * 导出用户模板
- * @param data
- * @returns {AxiosPromise}
  */
 export function exportUserTemplateApi() {
   return request({
@@ -35,7 +33,6 @@ export function exportUserTemplateApi() {
 /**
  * 导出用户
  * @param data
- * @returns {AxiosPromise}
  */
 export function exportUserApi(data) {
   return request({
@@ -47,3 +44,39 @@ export function exportUserApi(data) {
     exportExcel(response)
   })
 }
+
+// ~ 角色管理
+// =====================================================================================================================
+/**
+ * 导出角色模板
+ */
+export function exportRoleTemplateApi() {
+  return request({
+    url: `${API_PREFIX}/import-export/export-role-template`,
+    method: 'get',
+    responseType: 'blob',
+  }).then(response => {
+    exportExcel(response)
+  })
+}
+
+/**
+ * 导出角色
+ * @param data
+ */
+export function exportRoleApi(data) {
+  return request({
+    url: `${API_PREFIX}/import-export/export-role`,
+    method: 'post',
+    data,
+    responseType: 'blob',
+  }).then(response => {
+    exportExcel(response)
+  })
+}
+// ~ 菜单管理
+// =====================================================================================================================
+
+
+// ~ 应用管理
+// =====================================================================================================================

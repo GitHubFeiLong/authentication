@@ -9,11 +9,11 @@ import java.util.Date;
 
 /**
  * 类描述：
- * 用户导出
+ * 角色导出
  * @author chenf
  */
 @Data
-public class BaseUserExportTemplate {
+public class BaseRoleExportTemplate {
     //~fields
     //==================================================================================================================
     @ApiModelProperty("序号")
@@ -21,30 +21,15 @@ public class BaseUserExportTemplate {
     @ColumnWidth(6)
     private Integer sequenceNumber;
 
-    @ApiModelProperty("用户名")
-    @ExcelProperty("用户名")
-    @ColumnWidth(10)
-    private String username;
-
-    @ApiModelProperty("角色列表")
-    @ExcelProperty("角色列表")
+    @ApiModelProperty("角色名称")
+    @ExcelProperty("角色名称")
     @ColumnWidth(20)
-    private String roles;
+    private String name;
 
-    @ApiModelProperty("用户过期时间")
-    @ExcelProperty("过期时间")
-    @ColumnWidth(20)
-    private Date validTime;
-
-    @ApiModelProperty("激活状态")
-    @ExcelProperty("激活状态")
-    @ColumnWidth(20)
-    private String enabled;
-
-    @ApiModelProperty("锁定状态")
-    @ExcelProperty("锁定状态")
-    @ColumnWidth(20)
-    private String locked;
+    @ApiModelProperty("用户数量")
+    @ExcelProperty("用户数量")
+    @ColumnWidth(12)
+    private Integer userNumber;
 
     @ApiModelProperty("备注")
     @ExcelProperty("备注")
@@ -55,7 +40,6 @@ public class BaseUserExportTemplate {
     @ExcelProperty("创建时间")
     @ColumnWidth(20)
     private Date createdDate;
-
     //~methods
     //==================================================================================================================
 }

@@ -44,7 +44,7 @@
         <el-button v-permission="'sys:user:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteUsers">
           删除
         </el-button>
-        <el-button v-permission="'sys:user:import'" class="el-button--small" icon="el-icon-upload2" @click="importUserDialog=true">
+        <el-button v-permission="'sys:user:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
           导入
         </el-button>
         <el-button v-permission="'sys:user:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
@@ -214,30 +214,19 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     />
-
-    <!--导入-->
-    <el-dialog title="导入用户" :visible.sync="importUserDialog" custom-class="el-dialog-import-table">
-      <el-upload
-        class="el-dialog-import-table-upload"
-        :action="importUserAction"
-        drag
-        :show-file-list="false"
-        :multiple="false"
-        :before-upload="beforeUploadUserExcel"
-        :on-success="uploadUserExcelSuccess"
-        :on-error="uploadUserExcelError"
-        :headers="headers"
-      >
-        <i class="el-icon-upload" />
-        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-        <div slot="tip" class="el-upload__tip">只能上传xls、xlsx文件，<a class="a-download-template" @click="downloadImportUserTemplate">下载模板</a></div>
-      </el-upload>
-    </el-dialog>
     <!-- 新增用户弹框 -->
     <CreateUserDialog :create-user-dialog.sync="createUserDialog" />
-
     <!-- 编辑用户弹框 -->
     <EditUserDialog :edit-user-dialog.sync="editUserDialog" :edit-user-info="editUserInfo" @closeEditUserDialog="closeEditUserDialog" />
+    <!--  导入角色  -->
+    <UploadSingleExcel
+        @close="closeUploadSingleExcelHandler"
+        :import-dialog-title="uploadSingleExcelAttr.title"
+        :show-import-dialog="uploadSingleExcelAttr.showImportDialog"
+        :action="uploadSingleExcelAttr.action"
+        :on-success-callback="loadPageUser"
+        :download-template="downloadImportTemplate"
+    />
   </div>
 </template>
 
@@ -265,7 +254,8 @@ export default {
   components: {
     UserSelect: () => import('@/components/User/UserSelect'),
     CreateUserDialog: () => import('@/views/user/components/CreateUserDialog'),
-    EditUserDialog: () => import('@/views/user/components/EditUserDialog')
+    EditUserDialog: () => import('@/views/user/components/EditUserDialog'),
+    UploadSingleExcel: () => import('@/components/UploadExcel/UploadSingleExcel.vue'),
   },
   data() {
     return {
@@ -276,9 +266,6 @@ export default {
         endValidTime: undefined,
       },
       pickerOptions: DATE_PICKER_DEFAULT_OPTIONS,
-      // 导入用户
-      importUserDialog: false,
-      importUserAction: `${API_PREFIX}/import-export/import-user`,
       // 新增用户 子组件新增用户 弹框显示变量
       createUserDialog: false,
       // 修改用户 子组件弹框 弹框显示变量
@@ -304,6 +291,13 @@ export default {
       // 复选框选中的用户
       checkUserIds: [],
       headers: {}, // 请求头
+
+      // 导入组件所需相关参数
+      uploadSingleExcelAttr: {
+        title: '导入角色',
+        showImportDialog: false,
+        action: `${API_PREFIX}/import-export/import-user`
+      },
     }
   },
   mounted() {
@@ -452,7 +446,7 @@ export default {
       this.editUserInfo = row;
       this.editUserDialog = true;
     },
-    // 充值密码
+    // 重置密码
     resetPassword(row) {
       const userId = row.id;
       if (userId <= 100) {
@@ -541,33 +535,14 @@ export default {
       const ids = users.map(m => m.id)
       this.checkUserIds = ids
     },
+
     // 下载模板
-    downloadImportUserTemplate() {
+    downloadImportTemplate() {
       exportUserTemplateApi();
     },
-    // 导入用户之前
-    beforeUploadUserExcel(file) {
-      beforeUploadExcel(file);
-      beforeUploadFillHttpHeader(this.headers);
-      console.log("this.headers", this.headers)
-    },
-    // 导入用户成功
-    uploadUserExcelSuccess(data, file, fileList) {
-      console.log("上传成功")
-      this.importUserDialog = false
-      this.$message.success("上传成功")
-      this.loadPageUser()
-    },
-    // 上传失败
-    uploadUserExcelError(err, file, fileList) {
-      console.error("导入失败", err)
-      // 获取失败的信息
-      const errMessage = JSON.parse(err["message"]);
-      if (errMessage.clientMessage) {
-        this.$message.error(errMessage.clientMessage)
-      } else {
-        this.$message.error("上传失败，请稍后再试")
-      }
+    // 关闭弹窗
+    closeUploadSingleExcelHandler() {
+      this.uploadSingleExcelAttr.showImportDialog = false
     },
     // 导出用户
     exportExcel() {

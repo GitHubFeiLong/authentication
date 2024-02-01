@@ -1,9 +1,6 @@
 package com.goudong.authentication.server.rest;
 
-import com.goudong.authentication.server.rest.req.BaseMenuImportReq;
-import com.goudong.authentication.server.rest.req.BaseRoleImportReq;
-import com.goudong.authentication.server.rest.req.BaseUserExportReq;
-import com.goudong.authentication.server.rest.req.BaseUserImportReq;
+import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.service.manager.ImportExportManagerService;
 import com.goudong.core.lang.Result;
 import io.swagger.annotations.Api;
@@ -65,6 +62,12 @@ public class ImportExportResource {
     @ResponseBody
     public Result<Boolean> importRole(@Validated BaseRoleImportReq req) {
         return Result.ofSuccess(importExportManagerService.importRole(req));
+    }
+
+    @PostMapping("/export-role")
+    @ApiOperation("角色导出")
+    public void exportRole(HttpServletResponse response, @RequestBody BaseRoleExportReq req) {
+        importExportManagerService.exportRole(response, req);
     }
 
     @GetMapping("/export-menu-template")
