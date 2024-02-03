@@ -151,6 +151,8 @@ INSERT INTO `base_menu` VALUES (1403, 1, 1400, 'sys:app:edit', '修改应用', 2
 INSERT INTO `base_menu` VALUES (1404, 1, 1400, 'sys:app:delete', '删除应用', 2, '/app/base-app/*', '[\"DELETE\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 INSERT INTO `base_menu` VALUES (1405, 1, 1400, 'sys:app:cert:add', '新增证书', 2, '/app/base-app-cert', '[\"POST\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 INSERT INTO `base_menu` VALUES (1406, 1, 1400, 'sys:app:cert:query', '应用证书列表', 2, '/app/base-app-certs/*', '[\"GET\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1407, 1, 1400, 'sys:app:import', '导入应用', 2, '/import-export/import-app', '[\"POST\"]', 22, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1408, 1, 1400, 'sys:app:export', '导出应用', 2, '/import-export/export-app', '[\"POST\"]', 22, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 
 -- ----------------------------
 -- Table structure for base_role

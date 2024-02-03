@@ -106,3 +106,30 @@ export function exportMenuApi(data) {
 
 // ~ 应用管理
 // =====================================================================================================================
+/**
+ * 导出应用模板
+ */
+export function exportAppTemplateApi() {
+  return request({
+    url: `${API_PREFIX}/import-export/export-app-template`,
+    method: 'get',
+    responseType: 'blob',
+  }).then(response => {
+    exportExcel(response)
+  })
+}
+
+/**
+ * 导出应用
+ * @param data
+ */
+export function exportAppApi(data) {
+  return request({
+    url: `${API_PREFIX}/import-export/export-app`,
+    method: 'post',
+    data,
+    responseType: 'blob',
+  }).then(response => {
+    exportExcel(response)
+  })
+}

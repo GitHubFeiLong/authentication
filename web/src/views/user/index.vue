@@ -560,7 +560,7 @@ export default {
         },
       }
       exportUserApi(data);
-    }
+    },
   }
 }
 </script>

@@ -59,6 +59,12 @@
                    @click="dialog.createCert.open=true">
           创建证书
         </el-button>
+        <el-button v-permission="'sys:app:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
+          导入
+        </el-button>
+        <el-button v-permission="'sys:app:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
+          导出
+        </el-button>
       </div>
       <div class="right-tool">
         <el-tooltip class="right-tool-btn-tooltip" effect="dark" content="刷新" placement="top">
@@ -368,12 +374,13 @@
 
 <script>
 
-import {ENABLED_ARRAY} from "@/constant/commons";
+import {API_PREFIX, ENABLED_ARRAY} from "@/constant/commons";
 import {createAppApi, createCertApi, deleteAppApi, listCertsApi, pageAppsApi, updateAppApi} from "@/api/app";
 import { dropDownAllAppApi } from '@/api/dropDown';
 import {Message} from "element-ui";
 import {FutureTime, WebUrl} from "@/utils/ElementValidatorUtil"
 import * as fileUtil from "@/utils/fileUtil";
+import {exportAppApi, exportAppTemplateApi} from "@/api/file";
 
 export default {
   name: 'App',
@@ -479,7 +486,14 @@ export default {
           open: false, // 是否打开窗口
           data:[]
         }
-      }
+      },
+
+      // 导入组件所需相关参数
+      uploadSingleExcelAttr: {
+        title: '导入角色',
+        showImportDialog: false,
+        action: `${API_PREFIX}/import-export/import-user`
+      },
     }
   },
   mounted() {
@@ -682,6 +696,32 @@ export default {
     // 下载私钥
     downloadPrivateKey(row) {
       fileUtil.download(row.privateKey,  row.appName + "_private_key.pem")
+    },
+
+    // 下载模板
+    downloadImportTemplate() {
+      exportAppTemplateApi();
+    },
+    // 关闭弹窗
+    closeUploadSingleExcelHandler() {
+      this.uploadSingleExcelAttr.showImportDialog = false
+    },
+    // 导出用户
+    exportExcel() {
+      this.filterTimeHandler();
+      const pageParam = {
+        id: this.filter.id,
+        startValidTime: this.filter.startValidTime,
+        endValidTime: this.filter.endValidTime,
+      }
+      // 如果勾选了就导出勾选的
+      const data = {
+        ids: this.checkUserIds,
+        pageReq: { // 查询条件
+          ...pageParam
+        },
+      }
+      exportAppApi(data);
     },
 
   }
