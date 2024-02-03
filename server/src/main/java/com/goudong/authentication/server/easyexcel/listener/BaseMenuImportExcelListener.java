@@ -4,9 +4,11 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.util.ListUtils;
 import com.goudong.authentication.server.config.MyIdentifierGenerator;
+import com.goudong.authentication.server.constant.CommonConst;
 import com.goudong.authentication.server.domain.BaseMenu;
 import com.goudong.authentication.server.domain.BaseRole;
 import com.goudong.authentication.server.easyexcel.template.BaseMenuImportExcelTemplate;
+import com.goudong.authentication.server.enums.option.MenuTypeEnum;
 import com.goudong.authentication.server.service.BaseMenuService;
 import com.goudong.authentication.server.service.BaseRoleService;
 import com.goudong.authentication.server.service.dto.BaseMenuDTO;
@@ -15,6 +17,7 @@ import com.goudong.authentication.server.service.mapper.BaseMenuMapper;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.util.AssertUtil;
 import com.goudong.core.util.CollectionUtil;
+import com.goudong.core.util.ListUtil;
 import com.goudong.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -73,7 +76,7 @@ public class BaseMenuImportExcelListener implements ReadListener<BaseMenuImportE
     /**
      * 导入的菜单类型
      */
-    private final List<String> methods = ListUtils.newArrayList("GET","POST","PUT","DELETE","HEAD","PATCH","OPTIONS","TRACE");
+    private final List<String> methods;
 
 
     //~methods
@@ -88,10 +91,11 @@ public class BaseMenuImportExcelListener implements ReadListener<BaseMenuImportE
         this.baseRoleService = baseRoleService;
         this.transactionTemplate = transactionTemplate;
         this.baseMenuMapper = baseMenuMapper;
+        this.methods = ListUtil.newArrayList(CommonConst.HTTP_METHODS);
         this.types = new HashMap<>(3);
-        this.types.put("菜单", 1);
-        this.types.put("按钮", 2);
-        this.types.put("接口", 3);
+        this.types.put(MenuTypeEnum.MENU.getLabel(), MenuTypeEnum.MENU.getValue());
+        this.types.put(MenuTypeEnum.BUTTON.getLabel(), MenuTypeEnum.BUTTON.getValue());
+        this.types.put(MenuTypeEnum.INTERFACE.getLabel(), MenuTypeEnum.INTERFACE.getValue());
     }
 
     /**

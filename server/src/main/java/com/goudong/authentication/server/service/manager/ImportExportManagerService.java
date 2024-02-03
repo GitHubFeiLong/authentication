@@ -56,5 +56,10 @@ public interface ImportExportManagerService {
      */
     Boolean importMenu(BaseMenuImportReq req);
 
-
+    /**
+     * 导出菜单
+     * @param response  响应
+     * @param req       导出参数
+     */
+    void exportMenu(HttpServletResponse response, BaseMenuGetAllReq req);
 }

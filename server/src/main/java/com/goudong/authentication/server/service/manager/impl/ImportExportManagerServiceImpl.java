@@ -13,6 +13,7 @@ import com.goudong.authentication.server.easyexcel.listener.BaseUserImportExcelL
 import com.goudong.authentication.server.easyexcel.template.*;
 import com.goudong.authentication.server.enums.option.ActivateEnum;
 import com.goudong.authentication.server.enums.option.LockEnum;
+import com.goudong.authentication.server.enums.option.MenuTypeEnum;
 import com.goudong.authentication.server.properties.AuthenticationServerProperties;
 import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.resp.BaseRoleDropDownResp;
@@ -21,6 +22,7 @@ import com.goudong.authentication.server.rest.resp.BaseUserPageResp;
 import com.goudong.authentication.server.service.BaseMenuService;
 import com.goudong.authentication.server.service.BaseRoleService;
 import com.goudong.authentication.server.service.BaseUserService;
+import com.goudong.authentication.server.service.dto.BaseMenuDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.ImportExportManagerService;
 import com.goudong.authentication.server.service.mapper.BaseMenuMapper;
@@ -43,6 +45,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -348,5 +351,65 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
             throw new RuntimeException(e);
         }
         return true;
+    }
+
+    /**
+     * 导出菜单
+     * @param response  响应
+     * @param req       导出参数
+     */
+    @Override
+    public void exportMenu(HttpServletResponse response, BaseMenuGetAllReq req) {
+        log.info("开始执行菜单导出");
+        String fileName = "导出菜单" + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
+        // 这里注意 有同学反应使用swagger 会导致各种问题，请直接用浏览器或者用postman
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
+        try {
+            fileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        response.setHeader("Content-disposition", "attachment;filename*=" + fileName + ".xlsx");
+
+        // 这里 需要指定写用哪个class去写
+        try (ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream(), BaseMenuExportTemplate.class)
+                .registerConverter(new LongStringConverter())
+                .build()) {
+            // 这里注意 如果同一个sheet只要创建一次
+            WriteSheet writeSheet = EasyExcel.writerSheet("sheet01").build();
+            MyAuthentication myAuthentication = SecurityContextUtil.get();
+            Long appId = myAuthentication.getRealAppId();
+            req.setAppId(appId);
+            // 查询菜单
+            List<BaseMenuDTO> menus = baseMenuService.findAll(req);
+            // 转map
+            Map<Long, BaseMenuDTO> longBaseMenuDTOMap = menus.stream().collect(Collectors.toMap(BaseMenuDTO::getId, p -> p, (k1, k2) -> k1));
+
+            AtomicInteger sequenceNumber = new AtomicInteger(1);
+            List<BaseMenuExportTemplate> result = new ArrayList<>();
+            menus.forEach(p -> {
+                BaseMenuExportTemplate resp = new BaseMenuExportTemplate();
+                resp.setSequenceNumber(sequenceNumber.getAndIncrement());
+                resp.setPermissionId(p.getPermissionId());
+                if (p.getParentId() != null && longBaseMenuDTOMap.containsKey(p.getId())) {
+                    BaseMenuDTO baseMenuDTO = longBaseMenuDTOMap.get(p.getId());
+                    resp.setParentPermissionId(baseMenuDTO.getPermissionId());
+                }
+
+                resp.setName(p.getName());
+                resp.setType(MenuTypeEnum.MENU.getById(p.getType()).getLabel());
+                resp.setPath(p.getPath());
+                resp.setMethod(p.getMethod());
+                resp.setMeta(p.getMeta());
+                resp.setRemark(p.getRemark());
+                result.add(resp);
+            });
+            // 调用写入
+            excelWriter.write(result, writeSheet);
+        } catch (IOException e) {
+            throw new RuntimeException("导出菜单失败：" + e.getMessage(), e);
+        }
     }
 }
