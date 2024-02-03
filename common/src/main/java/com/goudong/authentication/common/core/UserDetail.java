@@ -30,6 +30,16 @@ public class UserDetail {
     private Long realAppId;
 
     /**
+     * 应用名称
+     */
+    private String realAppName;
+
+    /**
+     * 应用主页
+     */
+    private String realAppHome;
+
+    /**
      * 用户名
      */
     private String username;

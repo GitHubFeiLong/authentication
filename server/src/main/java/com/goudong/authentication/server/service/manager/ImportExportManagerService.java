@@ -51,8 +51,8 @@ public interface ImportExportManagerService {
 
     /**
      * 导入菜单
-     * @param req
-     * @return
+     * @param req   导入文件参数
+     * @return  true：成功
      */
     Boolean importMenu(BaseMenuImportReq req);
 

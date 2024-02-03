@@ -76,6 +76,11 @@ public class BaseUserImportExcelListener implements ReadListener<BaseUserImportE
      */
     private final AuthenticationServerProperties authenticationServerProperties;
 
+    /**
+     * 默认密码
+     */
+    private final String defaultPassword;
+
     //~methods
     //==================================================================================================================
     public BaseUserImportExcelListener(AuthenticationServerProperties authenticationServerProperties,
@@ -90,6 +95,7 @@ public class BaseUserImportExcelListener implements ReadListener<BaseUserImportE
         this.transactionTemplate = transactionTemplate;
         this.passwordEncoder = passwordEncoder;
         this.authenticationServerProperties = authenticationServerProperties;
+        this.defaultPassword = passwordEncoder.encode(authenticationServerProperties.getApp().getUserDefaultPassword());
     }
 
     /**
@@ -117,12 +123,6 @@ public class BaseUserImportExcelListener implements ReadListener<BaseUserImportE
     private void checkAttribute(BaseUserImportExcelTemplate data) {
         // 参数校验
         AssertUtil.isNotBlank(data.getUsername(), "用户名不能为空");
-
-        // 密码判断使用默认密码
-        if (StringUtil.isBlank(data.getPassword())) {
-            log.debug("未设置密码，使用默认密码");
-            data.setPassword(authenticationServerProperties.getApp().getUserDefaultPassword());
-        }
 
         // 角色判断
         AssertUtil.isNotBlank(data.getRoles(), "角色不能为空");
@@ -175,7 +175,13 @@ public class BaseUserImportExcelListener implements ReadListener<BaseUserImportE
                 user.setAppId(myAuthentication.getRealAppId());
                 user.setRealAppId(myAuthentication.getRealAppId());
                 user.setUsername(p.getUsername());
-                user.setPassword(passwordEncoder.encode(p.getPassword()));
+                // 设置密码
+                if (StringUtil.isBlank(p.getPassword())) {
+                    user.setPassword(this.defaultPassword);
+                } else {
+                    user.setPassword(passwordEncoder.encode(p.getPassword()));
+                }
+
                 user.setRoles(Optional.ofNullable(p.getBaseRoles()).orElseGet(() -> new ArrayList<>(0)));
                 user.setEnabled(Objects.equals(ActivateEnum.ACTIVATED.getLabel(), p.getEnabled()));
                 user.setLocked(Objects.equals(LockEnum.LOCKED.getLabel(), p.getLocked()));

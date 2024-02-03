@@ -29,6 +29,9 @@ const actions = {
         const user = {
           id: data.id,
           appId: data.appId,
+          realAppId: data.realAppId,
+          realAppName: data.realAppName,
+          realAppHome: data.realAppHome,
           username: data.username,
           roles: data.roles
         };
@@ -37,7 +40,6 @@ const actions = {
 
         // 设置用户菜单
         const menus = data.menus
-        LocalStorageUtil.setUser(user);
 
         let permission_routes = [] // 权限路由信息
         let permission_buttons = [] // 权限按钮

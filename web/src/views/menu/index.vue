@@ -54,6 +54,12 @@
         </el-button>
         <el-button class="el-button--small" type="primary" @click="openTable(true)">展开</el-button>
         <el-button class="el-button--small" type="primary" @click="openTable(false)">折叠</el-button>
+        <el-button v-permission="'sys:menu:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
+          导入
+        </el-button>
+        <el-button v-permission="'sys:menu:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
+          导出
+        </el-button>
       </div>
       <div class="right-tool">
         <el-tooltip class="right-tool-btn-tooltip" effect="dark" content="刷新" placement="top">
@@ -91,8 +97,8 @@
     >
       <el-table-column
         type="index"
-        label="拖拽"
-        width="60"
+        label="排序"
+        width="50"
         align="center"
         :class-name="switchClassName"
       >
@@ -208,6 +214,16 @@
     <CreateMenuDialog :create-menu-dialog.sync="createMenuDialog" :refresh-menu="load" />
     <!--  修改菜单弹窗  -->
     <UpdateMenuDialog :update-menu-dialog.sync="updateMenuDialog" :update-menu-data="updateMenuData" :refresh-menu="load" />
+
+    <!--  导入  -->
+    <UploadSingleExcel
+      @close="closeUploadSingleExcelHandler"
+      :import-dialog-title="uploadSingleExcelAttr.title"
+      :show-import-dialog="uploadSingleExcelAttr.showImportDialog"
+      :action="uploadSingleExcelAttr.action"
+      :on-success-callback="load"
+      :download-template="downloadImportTemplate"
+    />
   </div>
 </template>
 
@@ -215,10 +231,10 @@
 import { changeSortNumApi, deleteMenuByIdApi, initMenuApi, listMenuApi } from "@/api/menu";
 import { menuTreeHandler } from "@/utils/tree";
 import { goudongWebAdminResource } from "@/router/modules/goudong-web-admin-router";
-import { MENU_TYPE_ARRAY } from "@/constant/commons"
+import {API_PREFIX, MENU_TYPE_ARRAY} from "@/constant/commons"
 import Sortable from 'sortablejs';
-import { deleteRoleByIdsApi } from "@/api/role";
 import { copyText } from "@/utils/StringUtil";
+import {exportMenuTemplateApi, exportMenuApi} from "@/api/file";
 
 export default {
   name: 'MenuPage',
@@ -226,6 +242,7 @@ export default {
     CreateMenuDialog: () => import('@/views/menu/components/CreateMenuDialog'),
     UpdateMenuDialog: () => import('@/views/menu/components/UpdateMenuDialog'),
     DetailMenu: () => import('@/views/menu/components/DetailMenu'),
+    UploadSingleExcel: () => import('@/components/UploadExcel/UploadSingleExcel.vue'),
   },
   data() {
     return {
@@ -259,8 +276,15 @@ export default {
         sort_able: undefined,
       },
       openDrag: false, // 开启拖拽
-      switchButtonName: '开启拖拽', // 拖拽的按钮文字
+      switchButtonName: '开启排序', // 拖拽的按钮文字
       switchClassName: 'close-switch-drag', // 拖拽列得class
+
+      // 导入组件所需相关参数
+      uploadSingleExcelAttr: {
+        title: '导入菜单',
+        showImportDialog: false,
+        action: `${API_PREFIX}/import-export/import-menu`
+      },
     }
   },
   watch: {
@@ -288,7 +312,7 @@ export default {
     switchOpenDrag() {
       // 状态取反
       this.openDrag = !this.openDrag;
-      this.switchButtonName = this.openDrag ? "关闭拖拽" : "开启拖拽"
+      this.switchButtonName = this.openDrag ? "关闭排序" : "开启排序"
       if (!this.openDrag) {
         this.cancelRowDrop()
         this.switchClassName = "close-switch-drag"
@@ -366,7 +390,7 @@ export default {
     cancelRowDrop() {
       if (this.sort_able) {
         this.openDrag = false;
-        this.switchButtonName = this.openDrag ? "关闭拖拽" : "开启拖拽"
+        this.switchButtonName = this.openDrag ? "关闭排序" : "开启排序"
         this.sort_able.destroy()
       }
     },
@@ -511,6 +535,27 @@ export default {
       this.table.elDropdownItemClass[args[0]]
       this.table.EL_TABLE.size = args[1];
     },
+
+    // 下载模板
+    downloadImportTemplate() {
+      exportMenuTemplateApi();
+    },
+    // 关闭导入弹窗
+    closeUploadSingleExcelHandler() {
+      this.uploadSingleExcelAttr.showImportDialog = false
+    },
+    // 导出角色
+    exportExcel() {
+      const pageParam = this.filter
+      // 如果勾选了就导出勾选的
+      const data = {
+        ids: this.checkRoleIds,
+        pageReq: { // 查询条件
+          ...pageParam
+        },
+      }
+      exportMenuApi(data);
+    }
   }
 }
 </script>

@@ -120,7 +120,6 @@ public class BaseMenuImportExcelListener implements ReadListener<BaseMenuImportE
             baseMenu.setMeta(data.getMeta().replaceAll("\\s+", ""));
         }
 
-
         long id = MyIdentifierGenerator.ID.nextId();
         baseMenu.setId(id);
         baseMenu.setAppId(myAuthentication.getRealAppId());
@@ -190,9 +189,6 @@ public class BaseMenuImportExcelListener implements ReadListener<BaseMenuImportE
             }
         });
 
-
-
-
         updateData();
         log.info("所有数据解析完成！");
     }
@@ -205,10 +201,6 @@ public class BaseMenuImportExcelListener implements ReadListener<BaseMenuImportE
             transactionTemplate.execute(status -> {
                 try {
                     baseMenuService.saveAll(cachedDataList);
-                    // 将菜单绑定到应用的管理员角色
-                    BaseRole appAdmin = baseRoleService.findAppAdmin();
-                    // 将菜单权限赋予管理员
-                    appAdmin.setMenus(cachedDataList);
                     return true;
                 }catch (Exception e) {
                     status.setRollbackOnly();

@@ -76,7 +76,33 @@ export function exportRoleApi(data) {
 }
 // ~ 菜单管理
 // =====================================================================================================================
+/**
+ * 导出菜单模板
+ */
+export function exportMenuTemplateApi() {
+  return request({
+    url: `${API_PREFIX}/import-export/export-menu-template`,
+    method: 'get',
+    responseType: 'blob',
+  }).then(response => {
+    exportExcel(response)
+  })
+}
 
+/**
+ * 导出菜单
+ * @param data
+ */
+export function exportMenuApi(data) {
+  return request({
+    url: `${API_PREFIX}/import-export/export-menu`,
+    method: 'post',
+    data,
+    responseType: 'blob',
+  }).then(response => {
+    exportExcel(response)
+  })
+}
 
 // ~ 应用管理
 // =====================================================================================================================

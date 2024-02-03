@@ -93,7 +93,7 @@
       :size="EL_TABLE.size"
     >
       <el-table-column
-        width="55"
+        width="50"
         type="selection"
         header-align="center"
         align="center"
@@ -112,15 +112,18 @@
       <el-table-column
         label="应用id"
         prop="id"
+        width="180"
         sortable
       />
       <el-table-column
         label="应用密钥"
         prop="secret"
+        width="280"
         sortable
       />
       <el-table-column
         label="应用名称"
+        width="100"
         prop="name"
         sortable
       />
@@ -131,6 +134,7 @@
       />
       <el-table-column
         label="状态"
+        width="70"
         prop="status"
         align="center"
         sortable
@@ -149,12 +153,14 @@
       <el-table-column
         label="创建时间"
         prop="createdDate"
+        width="160"
         sortable
       />
       <!--操作-->
       <el-table-column
         label="操作"
         align="center"
+        width="200"
       >
         <template v-slot="scope">
           <div class="el-link-parent">

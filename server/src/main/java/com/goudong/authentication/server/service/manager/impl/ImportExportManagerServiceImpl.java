@@ -7,12 +7,10 @@ import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.converters.longconverter.LongStringConverter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.goudong.authentication.server.constant.CommonConst;
+import com.goudong.authentication.server.easyexcel.listener.BaseMenuImportExcelListener;
 import com.goudong.authentication.server.easyexcel.listener.BaseRoleImportExcelListener;
 import com.goudong.authentication.server.easyexcel.listener.BaseUserImportExcelListener;
-import com.goudong.authentication.server.easyexcel.template.BaseRoleExportTemplate;
-import com.goudong.authentication.server.easyexcel.template.BaseRoleImportExcelTemplate;
-import com.goudong.authentication.server.easyexcel.template.BaseUserExportTemplate;
-import com.goudong.authentication.server.easyexcel.template.BaseUserImportExcelTemplate;
+import com.goudong.authentication.server.easyexcel.template.*;
 import com.goudong.authentication.server.enums.option.ActivateEnum;
 import com.goudong.authentication.server.enums.option.LockEnum;
 import com.goudong.authentication.server.properties.AuthenticationServerProperties;
@@ -20,10 +18,12 @@ import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.resp.BaseRoleDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseRolePageResp;
 import com.goudong.authentication.server.rest.resp.BaseUserPageResp;
+import com.goudong.authentication.server.service.BaseMenuService;
 import com.goudong.authentication.server.service.BaseRoleService;
 import com.goudong.authentication.server.service.BaseUserService;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.ImportExportManagerService;
+import com.goudong.authentication.server.service.mapper.BaseMenuMapper;
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.core.lang.IEnum;
 import com.goudong.core.lang.PageResult;
@@ -58,19 +58,46 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
 
     //~fields
     //==================================================================================================================
+    /**
+     * 模板的目录前缀
+     */
     public static final String PREFIX_DIR = "templates/";
 
+    /**
+     * 事务模板
+     */
     @Resource
     private TransactionTemplate transactionTemplate;
 
+    /**
+     * 用户服务接口
+     */
     @Resource
     private BaseUserService baseUserService;
 
+    /**
+     * 角色服务接口
+     */
     @Resource
     private BaseRoleService baseRoleService;
 
+    /**
+     * 菜单服务接口
+     */
+    @Resource
+    private BaseMenuService baseMenuService;
+
+    /**
+     * 密码编码器
+     */
     @Resource
     private PasswordEncoder passwordEncoder;
+
+    /**
+     * 菜单对象映射器
+     */
+    @Resource
+    private BaseMenuMapper baseMenuMapper;
 
     /**
      * 认证服务配置
@@ -304,16 +331,15 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
 
     /**
      * 导入菜单
-     *
-     * @param req
-     * @return
+     * @param req   导入文件参数
+     * @return  true：成功
      */
     @Override
     public Boolean importMenu(BaseMenuImportReq req) {
         MyAuthentication myAuthentication = SecurityContextUtil.get();
         try {
-            EasyExcel.read(req.getFile().getInputStream(), BaseRoleImportExcelTemplate.class,
-                            new BaseRoleImportExcelListener(myAuthentication, baseRoleService, transactionTemplate))
+            EasyExcel.read(req.getFile().getInputStream(), BaseMenuImportExcelTemplate.class,
+                            new BaseMenuImportExcelListener(myAuthentication, baseMenuService, baseRoleService, transactionTemplate, baseMenuMapper))
                     .sheet()
                     // 第二行开始解析
                     .headRowNumber(2)

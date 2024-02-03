@@ -86,17 +86,17 @@
       @selection-change="selectionChangeFunc"
     >
       <el-table-column
-        width="55"
+        width="50"
         type="selection"
         header-align="center"
         align="center"
         class-name="selection"
       />
       <el-table-column
+        width="50"
         fixed
         label="序号"
         prop="serialNumber"
-        width="50"
         align="center"
       />
       <el-table-column

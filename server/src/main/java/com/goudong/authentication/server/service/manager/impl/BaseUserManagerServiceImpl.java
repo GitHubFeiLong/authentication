@@ -179,6 +179,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         userDetail.setId(baseUser.getId());
         userDetail.setAppId(baseUser.getAppId());
         userDetail.setRealAppId(baseUser.getRealAppId());
+        userDetail.setRealAppName(realApp.getName());
+        userDetail.setRealAppHome(realApp.getHomePage());
         userDetail.setUsername(baseUser.getUsername());
 
         List<BaseRole> roles = baseUser.getRoles();

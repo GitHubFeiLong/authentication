@@ -30,10 +30,10 @@
       <div class="left-tool">
         <el-button v-permission="'sys:role:add'" class="el-button--small" icon="el-icon-plus" type="primary" @click="addRole">新增</el-button>
         <el-button v-permission="'sys:role:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteRoles">删除</el-button>
-        <el-button v-permission="'sys:user:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
+        <el-button v-permission="'sys:role:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
           导入
         </el-button>
-        <el-button v-permission="'sys:user:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
+        <el-button v-permission="'sys:role:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
           导出
         </el-button>
       </div>
@@ -71,17 +71,17 @@
       @selection-change="selectionChangeFunc"
     >
       <el-table-column
-        min-width="55"
+        width="50"
         type="selection"
         header-align="center"
         align="center"
         class-name="selection"
       />
       <el-table-column
+        width="50"
         fixed
         label="序号"
         prop="serialNumber"
-        width="50"
         align="center"
       >
       </el-table-column>
@@ -450,7 +450,7 @@ export default {
     downloadImportTemplate() {
       exportRoleTemplateApi();
     },
-    // 关闭弹窗
+    // 关闭导入弹窗
     closeUploadSingleExcelHandler() {
       this.uploadSingleExcelAttr.showImportDialog = false
     },

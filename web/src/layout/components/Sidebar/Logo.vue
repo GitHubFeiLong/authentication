@@ -5,7 +5,7 @@
         <img v-if="logo" :src="logo" class="sidebar-logo">
         <h1 v-else class="sidebar-title">{{ title }} </h1>
       </router-link>
-      <router-link v-else key="expand" class="sidebar-logo-link" to="/">
+      <router-link v-else key="expand" class="sidebar-logo-link" to="/" @click.native="jumpTo()">
         <img v-if="logo" :src="logo" class="sidebar-logo">
         <h1 class="sidebar-title">{{ title }} </h1>
       </router-link>
@@ -14,6 +14,8 @@
 </template>
 
 <script>
+import LocalStorageUtil from "@/utils/LocalStorageUtil";
+
 export default {
   name: 'SidebarLogo',
   props: {
@@ -27,6 +29,22 @@ export default {
       title: 'Vue Element Admin',
       logo: 'https://wpimg.wallstcn.com/69a1c46c-eb1c-4b46-8bd4-e9e686ef5251.png'
     }
+  },
+  mounted() {
+    console.log("this.$store.getters.user")
+    let user = LocalStorageUtil.getUser();
+    this.title = user.realAppName;
+  },
+  methods: {
+    // 跳到应用首页
+    jumpTo() {
+      let user = LocalStorageUtil.getUser();
+      let token = LocalStorageUtil.getToken();
+      const homePage = user.realAppHome;
+      const {accessToken, refreshToken, accessExpires, refreshExpires} = token
+      const url = `${homePage}?accessToken=${accessToken}&refreshToken=${refreshToken}&accessExpires=${accessExpires}&refreshExpires=${refreshExpires}`
+      window.open(url,"_blank")
+    },
   }
 }
 </script>
@@ -47,7 +65,7 @@ export default {
   height: 50px;
   line-height: 50px;
   background: #2b2f3a;
-  text-align: center;
+  //text-align: center;
   overflow: hidden;
 
   & .sidebar-logo-link {
@@ -58,7 +76,7 @@ export default {
       width: 32px;
       height: 32px;
       vertical-align: middle;
-      margin-right: 12px;
+      margin: 0 12px 0 20px;
     }
 
     & .sidebar-title {

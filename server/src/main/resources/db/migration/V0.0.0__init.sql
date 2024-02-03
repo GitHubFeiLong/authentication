@@ -90,20 +90,20 @@ VALUES (1, 1, '90bd8a5d2dd906e8',
 DROP TABLE IF EXISTS `base_menu`;
 CREATE TABLE `base_menu`
 (
-    `id`                 bigint(20)                                              NOT NULL AUTO_INCREMENT,
-    `app_id`             bigint(20)                                              NOT NULL COMMENT '应用id',
-    `parent_id`          bigint(20)                                              NULL     DEFAULT NULL COMMENT '父级主键id',
+    `id`                 bigint(20)                                             NOT NULL AUTO_INCREMENT,
+    `app_id`             bigint(20)                                             NOT NULL COMMENT '应用id',
+    `parent_id`          bigint(20)                                             NULL     DEFAULT NULL COMMENT '父级主键id',
     `permission_id`      varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL COMMENT '权限标识',
     `name`               varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL COMMENT '菜单名称',
-    `type`               int(11)                                                 NOT NULL COMMENT '菜单类型（1：菜单；2：按钮；3：接口）',
+    `type`               int(11)                                                NOT NULL COMMENT '菜单类型（1：菜单；2：按钮；3：接口）',
     `path`               varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '路由或接口地址',
     `method`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '请求方式',
-    `sort_num`           int(11)                                                 NOT NULL DEFAULT 0 COMMENT '排序字段（值越小越靠前，仅仅针对前端路由）',
-    `hide`               bit(1)                                                  NOT NULL COMMENT '是否是隐藏菜单',
+    `sort_num`           int(11)                                                NOT NULL DEFAULT 0 COMMENT '排序字段（值越小越靠前，仅仅针对前端路由）',
+    `hide`               bit(1)                                                 NOT NULL COMMENT '是否是隐藏菜单',
     `meta`               varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '前端菜单元数据',
     `remark`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '备注',
-    `created_date`       datetime(0)                                             NULL     DEFAULT NULL COMMENT '创建时间',
-    `last_modified_date` datetime(0)                                             NULL     DEFAULT NULL COMMENT '最后修改时间',
+    `created_date`       datetime(0)                                            NULL     DEFAULT NULL COMMENT '创建时间',
+    `last_modified_date` datetime(0)                                            NULL     DEFAULT NULL COMMENT '最后修改时间',
     `created_by`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '创建人',
     `last_modified_by`   varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL     DEFAULT NULL COMMENT '最后修改人',
     PRIMARY KEY (`id`) USING BTREE
@@ -116,104 +116,41 @@ CREATE TABLE `base_menu`
 -- ----------------------------
 -- Records of base_menu
 -- ----------------------------
-INSERT INTO `base_menu`
-VALUES (1000, 1, NULL, 'sys', '系统管理', 1, '/user', NULL, 1, b'0',
-        '{\"icon\": \"el-icon-s-tools\", \"title\": \"系统管理\"}', NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00',
-        'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1100, 1, 1000, 'sys:user', '用户管理', 1, '/user/index', NULL, 7, b'0',
-        '{\"icon\": \"peoples\", \"title\": \"用户管理\"}', NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin',
-        'admin');
-INSERT INTO `base_menu`
-VALUES (1101, 1, 1100, 'sys:user:query', '查询用户', 2, '/user/page/base-users', '[\"POST\"]', 0, b'0', '{}', NULL,
-        '1970-01-01 00:00:00', '2024-01-18 08:37:07', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1102, 1, 1100, 'sys:user:add', '新增用户', 2, '/user/base-user/simple-create', '[\"POST\"]', 4, b'0', NULL,
-        NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1103, 1, 1100, 'sys:user:edit', '编辑用户', 2, '/user/base-user/simple-update', '[\"PUT\"]', 0, b'0', '{}',
-        NULL, '1970-01-01 00:00:00', '2024-01-18 08:39:25', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1104, 1, 1100, 'sys:user:delete', '删除用户', 2, '/user/base-users', '[\"DELETE\"]', 0, b'0', '{}', NULL,
-        '1970-01-01 00:00:00', '2024-01-18 08:40:28', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1105, 1, 1100, 'sys:user:reset-password', '重置密码', 2, '/user/base-user/reset-password/*', '[\"PUT\"]', 7,
-        b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1106, 1, 1100, 'sys:user:enable', '激活用户', 2, '/user/base-user/change-enabled/*', '[\"PUT\"]', 7, b'0', NULL,
-        NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1107, 1, 1100, 'sys:user:lock', '锁定用户', 2, '/user/base-user/change-locked/*', '[\"PUT\"]', 8, b'0', NULL,
-        NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1108, 1, 1100, 'sys:user:import', '导入用户', 2, '/import-export/import-user', '[\"POST\"]', 8, b'0', NULL,
-        NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1109, 1, 1100, 'sys:user:export', '导出用户', 2, '/import-export/export-user', '[\"POST\"]', 8, b'0', NULL,
-        NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1200, 1, 1000, 'sys:role', '角色管理', 1, '/role/index', NULL, 8, b'0',
-        '{\"icon\": \"iconfont-jueseguanli\", \"title\": \"角色管理\"}', NULL, '1970-01-01 00:00:00',
-        '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1201, 1, 1200, 'sys:role:query', '查询角色', 2, '/role/page/base-roles', '[\"POST\"]', 9, b'0', NULL, NULL,
-        '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1202, 1, 1200, 'sys:role:add', '新增角色', 2, '/role/base-role', '[\"POST\"]', 10, b'0', NULL, NULL,
-        '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1203, 1, 1200, 'sys:role:edit', '编辑角色', 2, '/role/base-role', '[\"PUT\"]', 11, b'0', NULL, NULL,
-        '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1204, 1, 1200, 'sys:role:delete', '删除角色', 2, '/role/base-roles', '[\"DELETE\"]', 12, b'0', NULL, NULL,
-        '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1205, 1, 1200, 'sys:role:permission:query', '查询角色权限', 2, '/role/base-role/permission-list/*', '[\"GET\"]',
-        13, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1206, 1, 1200, 'sys:role:permission:edit', '分配角色权限', 2, '/role/base-role/permission-list', '[\"POST\"]',
-        13, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1300, 1, 1000, 'sys:menu', '菜单管理', 1, '/menu/index', NULL, 14, b'0',
-        '{\"icon\": \"iconfont-caidanguanli\", \"title\": \"菜单管理\"}', NULL, '1970-01-01 00:00:00',
-        '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1301, 1, 1300, 'sys:menu:query', '查询菜单', 2, '/menu/base-menus', '[\"POST\"]', 15, b'0', NULL, NULL,
-        '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1304, 1, 1300, 'sys:menu:add', '新增菜单', 2, '/menu/base-menu', '[\"POST\"]', 19, b'0', NULL, NULL,
-        '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1305, 1, 1300, 'sys:menu:edit', '编辑菜单', 2, '/menu/base-menu', '[\"PUT\"]', 20, b'0', NULL, NULL,
-        '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1306, 1, 1300, 'sys:menu:delete', '删除菜单', 2, '/menu/base-menu/*', '[\"DELETE\"]', 21, b'0', NULL, NULL,
-        '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1307, 1, 1300, 'sys:menu:sort', '排序菜单', 2, '/menu/base-menu/sort-num', '[\"PUT\"]', 21, b'0', NULL, NULL,
-        '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1400, 1, 1000, 'sys:app', '应用管理', 1, '/app/index', NULL, 16, b'0',
-        '{\"icon\": \"iconfont-yingyongguanli\", \"title\": \"应用管理\"}', NULL, '1970-01-01 00:00:00',
-        '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1401, 1, 1400, 'sys:app:add', '新增应用', 2, '/app/base-app', '[\"POST\"]', 19, b'0', NULL, NULL,
-        '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1402, 1, 1400, 'sys:app:query', '查询应用', 2, '/app/page/base-apps', '[\"POST\"]', 18, b'0', NULL, NULL,
-        '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1403, 1, 1400, 'sys:app:edit', '修改应用', 2, '/app/base-app', '[\"PUT\"]', 20, b'0', NULL, NULL,
-        '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1404, 1, 1400, 'sys:app:delete', '删除应用', 2, '/app/base-app/*', '[\"DELETE\"]', 21, b'0', NULL, NULL,
-        '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1405, 1, 1400, 'sys:app:cert:add', '新增证书', 2, '/app/base-app-cert', '[\"POST\"]', 21, b'0', NULL, NULL,
-        '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu`
-VALUES (1406, 1, 1400, 'sys:app:cert:query', '应用证书列表', 2, '/app/base-app-certs/*', '[\"GET\"]', 21, b'0', NULL,
-        NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1000, 1, NULL, 'sys', '系统管理', 1, '/user', NULL, 1, b'0', '{\"icon\": \"el-icon-s-tools\", \"title\": \"系统管理\"}', NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1100, 1, 1000, 'sys:user', '用户管理', 1, '/user/index', NULL, 7, b'0', '{\"icon\": \"peoples\", \"title\": \"用户管理\"}', NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1101, 1, 1100, 'sys:user:query', '查询用户', 2, '/user/page/base-users', '[\"POST\"]', 0, b'0', '{}', NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1102, 1, 1100, 'sys:user:add', '新增用户', 2, '/user/base-user/simple-create', '[\"POST\"]', 4, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1103, 1, 1100, 'sys:user:edit', '编辑用户', 2, '/user/base-user/simple-update', '[\"PUT\"]', 0, b'0', '{}', NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1104, 1, 1100, 'sys:user:delete', '删除用户', 2, '/user/base-users', '[\"DELETE\"]', 0, b'0', '{}', NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1105, 1, 1100, 'sys:user:reset-password', '重置密码', 2, '/user/base-user/reset-password/*', '[\"PUT\"]', 7, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1106, 1, 1100, 'sys:user:enable', '激活用户', 2, '/user/base-user/change-enabled/*', '[\"PUT\"]', 7, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1107, 1, 1100, 'sys:user:lock', '锁定用户', 2, '/user/base-user/change-locked/*', '[\"PUT\"]', 8, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1108, 1, 1100, 'sys:user:import', '导入用户', 2, '/import-export/import-user', '[\"POST\"]', 8, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1109, 1, 1100, 'sys:user:export', '导出用户', 2, '/import-export/export-user', '[\"POST\"]', 8, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1200, 1, 1000, 'sys:role', '角色管理', 1, '/role/index', NULL, 8, b'0', '{\"icon\": \"iconfont-jueseguanli\", \"title\": \"角色管理\"}', NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1201, 1, 1200, 'sys:role:query', '查询角色', 2, '/role/page/base-roles', '[\"POST\"]', 9, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1202, 1, 1200, 'sys:role:add', '新增角色', 2, '/role/base-role', '[\"POST\"]', 10, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1203, 1, 1200, 'sys:role:edit', '编辑角色', 2, '/role/base-role', '[\"PUT\"]', 11, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1204, 1, 1200, 'sys:role:delete', '删除角色', 2, '/role/base-roles', '[\"DELETE\"]', 12, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1205, 1, 1200, 'sys:role:permission:query', '查询角色权限', 2, '/role/base-role/permission-list/*', '[\"GET\"]', 13, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1206, 1, 1200, 'sys:role:permission:edit', '分配角色权限', 2, '/role/base-role/permission-list', '[\"POST\"]', 13, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1207, 1, 1200, 'sys:role:import', '导入角色', 2, '/import-export/import-role', '[\"POST\"]', 23, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1208, 1, 1200, 'sys:role:export', '导出角色', 2, '/import-export/export-role', '[\"POST\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1300, 1, 1000, 'sys:menu', '菜单管理', 1, '/menu/index', NULL, 14, b'0', '{\"icon\": \"iconfont-caidanguanli\", \"title\": \"菜单管理\"}', NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1301, 1, 1300, 'sys:menu:query', '查询菜单', 2, '/menu/base-menus', '[\"POST\"]', 15, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1304, 1, 1300, 'sys:menu:add', '新增菜单', 2, '/menu/base-menu', '[\"POST\"]', 19, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1305, 1, 1300, 'sys:menu:edit', '编辑菜单', 2, '/menu/base-menu', '[\"PUT\"]', 20, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1306, 1, 1300, 'sys:menu:delete', '删除菜单', 2, '/menu/base-menu/*', '[\"DELETE\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1307, 1, 1300, 'sys:menu:sort', '排序菜单', 2, '/menu/base-menu/sort-num', '[\"PUT\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1308, 1, 1300, 'sys:menu:import', '导入菜单', 2, '/import-export/import-menu', '[\"POST\"]', 22, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1309, 1, 1300, 'sys:menu:export', '导出菜单', 2, '/import-export/export-menu', '[\"POST\"]', 24, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1400, 1, 1000, 'sys:app', '应用管理', 1, '/app/index', NULL, 16, b'0', '{\"icon\": \"iconfont-yingyongguanli\", \"title\": \"应用管理\"}', NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1401, 1, 1400, 'sys:app:add', '新增应用', 2, '/app/base-app', '[\"POST\"]', 19, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1402, 1, 1400, 'sys:app:query', '查询应用', 2, '/app/page/base-apps', '[\"POST\"]', 18, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1403, 1, 1400, 'sys:app:edit', '修改应用', 2, '/app/base-app', '[\"PUT\"]', 20, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1404, 1, 1400, 'sys:app:delete', '删除应用', 2, '/app/base-app/*', '[\"DELETE\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1405, 1, 1400, 'sys:app:cert:add', '新增证书', 2, '/app/base-app-cert', '[\"POST\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1406, 1, 1400, 'sys:app:cert:query', '应用证书列表', 2, '/app/base-app-certs/*', '[\"GET\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 
 -- ----------------------------
 -- Table structure for base_role
