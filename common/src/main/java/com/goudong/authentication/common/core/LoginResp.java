@@ -48,6 +48,11 @@ public class LoginResp {
      */
     private String homePage;
 
+    /**
+     * 应用的首页地址
+     */
+    private String realHomePage;
+
     //~methods
     //==================================================================================================================
 }

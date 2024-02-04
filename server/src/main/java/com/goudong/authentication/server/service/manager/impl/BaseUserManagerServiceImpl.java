@@ -121,6 +121,15 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         loginResp.setRoles(roles);
 
         BaseApp app = baseAppService.findById(myAuthentication.getAppId());
+        // 设置应用首页地址
+        loginResp.setHomePage(app.getHomePage());
+        loginResp.setRealHomePage(app.getHomePage());
+        // 不相同就需要查询
+        if (!Objects.equals(myAuthentication.getAppId(), myAuthentication.getRealAppId())) {
+            BaseApp realApp = baseAppService.findById(myAuthentication.getRealAppId());
+            String homePage = realApp.getHomePage();
+            loginResp.setRealHomePage(homePage);
+        }
 
         // 创建token
         AuthenticationServerProperties.TokenConfigInner tokenConfig = authenticationServerProperties.getToken();
@@ -128,8 +137,7 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         UserSimple userSimple = new UserSimple(myAuthentication.getId(), myAuthentication.getAppId(), myAuthentication.getRealAppId(), myAuthentication.getUsername(), roles);
         Token token = jwt.generateToken(userSimple);
         loginResp.setToken(token);
-        // 设置应用首页地址
-        loginResp.setHomePage(app.getHomePage());
+
         log.info("认证成功，响应用户登录信息:{}", JsonUtil.toJsonString(loginResp));
         return loginResp;
     }
