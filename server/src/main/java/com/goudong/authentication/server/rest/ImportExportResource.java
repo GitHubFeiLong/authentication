@@ -88,4 +88,23 @@ public class ImportExportResource {
     public void exportMenu(HttpServletResponse response, @RequestBody BaseMenuGetAllReq req) {
         importExportManagerService.exportMenu(response, req);
     }
+
+    @GetMapping("/export-app-template")
+    @ApiOperation("应用模板导出")
+    public void exportAppTemplate(HttpServletResponse response) throws IOException {
+        importExportManagerService.exportTemplateHandler(response, "template-app.xlsx");
+    }
+
+    @PostMapping("/import-app")
+    @ApiOperation("应用导入")
+    @ResponseBody
+    public Result<Boolean> importApp(@Validated BaseAppImportReq req) {
+        return Result.ofSuccess(importExportManagerService.importApp(req));
+    }
+
+    @PostMapping("/export-app")
+    @ApiOperation("应用导出")
+    public void exportApp(HttpServletResponse response, @RequestBody BaseAppExportReq req) {
+        importExportManagerService.exportApp(response, req);
+    }
 }

@@ -15,6 +15,9 @@ import java.util.Date;
 public class BaseAppPageResp {
     //~fields
     //==================================================================================================================
+    @ApiModelProperty(value = "序号")
+    private Long serialNumber;
+
     @ApiModelProperty("应用id")
     private Long id;
 

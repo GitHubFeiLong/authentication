@@ -16,6 +16,7 @@ import com.goudong.authentication.server.service.manager.BaseMenuManagerService;
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.boot.redis.core.RedisTool;
 import com.goudong.core.util.CollectionUtil;
+import com.goudong.core.util.ListUtil;
 import com.goudong.core.util.tree.v2.Tree;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,6 +115,16 @@ public class BaseMenuManagerServiceImpl implements BaseMenuManagerService {
     @Override
     public Boolean deleteById(Long id) {
         return baseMenuService.deleteById(id);
+    }
+
+    /**
+     * 批量删除菜单，及其所有子菜单
+     *
+     * @param ids 菜单id集合
+     */
+    @Override
+    public void deleteByIds(List<Long> ids) {
+        baseMenuService.deleteByIds(ids);
     }
 
     /**

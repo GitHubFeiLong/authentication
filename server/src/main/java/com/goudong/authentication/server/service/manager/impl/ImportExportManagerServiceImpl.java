@@ -6,7 +6,10 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.converters.longconverter.LongStringConverter;
 import com.alibaba.excel.write.metadata.WriteSheet;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.goudong.authentication.common.util.JsonUtil;
 import com.goudong.authentication.server.constant.CommonConst;
+import com.goudong.authentication.server.easyexcel.listener.BaseAppImportExcelListener;
 import com.goudong.authentication.server.easyexcel.listener.BaseMenuImportExcelListener;
 import com.goudong.authentication.server.easyexcel.listener.BaseRoleImportExcelListener;
 import com.goudong.authentication.server.easyexcel.listener.BaseUserImportExcelListener;
@@ -16,6 +19,8 @@ import com.goudong.authentication.server.enums.option.LockEnum;
 import com.goudong.authentication.server.enums.option.MenuTypeEnum;
 import com.goudong.authentication.server.properties.AuthenticationServerProperties;
 import com.goudong.authentication.server.rest.req.*;
+import com.goudong.authentication.server.rest.req.search.BaseAppPageReq;
+import com.goudong.authentication.server.rest.resp.BaseAppPageResp;
 import com.goudong.authentication.server.rest.resp.BaseRoleDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseRolePageResp;
 import com.goudong.authentication.server.rest.resp.BaseUserPageResp;
@@ -24,12 +29,14 @@ import com.goudong.authentication.server.service.BaseRoleService;
 import com.goudong.authentication.server.service.BaseUserService;
 import com.goudong.authentication.server.service.dto.BaseMenuDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
+import com.goudong.authentication.server.service.manager.BaseAppManagerService;
 import com.goudong.authentication.server.service.manager.ImportExportManagerService;
 import com.goudong.authentication.server.service.mapper.BaseMenuMapper;
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.core.lang.IEnum;
 import com.goudong.core.lang.PageResult;
 import com.goudong.core.util.CollectionUtil;
+import com.goudong.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -107,6 +114,15 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
      */
     @Resource
     private AuthenticationServerProperties authenticationServerProperties;
+
+    /**
+     * 菜单对象映射器
+     */
+    @Resource
+    private BaseAppManagerService baseAppManagerService;
+
+    @Resource
+    private ObjectMapper objectMapper;
 
     //~methods
     //==================================================================================================================
@@ -393,15 +409,18 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
                 BaseMenuExportTemplate resp = new BaseMenuExportTemplate();
                 resp.setSequenceNumber(sequenceNumber.getAndIncrement());
                 resp.setPermissionId(p.getPermissionId());
-                if (p.getParentId() != null && longBaseMenuDTOMap.containsKey(p.getId())) {
-                    BaseMenuDTO baseMenuDTO = longBaseMenuDTOMap.get(p.getId());
-                    resp.setParentPermissionId(baseMenuDTO.getPermissionId());
+                if (p.getParentId() != null && longBaseMenuDTOMap.containsKey(p.getParentId())) {
+                    BaseMenuDTO parentMenuDTO = longBaseMenuDTOMap.get(p.getParentId());
+                    resp.setParentPermissionId(parentMenuDTO.getPermissionId());
+                }
+                if (StringUtil.isNotBlank(p.getMethod())) {
+                    List<String> methods = JsonUtil.toList(p.getMethod(), String.class);
+                    resp.setMethod(String.join(CommonConst.COMMA, methods));
                 }
 
                 resp.setName(p.getName());
                 resp.setType(MenuTypeEnum.MENU.getById(p.getType()).getLabel());
                 resp.setPath(p.getPath());
-                resp.setMethod(p.getMethod());
                 resp.setMeta(p.getMeta());
                 resp.setRemark(p.getRemark());
                 result.add(resp);
@@ -410,6 +429,100 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
             excelWriter.write(result, writeSheet);
         } catch (IOException e) {
             throw new RuntimeException("导出菜单失败：" + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 导入应用
+     *
+     * @param req 导入参数
+     * @return true 成功
+     */
+    @Override
+    public Boolean importApp(BaseAppImportReq req) {
+        try {
+            EasyExcel.read(req.getFile().getInputStream(), BaseAppImportExcelTemplate.class,
+                            new BaseAppImportExcelListener(baseAppManagerService, transactionTemplate))
+                    .sheet()
+                    // 第二行开始解析
+                    .headRowNumber(2)
+                    .doRead();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
+
+    /**
+     * 导出应用
+     *
+     * @param response 响应对象
+     * @param req      导出参数
+     */
+    @Override
+    public void exportApp(HttpServletResponse response, BaseAppExportReq req) {
+        log.info("开始执行应用导出");
+        String fileName = "导出应用" + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
+        // 这里注意 有同学反应使用swagger 会导致各种问题，请直接用浏览器或者用postman
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
+        try {
+            fileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        response.setHeader("Content-disposition", "attachment;filename*=" + fileName + ".xlsx");
+
+        // 这里 需要指定写用哪个class去写
+        try (ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream(), BaseAppExportTemplate.class)
+                .registerConverter(new LongStringConverter())
+                .build()) {
+            // 这里注意 如果同一个sheet只要创建一次
+            WriteSheet writeSheet = EasyExcel.writerSheet("sheet01").build();
+            /*
+                分页写入excel，对内存友好
+             */
+            // 分页查询
+            BaseAppPageReq pageReq = req.getPageReq();
+            // 每次查询100条
+            pageReq.setSize(100);
+            // 初始分页设置0
+            int page = 0;
+            // 总店铺数量
+            long total = 0;
+            AtomicInteger sequenceNumber = new AtomicInteger(1);
+            do {
+                List<BaseAppExportTemplate> result = new ArrayList<>();
+                // 页码加一
+                page += 1;
+                pageReq.setPage(page);
+                // 分页查询(展开的)
+                PageResult<BaseAppPageResp> pageResult = baseAppManagerService.page(pageReq);
+                // 获取总数量
+                total = pageResult.getTotal();
+
+                // 将数据放入resule中
+                pageResult.getContent().forEach(p -> {
+                    BaseAppExportTemplate resp = new BaseAppExportTemplate();
+                    resp.setSequenceNumber(sequenceNumber.getAndIncrement());
+                    resp.setId(p.getId());
+                    resp.setSecret(p.getSecret());
+                    resp.setName(p.getName());
+                    resp.setHomePage(p.getHomePage());
+                    resp.setEnableStatus(ActivateEnum.ACTIVATED.getById(p.getEnabled()).getLabel());
+                    resp.setRemark(p.getRemark());
+                    resp.setCreatedDate(p.getCreatedDate());
+
+                    result.add(resp);
+                });
+
+                // 调用写入
+                excelWriter.write(result, writeSheet);
+            } while (((long) page * pageReq.getSize()) < total);
+
+        } catch (IOException e) {
+            throw new RuntimeException("导出应用失败：" + e.getMessage(), e);
         }
     }
 }

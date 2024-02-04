@@ -147,7 +147,7 @@ public class BaseMenuImportExcelListener implements ReadListener<BaseMenuImportE
     public void doAfterAllAnalysed(AnalysisContext context) {
         // 校验所有上级菜单标识在本应用存在
         Map<String, BaseMenu> map2 = new HashMap<>();
-        List<String> parentPermissionIds = new ArrayList<>();
+        Set<String> parentPermissionIds = new HashSet<>();
         for (BaseMenu baseMenu : cachedDataList) {
             map2.put(baseMenu.getPermissionId(), baseMenu);
 

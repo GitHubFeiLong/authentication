@@ -36,11 +36,24 @@ export function updateAppApi(data) {
 
 /**
  * 删除应用
+ * @deprecated  使用{@code deleteAppByIdsApi} 批量删除
  */
 export function deleteAppApi(id) {
   return request({
     url: `${API_PREFIX}/app/base-app/${id}`,
     method: 'delete',
+  })
+}
+
+/**
+ * 根据id批量删除应用
+ * @param ids 应用id集合
+ */
+export function deleteAppByIdsApi(ids) {
+  return request({
+    url: `${API_PREFIX}/app/base-apps`,
+    data: ids,
+    method: 'delete'
   })
 }
 

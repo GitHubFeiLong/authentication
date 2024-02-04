@@ -53,6 +53,12 @@ public interface BaseMenuManagerService {
     Boolean deleteById(Long id);
 
     /**
+     * 批量删除菜单，及其所有子菜单
+     * @param ids   菜单id集合
+     */
+    void deleteByIds(List<Long> ids);
+
+    /**
      * 修改排序
      * @param req
      * @return
@@ -65,4 +71,5 @@ public interface BaseMenuManagerService {
      * @return  API权限集合
      */
     List<ApiPermissionDTO> listApiPermissionByAppId(Long appId);
+
 }

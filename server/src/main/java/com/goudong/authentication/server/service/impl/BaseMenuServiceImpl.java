@@ -34,10 +34,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -50,14 +47,33 @@ public class BaseMenuServiceImpl implements BaseMenuService {
 
     //~fields
     //==================================================================================================================
+    /**
+     * 菜单持久层接口
+     */
     @Resource
     private BaseMenuRepository baseMenuRepository;
+
+    /**
+     * 菜单对象映射器
+     */
     @Resource
     private BaseMenuMapper baseMenuMapper;
+
+    /**
+     * 对象映射器
+     */
     @Resource
     private ObjectMapper objectMapper;
+
+    /**
+     * 事务模板
+     */
     @Resource
     private TransactionTemplate transactionTemplate;
+
+    /**
+     * 菜单对象映射器
+     */
     @Resource
     private JdbcTemplate jdbcTemplate;
 
@@ -194,8 +210,7 @@ public class BaseMenuServiceImpl implements BaseMenuService {
     @Override
     public Boolean deleteById(Long id) {
         // 检查应用
-        BaseMenu baseMenu = this.findById(id);
-
+        // BaseMenu baseMenu = this.findById(id);
         String sql = "SELECT t3.* FROM (SELECT t1.*, IF ( FIND_IN_SET( parent_id, @pids ) > 0, @pids := CONCAT( @pids, ',', id ), '0' ) AS ischild FROM ( SELECT t.id, t.parent_id, t.NAME FROM base_menu AS t ORDER BY t.id ASC ) t1, ( SELECT @pids := '%s' ) t2 ) t3 WHERE ischild != '0'";
         String format = String.format(sql, id);
 
@@ -215,6 +230,17 @@ public class BaseMenuServiceImpl implements BaseMenuService {
                 throw e;
             }
         });
+    }
+
+    /**
+     * 批量删除菜单及下级所有菜单
+     *
+     * @param ids   菜单id集合
+     */
+    @Override
+    public void deleteByIds(List<Long> ids) {
+        log.info("批量删除菜单");
+        ids.forEach(this::deleteById);
     }
 
     /**

@@ -55,8 +55,11 @@
                    @click="dialog.create.open=true">
           新增
         </el-button>
+        <el-button v-permission="'sys:app:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteApps">
+          删除
+        </el-button>
         <el-button v-permission="'sys:app:cert:add'" class="el-button--small" icon="el-icon-document" type="primary"
-                   @click="dialog.createCert.open=true">
+                   @click="dialog.createCert.open = true">
           创建证书
         </el-button>
         <el-button v-permission="'sys:app:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
@@ -97,6 +100,7 @@
       :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
       :header-row-class-name="EL_TABLE.size"
       :size="EL_TABLE.size"
+      @selection-change="selectionChangeFunc"
     >
       <el-table-column
         width="50"
@@ -218,16 +222,16 @@
       @current-change="handleCurrentChange"
     />
 
-    <!--  申请应用弹窗  -->
-    <el-dialog title="申请应用" width="600px" :visible.sync="dialog.create.open" @close="dialog.create.open = false">
+    <!--  新增应用弹窗  -->
+    <el-dialog title="新增应用" width="600px" :visible.sync="dialog.create.open" @close="dialog.create.open = false">
       <el-form ref="createForm" :model="dialog.create.form.data" :rules="dialog.create.form.rules" label-width="80px">
-        <el-form-item label="应用名" prop="name">
+        <el-form-item label="应用名称" prop="name">
           <el-input v-model="dialog.create.form.data.name" placeholder="请输入应用名称" clearable/>
         </el-form-item>
-        <el-form-item label="首页" prop="homePage">
+        <el-form-item label="应用首页" prop="homePage">
           <el-input v-model="dialog.create.form.data.homePage" placeholder="请输入访问应用首页web地址"  clearable/>
         </el-form-item>
-        <el-form-item label="状态" prop="enabled">
+        <el-form-item label="应用状态" prop="enabled">
           <el-select
             v-model="dialog.create.form.data.enabled"
             placeholder="请选择应用状态"
@@ -254,13 +258,13 @@
     <!--  修改应用弹窗  -->
     <el-dialog title="修改应用" width="600px" :visible.sync="dialog.update.open" @close="dialogUpdateCancel()">
       <el-form ref="updateForm" :model="dialog.update.form.data" :rules="dialog.update.form.rules" label-width="80px">
-        <el-form-item label="应用名" prop="name">
+        <el-form-item label="应用名称" prop="name">
           <el-input v-model="dialog.update.form.data.name" placeholder="请输入应用名称" disabled clearable/>
         </el-form-item>
-        <el-form-item label="首页" prop="homePage">
+        <el-form-item label="应用首页" prop="homePage">
           <el-input v-model="dialog.update.form.data.homePage" placeholder="请输入访问应用首页web地址" clearable/>
         </el-form-item>
-        <el-form-item label="状态" prop="enabled">
+        <el-form-item label="应用状态" prop="enabled">
           <el-select
             v-model="dialog.update.form.data.enabled"
             placeholder="请选择应用状态"
@@ -369,24 +373,47 @@
         </el-table-column>
       </el-table>
     </el-dialog>
+
+    <!--  导入  -->
+    <UploadSingleExcel
+        @close="closeUploadSingleExcelHandler"
+        :import-dialog-title="uploadSingleExcelAttr.title"
+        :show-import-dialog="uploadSingleExcelAttr.showImportDialog"
+        :action="uploadSingleExcelAttr.action"
+        :on-success-callback="load"
+        :download-template="downloadImportTemplate"
+    />
   </div>
 </template>
 
 <script>
 
 import {API_PREFIX, ENABLED_ARRAY} from "@/constant/commons";
-import {createAppApi, createCertApi, deleteAppApi, listCertsApi, pageAppsApi, updateAppApi} from "@/api/app";
+import {
+  createAppApi,
+  createCertApi,
+  deleteAppByIdsApi,
+  listCertsApi,
+  pageAppsApi,
+  updateAppApi
+} from "@/api/app";
 import { dropDownAllAppApi } from '@/api/dropDown';
 import {Message} from "element-ui";
 import {FutureTime, WebUrl} from "@/utils/ElementValidatorUtil"
 import * as fileUtil from "@/utils/fileUtil";
 import {exportAppApi, exportAppTemplateApi} from "@/api/file";
+import {isNotEmpty} from "@/utils/assertUtil";
+import {deleteUserByIdsApi} from "@/api/user";
 
 export default {
   name: 'App',
-  components: {},
+  components: {
+    UploadSingleExcel: () => import('@/components/UploadExcel/UploadSingleExcel.vue'),
+  },
   data() {
     return {
+      // 复选框选中
+      checkIds: [],
       appStatus: ENABLED_ARRAY,
       filter: {
         id: undefined,
@@ -490,9 +517,9 @@ export default {
 
       // 导入组件所需相关参数
       uploadSingleExcelAttr: {
-        title: '导入角色',
+        title: '导入应用',
         showImportDialog: false,
-        action: `${API_PREFIX}/import-export/import-user`
+        action: `${API_PREFIX}/import-export/import-app`
       },
     }
   },
@@ -502,11 +529,6 @@ export default {
     // 强制渲染，解决表格 固定列后，列错位问题
     this.$nextTick(() => {
       this.$refs.table.doLayout()
-    })
-    // 获取应用下拉
-    dropDownAllAppApi().then(data => {
-      console.log(data);
-      this.apps = data
     })
   },
   methods: {
@@ -539,6 +561,11 @@ export default {
         })
       }).finally(() => {
         this.isLoading = false;
+      })
+
+      // 获取应用下拉
+      dropDownAllAppApi().then(data => {
+        this.apps = data
       })
     },
     // 点击查询按钮
@@ -584,7 +611,30 @@ export default {
       this.app.page = val
       this.load()
     },
-
+    // 复选框勾选事件
+    selectionChangeFunc(rows) {
+      const ids = rows.map(m => m.id)
+      this.checkIds = ids
+    },
+    deleteApps() {
+      const ids = this.checkIds;
+      isNotEmpty(ids, () => this.$message.warning("请勾选需要删除的应用"))
+        .then(() => {
+          this.$confirm('此操作将永久删除所选应用, 是否继续?', '删除', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            deleteAppByIdsApi(ids).then(data => {
+              this.$message.success("删除成功")
+              this.load()
+            })
+          }).catch(reason => {
+            console.error(reason)
+            this.$message.info("已取消删除");
+          })
+        }).catch(() => {});
+    },
     // 弹窗
     // 新增
     dialogCreateCancel() {
@@ -643,7 +693,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteAppApi(row.id).then(data => {
+        deleteAppByIdsApi([row.id]).then(data => {
           this.$message.success("删除成功")
           this.load()
         })
@@ -706,9 +756,9 @@ export default {
     closeUploadSingleExcelHandler() {
       this.uploadSingleExcelAttr.showImportDialog = false
     },
-    // 导出用户
+    // 导出
     exportExcel() {
-      this.filterTimeHandler();
+      console.log("导出")
       const pageParam = {
         id: this.filter.id,
         startValidTime: this.filter.startValidTime,
@@ -716,9 +766,11 @@ export default {
       }
       // 如果勾选了就导出勾选的
       const data = {
-        ids: this.checkUserIds,
+        ids: this.checkIds,
         pageReq: { // 查询条件
-          ...pageParam
+          page: this.app.page,
+          size: this.app.size,
+          ...this.filter
         },
       }
       exportAppApi(data);

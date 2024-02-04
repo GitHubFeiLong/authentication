@@ -236,6 +236,16 @@ public class BaseAppManagerServiceImpl implements BaseAppManagerService {
     }
 
     /**
+     * 根据id批量删除应用
+     *
+     * @param ids 应用id集合
+     */
+    @Override
+    public void deleteByIds(Long[] ids) {
+        baseAppService.deleteByIds(ListUtil.newArrayList(ids));
+    }
+
+    /**
      * 应用下拉，显示当前用户能查询到的应用，超级管理员查询所有，管理员只能查询本应用
      *
      * @param req 查询条件

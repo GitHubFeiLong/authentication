@@ -59,6 +59,12 @@ public interface BaseAppService {
     BaseAppDTO delete(Long id);
 
     /**
+     * 批量删除应用
+     * @param ids 应用id集合
+     */
+    void deleteByIds(Iterable<Long> ids);
+
+    /**
      * 应用下拉
      * @param req 下拉参数
      * @return 用户能访问的应用下拉列表

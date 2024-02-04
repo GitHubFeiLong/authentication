@@ -62,4 +62,18 @@ public interface ImportExportManagerService {
      * @param req       导出参数
      */
     void exportMenu(HttpServletResponse response, BaseMenuGetAllReq req);
+
+    /**
+     * 导入应用
+     * @param req   导入参数
+     * @return  true 成功
+     */
+    Boolean importApp(BaseAppImportReq req);
+
+    /**
+     * 导出应用
+     * @param response  响应对象
+     * @param req       导出参数
+     */
+    void exportApp(HttpServletResponse response, BaseAppExportReq req);
 }

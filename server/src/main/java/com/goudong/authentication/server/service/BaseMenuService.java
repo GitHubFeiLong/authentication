@@ -8,6 +8,8 @@ import com.goudong.authentication.server.rest.req.BaseMenuUpdateReq;
 import com.goudong.authentication.server.service.dto.BaseMenuDTO;
 import com.goudong.authentication.server.service.dto.PermissionDTO;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -73,6 +75,12 @@ public interface BaseMenuService {
     Boolean deleteById(Long id);
 
     /**
+     * 批量删除菜单及下级所有菜单
+     * @param ids   菜单id集合
+     */
+    void deleteByIds(List<Long> ids);
+
+    /**
      * 修改菜单排序
      * @param req
      * @return
@@ -85,6 +93,7 @@ public interface BaseMenuService {
      * @return 菜单集合
      */
     List<PermissionDTO> findAllPermission(Long appId);
+
 
 
 }

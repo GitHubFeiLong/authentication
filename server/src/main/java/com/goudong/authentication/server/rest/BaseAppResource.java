@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -29,7 +30,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/app")
 @Api(tags = "应用管理")
-@Secured(value = CommonConst.ROLE_APP_SUPER_ADMIN) // 只有该角色才能处理应用
+// @Secured(value = CommonConst.ROLE_APP_SUPER_ADMIN) // 只有该角色才能处理应用
 public class BaseAppResource {
 
     //~fields
@@ -81,12 +82,26 @@ public class BaseAppResource {
     /**
      * 删除应用
      * @param id    被删除的应用id
+     * @deprecated  使用批量删除接口
      * @return  true：删除成功；false：删除失败
      */
-    @DeleteMapping("/base-app/{id}")
-    @ApiOperation("删除应用")
+    @Deprecated
+    // @DeleteMapping("/base-app/{id}")
+    @ApiOperation(value = "删除应用", hidden = true)
     public Result<Boolean> delete(@PathVariable Long id) {
         baseAppManagerService.deleteById(id);
+        return Result.ofSuccess(true);
+    }
+
+    /**
+     * 删除应用
+     * @param ids    被删除的应用id
+     * @return  true：删除成功；false：删除失败
+     */
+    @DeleteMapping("/base-apps")
+    @ApiOperation("批量删除应用")
+    public Result<Boolean> deleteByIds(@RequestBody @NotNull Long[] ids) {
+        baseAppManagerService.deleteByIds(ids);
         return Result.ofSuccess(true);
     }
 

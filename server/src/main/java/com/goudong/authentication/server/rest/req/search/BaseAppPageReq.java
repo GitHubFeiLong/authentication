@@ -9,41 +9,34 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 类描述：
- * BeanSearch查询参数和返回值
+ * 应用分页查询请求参数
  * @author cfl
  */
 @EqualsAndHashCode(callSuper = true)
-@SearchBean(tables="base_app", orderBy = "id asc")
 @Data
 public class BaseAppPageReq extends BasePage {
     //~fields
     //==================================================================================================================
+    @ApiModelProperty("应用id集合")
+    private List<Long> ids;
+
     @ApiModelProperty("应用id")
     private Long id;
 
-    @DbField(onlyOn = StartWith.class)
     @ApiModelProperty("应用名称")
     private String name;
 
-    @ApiModelProperty("密钥")
-    private String secret;
-
     @ApiModelProperty("首页地址")
-    @DbField(onlyOn = Contain.class)
     private String homePage;
 
     @ApiModelProperty("激活状态")
     private Boolean enabled;
 
-    @ApiModelProperty("创建时间")
-    @DbField(conditional = false)
-    private Date createdDate;
-
     @ApiModelProperty("备注")
-    @DbField(onlyOn = Contain.class)
     private String remark;
 
     //~methods

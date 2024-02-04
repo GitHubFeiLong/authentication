@@ -56,12 +56,24 @@ export function updateMenuApi(data) {
 /**
  * 删除菜单
  * @param id
- * @returns {*}
+ * @deprecated
  */
 export function deleteMenuByIdApi(id) {
   return request({
     url: `${API_PREFIX}/menu/base-menu/${id}`,
     method: 'delete',
+  })
+}
+
+/**
+ * 根据id集合批量删除菜单
+ * @param ids 菜单id集合
+ */
+export function deleteMenuByIdsApi(ids) {
+  return request({
+    url: `${API_PREFIX}/menu/base-menus`,
+    data: ids,
+    method: 'delete'
   })
 }
 

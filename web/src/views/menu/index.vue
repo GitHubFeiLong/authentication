@@ -48,6 +48,9 @@
                    @click="addMenu"
         >新增
         </el-button>
+        <el-button v-permission="'sys:menu:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteMenus">
+          删除
+        </el-button>
         <el-button v-permission="'sys:menu:sort'" class="el-button--small" icon="el-icon-s-promotion" type="primary"
                    @click="switchOpenDrag"
         >{{ switchButtonName }}
@@ -94,7 +97,15 @@
       :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
       :header-row-class-name="table.EL_TABLE.size"
       :size="table.EL_TABLE.size"
+      @selection-change="selectionChangeFunc"
     >
+      <el-table-column
+          width="50"
+          type="selection"
+          header-align="center"
+          align="center"
+          class-name="selection"
+      />
       <el-table-column
         type="index"
         label="排序"
@@ -228,13 +239,15 @@
 </template>
 
 <script>
-import { changeSortNumApi, deleteMenuByIdApi, initMenuApi, listMenuApi } from "@/api/menu";
+import {changeSortNumApi, deleteMenuByIdsApi, initMenuApi, listMenuApi} from "@/api/menu";
 import { menuTreeHandler } from "@/utils/tree";
 import { goudongWebAdminResource } from "@/router/modules/goudong-web-admin-router";
 import {API_PREFIX, MENU_TYPE_ARRAY} from "@/constant/commons"
 import Sortable from 'sortablejs';
 import { copyText } from "@/utils/StringUtil";
 import {exportMenuTemplateApi, exportMenuApi} from "@/api/file";
+import {isNotEmpty} from "@/utils/assertUtil";
+import {deleteUserByIdsApi} from "@/api/user";
 
 export default {
   name: 'MenuPage',
@@ -260,8 +273,9 @@ export default {
       },
       // menuVisible: false,
       createMenuDialog: false, // 创建菜单弹窗
-      updateMenuDialog: false, // 创建菜单弹窗
+      updateMenuDialog: false, // 修改菜单弹窗
       updateMenuData: undefined, // 修改菜单得数据
+      checkIds: [], // 选中的id
       table: {
         expandKeys: undefined,
         isLoading: false,
@@ -494,18 +508,49 @@ export default {
     addMenu() { // 新增菜单
       this.createMenuDialog = true
     },
+    // 复选框勾选事件
+    selectionChangeFunc(rows) {
+      const ids = rows.map(m => m.id)
+      console.log("ids = " + ids);
+      // this.$refs.table;
+      // console.log(this.$refs.table)
+      // this.table.data.map((value, index, array) => {
+      //   this.$refs.table.toggleRowSelection(value)
+      // })
+      this.checkIds = ids
+    },
+    // 批量删除菜单
+    deleteMenus() {
+      const ids = this.checkIds;
+      isNotEmpty(ids, () => this.$message.warning("请勾选需要删除的菜单"))
+          .then(() => {
+            this.$confirm('此操作将永久删除所选菜单及其所有子菜单, 是否继续?', '删除', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              deleteMenuByIdsApi(ids).then(data => {
+                this.$message.success("删除成功")
+                this.load()
+              })
+            }).catch(reason => {
+              console.error(reason)
+              this.$message.info("已取消删除");
+            })
+          }).catch(() => {});
+    },
     updateMenu(row) { // 修改菜单
       this.updateMenuData = row
       this.updateMenuDialog = true
       console.log("row", this.updateMenuData)
     },
     deleteMenu(row) { // 删除菜单
-      this.$confirm(`此操作将永久删除”${row.name}“整个菜单, 是否继续?`, '提示', {
+      this.$confirm(`此操作将永久删除”${row.name}“菜单及其所有子菜单, 是否继续?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteMenuByIdApi(row.id).then(response => {
+        deleteMenuByIdsApi([row.id]).then(response => {
           this.$message.success("删除成功")
           this.load()
         })

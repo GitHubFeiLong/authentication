@@ -8,9 +8,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -99,6 +102,25 @@ public class JsonUtil {
         ObjectMapper objectMapper = getObjectMapper();
         try {
             return objectMapper.readValue(json, clazz);
+        } catch (JsonProcessingException e) {
+            log.error("json字符串转对象失败：{}", e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * json字符串转list对象
+     * @param json json字符串
+     * @param clazz 需要转成的目标类型对象
+     * @return  {@code clazz}类型的对象
+     */
+    public static <T> List<T> toList(String json, Class<T> clazz){
+        try {
+            log.info("json:{}, class:{}", json, clazz);
+            CollectionType listType = getObjectMapper()
+                    .getTypeFactory()
+                    .constructCollectionType(ArrayList.class, clazz);
+            return getObjectMapper().readValue(json, listType);
         } catch (JsonProcessingException e) {
             log.error("json字符串转对象失败：{}", e.getMessage());
             throw new RuntimeException(e);

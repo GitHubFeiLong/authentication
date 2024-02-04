@@ -63,6 +63,12 @@ public interface BaseAppManagerService {
     BaseAppDTO deleteById(Long id);
 
     /**
+     * 根据id批量删除应用
+     * @param ids   应用id集合
+     */
+    void deleteByIds(Long[] ids);
+
+    /**
      * 应用下拉，显示当前用户能查询到的应用，超级管理员查询所有，管理员只能查询本应用
      * @param req 查询条件
      * @return 用户能访问的应用列表
@@ -103,4 +109,5 @@ public interface BaseAppManagerService {
      * @return
      */
     BaseUser findAppAdminUser(Long appId, String name);
+
 }
