@@ -22,7 +22,7 @@ spring:
     name: authentication-server #微服务名
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
       naming:
         physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
@@ -34,7 +34,7 @@ spring:
           time_zone: GMT+8
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://127.0.0.1:3306/authentication_server?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&createDatabaseIfNotExist=true
+    url: jdbc:mysql://127.0.0.1:3306/authentication?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&createDatabaseIfNotExist=true
     username: root
     password: l(=8gp_04h*&
 

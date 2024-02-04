@@ -32,4 +32,4 @@ authentication分为服务端（server）和客户端（client）
 
 ## 待办
 + spring mvc 跳转/error 请求怎么获取正确的uri
-+ 应用列表的创建时间为空
++ 将login-success页面相关代码封装，并书写文档，方便第三方应用后台接入

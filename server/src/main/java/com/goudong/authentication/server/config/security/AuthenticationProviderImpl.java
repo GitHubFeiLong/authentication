@@ -114,6 +114,7 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
         AssertUtil.isTrue(app.getEnabled(), () -> new DisabledException("应用未激活"));
 
         BaseUser user = baseUserManagerService.findOneByAppIdAndUsername(selectAppId, username);
+
         AssertUtil.isNotNull(user, () -> {
             log.warn("选择了应用,用户名不存在");
             return new UsernameNotFoundException("用户不存在");

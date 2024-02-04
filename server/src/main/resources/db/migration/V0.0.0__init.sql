@@ -140,7 +140,7 @@ INSERT INTO `base_menu` VALUES (1300, 1, 1000, 'sys:menu', '菜单管理', 1, '/
 INSERT INTO `base_menu` VALUES (1301, 1, 1300, 'sys:menu:query', '查询菜单', 2, '/menu/base-menus', '[\"POST\"]', 15, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 INSERT INTO `base_menu` VALUES (1304, 1, 1300, 'sys:menu:add', '新增菜单', 2, '/menu/base-menu', '[\"POST\"]', 19, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 INSERT INTO `base_menu` VALUES (1305, 1, 1300, 'sys:menu:edit', '编辑菜单', 2, '/menu/base-menu', '[\"PUT\"]', 20, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu` VALUES (1306, 1, 1300, 'sys:menu:delete', '删除菜单', 2, '/menu/base-menu/*', '[\"DELETE\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1306, 1, 1300, 'sys:menu:delete', '删除菜单', 2, '/menu/base-menus', '[\"DELETE\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 INSERT INTO `base_menu` VALUES (1307, 1, 1300, 'sys:menu:sort', '排序菜单', 2, '/menu/base-menu/sort-num', '[\"PUT\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 INSERT INTO `base_menu` VALUES (1308, 1, 1300, 'sys:menu:import', '导入菜单', 2, '/import-export/import-menu', '[\"POST\"]', 22, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 INSERT INTO `base_menu` VALUES (1309, 1, 1300, 'sys:menu:export', '导出菜单', 2, '/import-export/export-menu', '[\"POST\"]', 24, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
@@ -148,7 +148,7 @@ INSERT INTO `base_menu` VALUES (1400, 1, 1000, 'sys:app', '应用管理', 1, '/a
 INSERT INTO `base_menu` VALUES (1401, 1, 1400, 'sys:app:add', '新增应用', 2, '/app/base-app', '[\"POST\"]', 19, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 INSERT INTO `base_menu` VALUES (1402, 1, 1400, 'sys:app:query', '查询应用', 2, '/app/page/base-apps', '[\"POST\"]', 18, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 INSERT INTO `base_menu` VALUES (1403, 1, 1400, 'sys:app:edit', '修改应用', 2, '/app/base-app', '[\"PUT\"]', 20, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
-INSERT INTO `base_menu` VALUES (1404, 1, 1400, 'sys:app:delete', '删除应用', 2, '/app/base-app/*', '[\"DELETE\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
+INSERT INTO `base_menu` VALUES (1404, 1, 1400, 'sys:app:delete', '删除应用', 2, '/app/base-apps', '[\"DELETE\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 INSERT INTO `base_menu` VALUES (1405, 1, 1400, 'sys:app:cert:add', '新增证书', 2, '/app/base-app-cert', '[\"POST\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 INSERT INTO `base_menu` VALUES (1406, 1, 1400, 'sys:app:cert:query', '应用证书列表', 2, '/app/base-app-certs/*', '[\"GET\"]', 21, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
 INSERT INTO `base_menu` VALUES (1407, 1, 1400, 'sys:app:import', '导入应用', 2, '/import-export/import-app', '[\"POST\"]', 22, b'0', NULL, NULL, '1970-01-01 00:00:00', '1970-01-01 00:00:00', 'admin', 'admin');
