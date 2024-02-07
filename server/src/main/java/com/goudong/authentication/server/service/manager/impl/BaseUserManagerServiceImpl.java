@@ -123,12 +123,15 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         BaseApp app = baseAppService.findById(myAuthentication.getAppId());
         // 设置应用首页地址
         loginResp.setHomePage(app.getHomePage());
+        loginResp.setAppName(app.getName());
         loginResp.setRealHomePage(app.getHomePage());
+        loginResp.setRealAppName(app.getName());
         // 不相同就需要查询
         if (!Objects.equals(myAuthentication.getAppId(), myAuthentication.getRealAppId())) {
             BaseApp realApp = baseAppService.findById(myAuthentication.getRealAppId());
             String homePage = realApp.getHomePage();
             loginResp.setRealHomePage(homePage);
+            loginResp.setRealAppName(app.getName());
         }
 
         // 创建token

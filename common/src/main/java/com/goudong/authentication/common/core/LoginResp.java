@@ -24,9 +24,19 @@ public class LoginResp {
     private Long appId;
 
     /**
+     * 应用名称
+     */
+    private String appName;
+
+    /**
      * 用户真实appId
      */
     private Long realAppId;
+
+    /**
+     * 应用名称
+     */
+    private String realAppName;
 
     /**
      * 用户名
