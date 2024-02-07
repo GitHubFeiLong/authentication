@@ -1,5 +1,6 @@
 <template>
   <div class="login-container">
+    <div class="choice-page"></div>
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left">
 
       <div class="title-container">
@@ -62,7 +63,6 @@
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
 
     </el-form>
-
   </div>
 </template>
 
@@ -94,7 +94,10 @@ export default {
       loading: false,
       redirect: undefined,
       otherQuery: {},
-      apps: []
+      apps: [],
+      token: {},  // 登录成功返回的url
+      homePage: '',
+      realHomePage: '',
     }
   },
   watch: {
@@ -140,11 +143,18 @@ export default {
           let selectAppId = this.loginForm.selectAppId;
           LocalStorageUtil.setXAppId(selectAppId !== '' ? selectAppId : commons.X_APP_ID)
           loginApi(this.loginForm.username.trim(), encodeURIComponent(this.loginForm.password), this.loginForm.selectAppId).then(data => {
-            const { homePage, token } = data
+            const { homePage, realHomePage, token } = data
             const {accessToken, refreshToken, accessExpires, refreshExpires} = token
-            const url = `${homePage}?accessToken=${accessToken}&refreshToken=${refreshToken}&accessExpires=${accessExpires}&refreshExpires=${refreshExpires}`
-            console.log(url)
-            window.location.href = url
+            this.token = token
+            this.homePage = homePage
+            this.realHomePage = realHomePage
+            // 同一个应用
+            if (this.homePage === this.realHomePage) {
+              const url = this.getFullUrl(this.homePage)
+              window.location.href = url
+            } else {
+
+            }
           }).finally(() => {
             this.loading = false
           })
@@ -153,6 +163,10 @@ export default {
           return false
         }
       })
+    },
+    getFullUrl(homePage) {
+      const {accessToken, refreshToken, accessExpires, refreshExpires} = this.token
+      return `${homePage}?accessToken=${accessToken}&refreshToken=${refreshToken}&accessExpires=${accessExpires}&refreshExpires=${refreshExpires}`
     },
     getOtherQuery(query) {
       return Object.keys(query).reduce((acc, cur) => {
@@ -224,7 +238,13 @@ $light_gray:#eee;
   width: 100%;
   background-color: $bg;
   overflow: hidden;
-
+  .choice-page{
+    min-height: 100%;
+    width: 100%;
+    background-color: white;
+    position: absolute;
+    opacity: 0.9;
+  }
   .login-form {
     position: relative;
     width: 520px;
