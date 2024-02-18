@@ -76,6 +76,11 @@ module.exports = {
     // when there are many pages, it will cause too many meaningless requests
     config.plugins.delete('prefetch')
 
+    // 去掉console
+    config.optimization.minimizer('terser').tap((args) => {
+      args[0].terserOptions.compress.drop_console = true
+      return args
+    })
     // set svg-sprite-loader
     config.module
       .rule('svg')

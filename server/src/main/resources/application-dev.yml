@@ -73,3 +73,7 @@ goudong:
       print-log-limit:
         results-length: -1
 
+authentication:
+  server:
+    token:
+      access-token-expiration: 3600
