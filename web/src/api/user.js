@@ -140,3 +140,18 @@ export function deleteUserByIdsApi(ids) {
     method: 'delete'
   })
 }
+
+/**
+ * 修改账户密码
+ * @param {Object} data  密码
+ * @param {string} data.oldPassword 旧密码
+ * @param {string} data.newPassword 新密码
+ * @returns {*}
+ */
+export function changeOwnPasswordApi(data) {
+  return request({
+    url: `${API_PREFIX}/user/base-user/change-password`,
+    data,
+    method: 'put'
+  })
+}

@@ -27,6 +27,7 @@ import com.goudong.authentication.server.service.dto.BaseUserDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseUserManagerService;
 import com.goudong.authentication.server.util.SecurityContextUtil;
+import com.goudong.boot.web.core.BasicException;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.lang.PageResult;
 import com.goudong.core.util.AssertUtil;
@@ -129,9 +130,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         // 不相同就需要查询
         if (!Objects.equals(myAuthentication.getAppId(), myAuthentication.getRealAppId())) {
             BaseApp realApp = baseAppService.findById(myAuthentication.getRealAppId());
-            String homePage = realApp.getHomePage();
-            loginResp.setRealHomePage(homePage);
-            loginResp.setRealAppName(app.getName());
+            loginResp.setRealHomePage(realApp.getHomePage());
+            loginResp.setRealAppName(realApp.getName());
         }
 
         // 创建token
@@ -385,5 +385,36 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         AuthenticationServerProperties.TokenConfigInner tokenConfig = authenticationServerProperties.getToken();
         Jwt jwt = new Jwt(tokenConfig.getAccessTokenExpiration(), tokenConfig.getAccessTokenExpirationTimeUnit(), tokenConfig.getRefreshTokenExpiration(), tokenConfig.getRefreshTokenExpirationTimeUnit(), app.getSecret());
         return jwt.generateToken(userSimple);
+    }
+
+    /**
+     * 修改用户密码
+     *
+     * @param req 前端请求参数
+     * @return true:修改成功；false：修改失败
+     */
+    @Override
+    public Boolean changePassword(BaseUserChangePasswordReq req) {
+        MyAuthentication myAuthentication = SecurityContextUtil.get();
+        BaseUser user = baseUserService.findById(myAuthentication.getId());
+        AssertUtil.isNotNull(user, () -> BasicException.client("用户不存在"));
+        // 验证旧密码
+        boolean passwordMatches = CommonConst.BCRYPT_PATTERN.matcher(req.getOldPassword()).matches()
+                // 是密码格式，直接比较值
+                ? Objects.equals(req.getOldPassword(), user.getPassword())
+                // 使用 BCrypt 加密的方式进行匹配
+                : passwordEncoder.matches(req.getOldPassword(), user.getPassword());
+        AssertUtil.isTrue(passwordMatches, () -> BasicException.client("当前密码不正确"));
+        log.info("用户输入的旧密码匹配成功");
+        // 设置新密码
+        if (CommonConst.BCRYPT_PATTERN.matcher(req.getNewPassword()).matches()) {
+            log.info("新密码是BCrypt格式的字符串，直接设置成密码：{}", req.getNewPassword());
+            user.setPassword(req.getNewPassword());
+        } else {
+            log.info("加密密码：{}", req.getNewPassword());
+            user.setPassword(passwordEncoder.encode(req.getNewPassword()));
+        }
+        baseUserService.save(user);
+        return true;
     }
 }

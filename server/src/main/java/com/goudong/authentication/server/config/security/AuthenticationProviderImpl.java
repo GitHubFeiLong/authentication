@@ -1,5 +1,6 @@
 package com.goudong.authentication.server.config.security;
 
+import com.goudong.authentication.server.constant.CommonConst;
 import com.goudong.authentication.server.domain.BaseApp;
 import com.goudong.authentication.server.domain.BaseUser;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
@@ -22,6 +23,7 @@ import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -34,11 +36,7 @@ import java.util.stream.Collectors;
 @Component
 public class AuthenticationProviderImpl implements AuthenticationProvider {
 
-    /**
-     * BCrypt格式的字符串
-     * {@code BCryptPasswordEncoder#BCRYPT_PATTERN}
-     */
-    private final Pattern BCRYPT_PATTERN = Pattern.compile("\\A\\$2(a|y|b)?\\$(\\d\\d)\\$[./0-9A-Za-z]{53}");
+
 
     /**
      * 密码编码器
@@ -113,7 +111,8 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
         BaseApp app = baseAppManagerService.findById(selectAppId);
         AssertUtil.isTrue(app.getEnabled(), () -> new DisabledException("应用未激活"));
 
-        BaseUser user = baseUserManagerService.findOneByAppIdAndUsername(selectAppId, username);
+        BaseUser user = Optional.ofNullable(baseUserManagerService.findOneByAppIdAndUsername(selectAppId, username))
+                .orElseGet(() -> baseUserManagerService.findOneByAppIdAndUsername(CommonConst.AUTHENTICATION_SERVER_APP_ID, username));
 
         AssertUtil.isNotNull(user, () -> {
             log.warn("选择了应用,用户名不存在");
@@ -121,7 +120,7 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
         });
         // 所选用户存在
         log.info("选择了应用,并且用户存在");
-        boolean passwordMatches = BCRYPT_PATTERN.matcher(password).matches()
+        boolean passwordMatches = CommonConst.BCRYPT_PATTERN.matcher(password).matches()
                 // 是密码格式，直接比较值
                 ? Objects.equals(password, user.getPassword())
                 // 使用 BCrypt 加密的方式进行匹配
@@ -182,7 +181,7 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
         });
         // 所选用户存在
         log.info("根据X-App-Id查询用户，用户存在");
-        boolean passwordMatches = BCRYPT_PATTERN.matcher(password).matches()
+        boolean passwordMatches = CommonConst.BCRYPT_PATTERN.matcher(password).matches()
                 // 是密码格式，直接比较值
                 ? Objects.equals(password, user.getPassword())
                 // 使用 BCrypt 加密的方式进行匹配

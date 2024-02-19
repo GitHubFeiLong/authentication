@@ -3,6 +3,7 @@ package com.goudong.authentication.server.constant;
 import com.goudong.core.util.ListUtil;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * 类描述：
@@ -69,6 +70,11 @@ public class CommonConst {
             "/drop-down/base-app/all-drop-down" // 应用下拉
     );
 
+    /**
+     * BCrypt格式的字符串
+     * {@code BCryptPasswordEncoder#BCRYPT_PATTERN}
+     */
+    public static final Pattern BCRYPT_PATTERN = Pattern.compile("\\A\\$2(a|y|b)?\\$(\\d\\d)\\$[./0-9A-Za-z]{53}");
 
     //~methods
     //==================================================================================================================

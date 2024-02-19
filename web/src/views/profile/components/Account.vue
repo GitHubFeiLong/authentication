@@ -1,37 +1,40 @@
 <template>
   <el-form ref="changePassword" :model="user" :rules="changePasswordRules">
-    <el-form-item label="Name" prop="name">
-      <el-input v-model.trim="user.name" disabled />
+    <el-form-item label="旧密码" prop="oldPassword">
+      <el-input v-model="user.oldPassword" :type="passwordType" show-password placeholder="请输入当前账户的密码" />
     </el-form-item>
-    <el-form-item label="Password" prop="password">
-      <el-input v-model.trim="user.password" :type="passwordType" show-password placeholder="请输入8~20位包含数字、字母、符号组合的强密码" />
+    <el-form-item label="新密码" prop="newPassword">
+      <el-input v-model="user.newPassword" :type="passwordType" show-password placeholder="请输入新密码8~20位包含数字、字母、符号组合的强密码" />
     </el-form-item>
-    <el-form-item label="Confirm Password" prop="repassword">
-      <el-input v-model.trim="user.repassword" :type="passwordType" show-password placeholder="请确认密码" />
+    <el-form-item label="确认密码" prop="confirmNewPassword">
+      <el-input v-model.trim="user.confirmNewPassword" :type="passwordType" show-password placeholder="请再次输入新密码" />
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" @click="submit">Update</el-button>
+      <el-button type="primary" @click="submit">提 交</el-button>
     </el-form-item>
   </el-form>
 </template>
 
 <script>
-import { changeOwnPassword, simpleCreateUser } from "@/api/user";
+import {changeOwnPasswordApi} from "@/api/user";
 import * as validate from "@/utils/validate";
 import { password, strongPassword } from "@/utils/validate";
 import { Message } from "element-ui";
+import store from "@/store";
+import Router from "@/router";
 
 export default {
   name: 'Account',
   props: {
-    user: {
+    user1: {
       type: Object,
       default: () => {
         return {
-          name: '',
+          username: '',
           email: '',
+          oldPassword: '',
           password: '',
-          repassword: '',
+          newPassword: '',
         }
       }
     }
@@ -40,12 +43,20 @@ export default {
     return {
       passwordType: 'password',
       changePasswordRules: {
-        password: [
+        oldPassword: [
+          { required: true, message: "请输入当前账户的密码", trigger: 'blur'}
+        ],
+        newPassword: [
           { required: true, validator: validate.strongPassword, trigger: 'blur' },
         ],
-        repassword: [
+        confirmNewPassword: [
           { required: true, validator: validate.strongPassword, trigger: 'blur' },
         ],
+      },
+      user:{
+        oldPassword: '',
+        newPassword: '',
+        confirmNewPassword: '',
       },
     }
   },
@@ -53,13 +64,20 @@ export default {
     submit() {
       this.$refs.changePassword.validate((valid) => {
         if (valid) {
-          if (this.user.password !== this.user.repassword) {
-            this.$message.error("两次输入的密码不匹配")
+          if (this.user.newPassword !== this.user.oldPassword) {
+            this.$message.error("新密码和旧密码不能相同")
             return;
           }
-          changeOwnPassword(this.user.password).then(data => {
+          if (this.user.newPassword !== this.user.confirmNewPassword) {
+            this.$message.error("新密码和确认密码不匹配")
+            return;
+          }
+          changeOwnPasswordApi({oldPassword: this.user.oldPassword, newPassword: this.user.newPassword}).then(data => {
             if (data) {
               this.$message.success("修改成功")
+              // 退出登录
+              store.dispatch('user/logout')
+              Router.push({ path: '/login' })
             } else {
               this.$message.error("修改失败")
             }

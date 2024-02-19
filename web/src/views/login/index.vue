@@ -1,6 +1,34 @@
 <template>
   <div class="login-container">
-    <div class="choice-page"></div>
+    <el-dialog
+      title="请选择登录应用"
+      :visible.sync="showSelectApp"
+      width="100%"
+      class="choice-dialog"
+    >
+      <div class="choice-page">
+        <el-row class="row">
+          <el-col :span="12" @click.native.prevent="selectApp(homePage)">
+            <el-card :body-style="{ padding: '0px' }" shadow="hover">
+              <img :src="appImage" class="image">
+              <div class="app-name">
+                <span>{{appName}}</span>
+              </div>
+            </el-card>
+          </el-col>
+          <el-col :span="12" @click.native.prevent="selectApp(realHomePage)">
+            <el-card :body-style="{ padding: '0px' }" shadow="hover">
+              <img :src="serverAdminImage" class="image">
+              <div class="app-name">
+                <span>{{realAppName}}</span>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
+      </div>
+    </el-dialog>
+
+
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left">
 
       <div class="title-container">
@@ -33,6 +61,7 @@
           type="text"
           tabindex="1"
           autocomplete="on"
+          clearable
         />
       </el-form-item>
 
@@ -73,7 +102,8 @@ import { loginApi } from "@/api/user";
 import log from "echarts/src/scale/Log";
 import LocalStorageUtil from "@/utils/LocalStorageUtil";
 import * as commons from "@/constant/commons";
-
+import appImage from '@/assets/jpg/pexels-fauxels-3184418.jpg'
+import serverAdminImage from '@/assets/jpg/pexels-pixabay-461064.jpg'
 export default {
   name: 'Login',
   // components: { SocialSign },
@@ -98,6 +128,11 @@ export default {
       token: {},  // 登录成功返回的url
       homePage: '',
       realHomePage: '',
+      appImage: appImage,
+      serverAdminImage: serverAdminImage,
+      realAppName: '',  // 账户真实应用名
+      appName: '',      // 认证后台应用名
+      showSelectApp: false, //  是否显示
     }
   },
   watch: {
@@ -143,17 +178,21 @@ export default {
           let selectAppId = this.loginForm.selectAppId;
           LocalStorageUtil.setXAppId(selectAppId !== '' ? selectAppId : commons.X_APP_ID)
           loginApi(this.loginForm.username.trim(), encodeURIComponent(this.loginForm.password), this.loginForm.selectAppId).then(data => {
-            const { homePage, realHomePage, token } = data
+            const { homePage, realHomePage, token, appName, realAppName } = data
             const {accessToken, refreshToken, accessExpires, refreshExpires} = token
             this.token = token
             this.homePage = homePage
             this.realHomePage = realHomePage
+            this.appName = appName
+            this.realAppName = realAppName
             // 同一个应用
-            if (this.homePage === this.realHomePage) {
+            if (this.appName === this.realAppName) {
               const url = this.getFullUrl(this.homePage)
               window.location.href = url
             } else {
-
+              this.homePage = this.getFullUrl(this.homePage)
+              this.realHomePage = this.getFullUrl(this.realHomePage)
+              this.showSelectApp = true
             }
           }).finally(() => {
             this.loading = false
@@ -175,6 +214,10 @@ export default {
         }
         return acc
       }, {})
+    },
+    selectApp(url) {
+      console.log(url)
+      window.location.href = url
     }
   }
 }
@@ -238,13 +281,51 @@ $light_gray:#eee;
   width: 100%;
   background-color: $bg;
   overflow: hidden;
-  .choice-page{
-    min-height: 100%;
-    width: 100%;
-    background-color: white;
-    position: absolute;
-    opacity: 0.9;
+  .choice-dialog {
+    min-height: 50%;
+    width: 50%;
+    left: 25%;
+    top: 15%;
+    .choice-page{
+      background-color: white;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      align-items: center;
+
+      .el-row{
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        align-items: center;
+        .el-col {
+          width: 30%;
+          transition: all 0.2s linear;
+          &:hover {
+            transform: scale(1.1, 1.1);
+            filter: contrast(130%);
+            cursor: pointer;
+            color:red;
+          }
+          .image{
+            width: 100%;
+            height: 100%;
+          }
+          .app-name{
+            padding: 14px;
+            display: flex;
+            justify-content: center;
+            font-size: 18px;
+          }
+
+        }
+      }
+    }
   }
+
   .login-form {
     position: relative;
     width: 520px;

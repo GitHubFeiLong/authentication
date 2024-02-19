@@ -113,4 +113,11 @@ public interface BaseUserManagerService {
      * @return  填充后新生成的token
      */
     Token supplementToken(Map<String, Object> req);
+
+    /**
+     * 修改用户密码
+     * @param req   前端请求参数
+     * @return  true:修改成功；false：修改失败
+     */
+    Boolean changePassword(BaseUserChangePasswordReq req);
 }

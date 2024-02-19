@@ -191,4 +191,15 @@ public class BaseUserResource {
     public Result<Token> supplementToken(@RequestBody Map<String, Object> req) {
         return Result.ofSuccess(baseUserManagerService.supplementToken(req));
     }
+
+    /**
+     * 修改用户密码
+     * @param req 修改用户密码参数
+     * @return true：修改成功；false：修改失败
+     */
+    @PutMapping("/base-user/change-password")
+    @ApiOperation(value = "修改用户密码")
+    public Result<Boolean> changePassword(@RequestBody @Validated BaseUserChangePasswordReq req) {
+        return Result.ofSuccess(baseUserManagerService.changePassword(req));
+    }
 }
