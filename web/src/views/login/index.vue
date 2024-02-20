@@ -5,26 +5,21 @@
       :visible.sync="showSelectApp"
       width="100%"
       class="choice-dialog"
+      :close-on-click-modal="false"
     >
       <div class="choice-page">
-        <el-row class="row">
-          <el-col :span="12" @click.native.prevent="selectApp(homePage)">
-            <el-card :body-style="{ padding: '0px' }" shadow="hover">
-              <img :src="appImage" class="image">
-              <div class="app-name">
-                <span>{{appName}}</span>
-              </div>
-            </el-card>
-          </el-col>
-          <el-col :span="12" @click.native.prevent="selectApp(realHomePage)">
-            <el-card :body-style="{ padding: '0px' }" shadow="hover">
-              <img :src="serverAdminImage" class="image">
-              <div class="app-name">
-                <span>{{realAppName}}</span>
-              </div>
-            </el-card>
-          </el-col>
-        </el-row>
+        <el-card :body-style="{ padding: '0px' }" @click.native.prevent="selectApp(realHomePage)" shadow="hover">
+          <img :src="serverAdminImage" class="image">
+          <div class="app-name">
+            <span>{{realAppName}}</span>
+          </div>
+        </el-card>
+        <el-card :body-style="{ padding: '0px' }" @click.native.prevent="selectApp(homePage)" shadow="hover">
+          <img :src="appImage" class="image">
+          <div class="app-name">
+            <span>{{appName}}</span>
+          </div>
+        </el-card>
       </div>
     </el-dialog>
 
@@ -39,7 +34,7 @@
         <span class="svg-container">
           <svg-icon icon-class="iconfont-yingyongguanli" />
         </span>
-        <el-select v-model="loginForm.selectAppId" width="85%" placeholder="请选择应用登录" clearable>
+        <el-select v-model="loginForm.selectAppId" placeholder="请选择应用登录" clearable>
           <el-option
             v-for="item in apps"
             :key="item.id"
@@ -116,8 +111,8 @@ export default {
       },
       // 规则
       loginRules: {
-        username: [{ required: true, trigger: 'blur' }],
-        password: [{ required: true, trigger: 'blur' }]
+        username: [{ required: true, trigger: 'blur', message: "请输入登录账户名"}],
+        password: [{ required: true, trigger: 'blur', message: "请输入登录账户密码"}]
       },
       passwordType: 'password',
       capsTooltip: false,
@@ -130,8 +125,8 @@ export default {
       realHomePage: '',
       appImage: appImage,
       serverAdminImage: serverAdminImage,
-      realAppName: '',  // 账户真实应用名
-      appName: '',      // 认证后台应用名
+      realAppName: 'Admin',  // 账户真实应用名
+      appName: '小米',      // 认证后台应用名
       showSelectApp: false, //  是否显示
     }
   },
@@ -239,8 +234,14 @@ $cursor: #fff;
 
 /* reset element-ui css */
 .login-container {
-  .el-input,.el-select {
-    width: 418px;
+  .el-input{
+    width: calc(100% - 32px);
+  }
+  .el-select{
+    width: calc(100% - 32px);
+    .el-input{
+      width: 100%;
+    }
   }
   .el-input {
     display: inline-block;
@@ -282,10 +283,10 @@ $light_gray:#eee;
   background-color: $bg;
   overflow: hidden;
   .choice-dialog {
-    min-height: 50%;
-    width: 50%;
-    left: 25%;
-    top: 15%;
+    width: 1400px;
+    max-width: 100%;
+    margin: 0 auto;
+    position: absolute;
     .choice-page{
       background-color: white;
       display: flex;
@@ -293,34 +294,29 @@ $light_gray:#eee;
       flex-wrap: wrap;
       justify-content: space-around;
       align-items: center;
-
-      .el-row{
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        align-items: center;
-        .el-col {
-          width: 30%;
-          transition: all 0.2s linear;
-          &:hover {
-            transform: scale(1.1, 1.1);
-            filter: contrast(130%);
-            cursor: pointer;
-            color:red;
-          }
-          .image{
-            width: 100%;
-            height: 100%;
-          }
+      .el-card{
+        width: 630px;
+        position: relative;
+        padding: 0px 10px 0px 5px;
+        .image{
+          width: 100%;
+          height: 100%;
+        }
+        .app-name{
+          padding: 14px;
+          display: flex;
+          justify-content: center;
+          font-size: 18px;
+        }
+        transition: all 0.2s linear;
+        &:hover {
+          transform: scale(1.1, 1.1);
+          filter: contrast(130%);
+          cursor: pointer;
           .app-name{
-            padding: 14px;
-            display: flex;
-            justify-content: center;
-            font-size: 18px;
+            font-weight: bold;
+            color: #3a3a3a;
           }
-
         }
       }
     }
@@ -386,6 +382,45 @@ $light_gray:#eee;
   @media only screen and (max-width: 470px) {
     .thirdparty-button {
       display: none;
+    }
+    .choice-dialog {
+      width: 90%;
+      max-width: 100%;
+      margin: 0 auto;
+      position: absolute;
+      .choice-page{
+        background-color: white;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        align-items: center;
+        .el-card{
+          width: 100%;
+          position: relative;
+          padding: 10px 0px 10px 0px;
+          .image{
+            width: 100%;
+            height: 100%;
+          }
+          .app-name{
+            padding: 14px;
+            display: flex;
+            justify-content: center;
+            font-size: 18px;
+          }
+          transition: all 0.2s linear;
+          &:hover {
+            transform: scale(1.1, 1.1);
+            filter: contrast(130%);
+            cursor: pointer;
+            .app-name{
+              font-weight: bold;
+              color: #3a3a3a;
+            }
+          }
+        }
+      }
     }
   }
 }
