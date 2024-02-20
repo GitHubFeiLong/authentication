@@ -3,8 +3,9 @@
     <!--  查询条件  -->
     <div class="filter-container">
       <div class="filter-item">
-        <span class="filter-item-label">用户账号: </span>
-        <UserSelect ref="userSelectRef" @getSelectedUser="getSelectedUser" />
+        <span class="filter-item-label">用户名: </span>
+        <!--<UserSelect ref="userSelectRef" @getSelectedUser="getSelectedUser" />-->
+        <el-input v-model="filter.username" placeholder="请输入需要查询的用户名" clearable/>
       </div>
       <div class="filter-item">
         <span class="filter-item-label">有效日期: </span>
@@ -261,6 +262,7 @@ export default {
     return {
       filter: {
         id: undefined,
+        username: undefined,
         validTime: undefined,
         startValidTime: undefined,
         endValidTime: undefined,
@@ -362,6 +364,7 @@ export default {
         page: this.user.page,
         size: this.user.size,
         id: this.filter.id,
+        username: this.filter.username,
         startValidTime: this.filter.startValidTime,
         endValidTime: this.filter.endValidTime,
       }

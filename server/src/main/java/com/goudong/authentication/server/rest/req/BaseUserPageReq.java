@@ -8,7 +8,7 @@ import java.util.Date;
 
 /**
  * 类描述：
- *
+ * 分页查询用户的参数对象
  * @author cfl
  * @version 1.0
  */

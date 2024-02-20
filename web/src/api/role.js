@@ -2,21 +2,27 @@ import request from '@/utils/request'
 import {API_PREFIX} from "@/constant/commons";
 
 /**
- * 根据字段进行分页查询角色
- * @param page
- * @returns {*}
+ * 分页角色查询
+ * @param {object} data         分页参数
+ * @param {number} data.page    页码
+ * @param {number} data.size    每页多少条数据
+ * @param {array} data.ids      角色id集合
+ * @param {string} data.name    角色名称
+ * @param {string} data.remark  角色备注
  */
-export function pageRolesApi(page) {
+export function pageRolesApi(data) {
   return request({
     url: `${API_PREFIX}/role/page/base-roles`,
     method: 'post',
-    data: page
+    data
   })
 }
 
 /**
  * 新增角色
- * @param data
+ * @param {object} data           新增角色参数
+ * @param {string} data.name      角色名称
+ * @param {string} data.remark    角色备注
  * @returns {*}
  */
 export function createRoleApi(data) {
@@ -29,7 +35,9 @@ export function createRoleApi(data) {
 
 /**
  * 修改角色
- * @param data
+ * @param {object} data           修改角色参数
+ * @param {string} data.name      角色名称
+ * @param {string} data.remark    角色备注
  * @returns {*}
  */
 export function updateRoleApi(data) {
@@ -42,7 +50,7 @@ export function updateRoleApi(data) {
 
 /**
  * 根据id批量删除用户
- * @param ids 用户id集合
+ * @param {array} ids 用户id集合
  * @returns {*}
  */
 export function deleteRoleByIdsApi(ids) {
@@ -55,7 +63,7 @@ export function deleteRoleByIdsApi(ids) {
 
 /**
  * 查询角色以及角色的权限
- * @param id
+ * @param {number} id 角色id
  * @returns {*}
  */
 export function getPermissionListByIdApi(id) {
@@ -67,6 +75,9 @@ export function getPermissionListByIdApi(id) {
 
 /**
  * 修改角色权限
+ * @param {object} data         修改角色权限参数
+ * @param {object} data.id      角色id
+ * @param {array} data.menuIds  菜单id集合
  * @returns {*}
  */
 export function changePermissionApi(data) {
@@ -74,76 +85,5 @@ export function changePermissionApi(data) {
     url: `${API_PREFIX}/role/base-role/permission-list`,
     method: 'post',
     data: data,
-  })
-}
-
-
-//////////// 删除
-
-/**
- * 删除角色
- * @param id
- * @returns {*}
- */
-export function removeRole(id) {
-  return request({
-    url: `/api/user/base-role/${id}`,
-    method: 'delete',
-  })
-}
-/**
- * 查询角色以及角色的权限
- * @param id
- * @returns {*}
- */
-export function getRoleById(id) {
-  return request({
-    url: `/api/user/base-role/${id}`,
-    method: 'get',
-  })
-}
-
-
-
-/**
- * 分页查询角色名称
- * @param page 分页参数
- * @returns {*}
- */
-export function pageRoleByField(page) {
-  return request({
-    url: `/api/user/base-role/page/name`,
-    method: 'get',
-    data: page,
-  })
-}
-// export function edit
-
-export function getRoutes() {
-  return request({
-    url: '/vue-element-admin/routes',
-    method: 'get'
-  })
-}
-
-export function getRoles() {
-  return request({
-    url: '/vue-element-admin/roles',
-    method: 'get'
-  })
-}
-
-export function updateRole(id, data) {
-  return request({
-    url: `/vue-element-admin/role/${id}`,
-    method: 'put',
-    data
-  })
-}
-
-export function deleteRole(id) {
-  return request({
-    url: `/vue-element-admin/role/${id}`,
-    method: 'delete'
   })
 }

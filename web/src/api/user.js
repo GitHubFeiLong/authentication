@@ -3,10 +3,9 @@ import {API_PREFIX} from "@/constant/commons";
 
 /**
  * 登录
- * @param username  用户名
- * @param password  密码
- * @param selectAppId 选择的应用Id
- * @returns {*}
+ * @param {string} username  用户名
+ * @param {string} password  密码
+ * @param {Number} selectAppId 选择的应用Id
  */
 export function loginApi(username, password, selectAppId) {
   return request({
@@ -17,7 +16,7 @@ export function loginApi(username, password, selectAppId) {
 
 /**
  * 刷新token
- * @param refreshToken
+ * @param {string} refreshToken 刷新令牌
  * @returns {*}
  */
 export function refreshTokenApi(refreshToken) {
@@ -30,7 +29,7 @@ export function refreshTokenApi(refreshToken) {
 
 /**
  * 根据token获取用户信息 - get请求
- * @param token
+ * @param {string} token  令牌
  * @returns {*}
  */
 export function getUserDetailApi(token) {
@@ -41,8 +40,8 @@ export function getUserDetailApi(token) {
 }
 
 /**
- * 根据token获取用户信息 - get请求
- * @param token
+ * 根据token获取用户信息 - post请求
+ * @param {string} token  令牌
  * @returns {*}
  */
 export function getUserDetailApiByPost(token) {
@@ -55,8 +54,13 @@ export function getUserDetailApiByPost(token) {
 
 /**
  * 用户的分页查询
- * @param data
- * @returns {*}
+ * @param {Object}   data                 分页参数
+ * @param {Number}   data.page            页码
+ * @param {Number}   data.size            每页多少条数据
+ * @param {Number}   data.id              用户id
+ * @param {string}   data.username        用户名
+ * @param {string}   data.startValidTime  有效日期开始时间
+ * @param {string}   data.endValidTime    有效日期截止时间
  */
 export function pageUsersApi(data) {
   return request({
@@ -68,7 +72,11 @@ export function pageUsersApi(data) {
 
 /**
  * 创建用户
- * @param user
+ * @param {Object} user 新建用户参数
+ * @param {string} user.username  用户名
+ * @param {string} user.password  密码
+ * @param {array} user.roleIds    角色集合
+ * @param {string} user.remark    用户备注
  * @returns {*}
  */
 export function simpleCreateUserApi(user) {
@@ -81,7 +89,14 @@ export function simpleCreateUserApi(user) {
 
 /**
  * 修改用户
- * @param user
+ * @param {Object} user                     修改用户参数
+ * @param {Number} user.id                  用户id
+ * @param {string} user.password            密码
+ * @param {array} user.roleIds              角色集合
+ * @param {string} user.validTime           用户有效期
+ * @param {'true' | 'false'} user.enabled   激活状态：true 激活；false 未激活
+ * @param {'true' | 'false'} user.locked    锁定状态：true 锁定；false 未锁定
+ * @param {string} user.remark              用户备注
  * @returns {*}
  */
 export function simpleUpdateUserApi(user) {
@@ -94,7 +109,7 @@ export function simpleUpdateUserApi(user) {
 
 /**
  * 根据id重置用户密码
- * @param userId 用户id
+ * @param {Number} userId 用户id
  * @returns {*}
  */
 export function resetPasswordApi(userId) {
@@ -106,7 +121,7 @@ export function resetPasswordApi(userId) {
 
 /**
  * 根据id切换用户激活状态
- * @param userId 用户id
+ * @param {Number} userId 用户id
  * @returns {*}
  */
 export function changeEnabledApi(userId) {
@@ -118,7 +133,7 @@ export function changeEnabledApi(userId) {
 
 /**
  * 根据id切换用户锁定状态
- * @param userId 用户id
+ * @param {Number} userId 用户id
  * @returns {*}
  */
 export function changeLockedApi(userId) {
@@ -130,7 +145,7 @@ export function changeLockedApi(userId) {
 
 /**
  * 根据id批量删除用户
- * @param ids 用户id集合
+ * @param {array} ids 用户id集合
  * @returns {*}
  */
 export function deleteUserByIdsApi(ids) {

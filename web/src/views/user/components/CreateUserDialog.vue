@@ -11,6 +11,9 @@
       <el-form-item label="角色" prop="roleIds">
         <RoleSelect ref="roleSelectRef" :role-multiple="true" @getSelectRoles="getSelectRoles" />
       </el-form-item>
+      <el-form-item label="备注">
+        <el-input v-model="user.remark" placeholder="请输入用户备注" clearable/>
+      </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="resetForm('user')">重 置</el-button>
@@ -43,6 +46,7 @@ export default {
         email: '',
         password: '',
         roleIds: [],
+        remark: '',
       },
       rules: {
         username: [

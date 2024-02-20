@@ -68,6 +68,11 @@ public class BaseAppCert extends BasePO implements Serializable {
     private Date validTime;
 
     /**
+     * 备注
+     */
+    @Column(name = "remark")
+    private String remark;
+    /**
      * @JoinColumn(name="app_id") 中app_id是当前实体外键字段
      */
     @ManyToOne

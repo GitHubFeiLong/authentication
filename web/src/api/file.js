@@ -32,7 +32,13 @@ export function exportUserTemplateApi() {
 
 /**
  * 导出用户
- * @param data
+ * @param {object} data
+ * @param {object} data.ids                     用户id集合
+ * @param {object} data.pageReq                 分页参数
+ * @param {number} data.pageReq.id              用户id
+ * @param {string} data.pageReq.username        用户名
+ * @param {string} data.pageReq.startValidTime  用户过期时间
+ * @param {string} data.pageReq.endValidTime    用户过期时间
  */
 export function exportUserApi(data) {
   return request({
@@ -62,7 +68,12 @@ export function exportRoleTemplateApi() {
 
 /**
  * 导出角色
- * @param data
+ * @param {object} data                 导出参数
+ * @param {array} data.ids              勾选的id集合
+ * @param {object} data.pageReq         查询参数
+ * @param {array} data.pageReq.ids      角色id
+ * @param {string} data.pageReq.name    角色名
+ * @param {string} data.pageReq.remark  备注
  */
 export function exportRoleApi(data) {
   return request({
@@ -91,7 +102,11 @@ export function exportMenuTemplateApi() {
 
 /**
  * 导出菜单
- * @param data
+ * @param {object} data              导出参数
+ * @param {string} data.name         导出参数
+ * @param {1|2|3} data.type          菜单类型（1：菜单；2：按钮；3：接口）
+ * @param {object} data.permissionId 权限标识
+ * @param {object} data.path         路由
  */
 export function exportMenuApi(data) {
   return request({
@@ -121,7 +136,15 @@ export function exportAppTemplateApi() {
 
 /**
  * 导出应用
- * @param data
+ * @param {object} data                     导出参数
+ * @param {array} data.ids                  勾选的id
+ * @param {object} data.pageReq             查询参数
+ * @param {array} data.pageReq.ids          勾选的id
+ * @param {number} data.pageReq.id          应用id
+ * @param {string} data.pageReq.name        应用名
+ * @param {string} data.pageReq.homePage    应用主页
+ * @param {true|false} data.pageReq.enabled 是否激活
+ * @param {string} data.pageReq.remark      备注
  */
 export function exportAppApi(data) {
   return request({

@@ -16,6 +16,9 @@ export function dropDownAllAppApi() {
 
 /**
  * 用户下拉
+ * @param {object} params
+ * @param {number} params.id    用户id
+ * @param {string} params.name  用户名
  * @returns {*}
  */
 export function dropDownUserApi(params) {
@@ -28,6 +31,9 @@ export function dropDownUserApi(params) {
 
 /**
  * 角色下拉
+ * @param {object} params
+ * @param {number} params.id    角色id
+ * @param {string} params.name  角色名
  * @returns {*}
  */
 export function dropDownRoleApi(params) {

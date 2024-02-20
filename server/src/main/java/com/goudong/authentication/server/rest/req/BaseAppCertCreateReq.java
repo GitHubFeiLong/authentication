@@ -32,6 +32,9 @@ public class BaseAppCertCreateReq {
     @NotNull
     @ApiModelProperty(value = "有效期", required = true)
     private Date validTime;
+
+    @ApiModelProperty(value = "备注", required = false)
+    private String remark;
     //~methods
     //==================================================================================================================
 }

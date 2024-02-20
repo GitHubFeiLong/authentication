@@ -19,7 +19,7 @@ public class BaseMenuChangeSortNumReq {
     @NotNull
     private Long beforeId;
 
-    @ApiModelProperty(value = "移动后所处的菜单id", required = true)
+    @ApiModelProperty(value = "移动后所处位置的菜单id", required = true)
     @NotNull
     private Long afterId;
     //~methods

@@ -321,6 +321,7 @@ public class BaseAppManagerServiceImpl implements BaseAppManagerService {
                 baseAppCert.setPrivateKey(Base64.getEncoder().encodeToString(cer.getKeyPair().getPrivate().getEncoded()));
                 baseAppCert.setPublicKey(Base64.getEncoder().encodeToString(cer.getKeyPair().getPublic().getEncoded()));
                 baseAppCert.setValidTime(req.getValidTime());
+                baseAppCert.setRemark(req.getRemark());
 
                 certs.add(baseAppCert);
                 baseAppCert.setBaseApp(baseApp);

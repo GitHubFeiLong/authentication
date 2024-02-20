@@ -5,6 +5,7 @@ import {checkEmail, checkPhone, checkUsername} from '@/api/user';
 import {API_PREFIX} from "@/constant/commons";
 
 /**
+ * 判断path是否是网站地址
  * @param {string} path
  * @returns {Boolean}
  */
@@ -23,8 +24,10 @@ export function validUsername(str) {
 }
 
 /**
- * @param {string} url
- * @returns {Boolean}
+ * 校验是否是有效的url地址
+ * @param {string} url  路径
+ * @description 校验url格式（http, https, ftp）
+ * @returns {Boolean} true：有效地址；false：无效地址
  */
 export function validURL(url) {
   const reg = /^(https?|ftp):\/\/([a-zA-Z0-9.-]+(:[a-zA-Z0-9.&%$-]+)*@)*((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(:[0-9]+)*(\/($|[a-zA-Z0-9.,?'\\+&%$#=~_-]+))*$/
@@ -32,8 +35,9 @@ export function validURL(url) {
 }
 
 /**
- * @param {string} str
- * @returns {Boolean}
+ * 校验字符串是否是小写
+ * @param {string} str  待校验字符串
+ * @returns {Boolean}   true：是小写字符串；false：不是小写字符串
  */
 export function validLowerCase(str) {
   const reg = /^[a-z]+$/
@@ -41,8 +45,9 @@ export function validLowerCase(str) {
 }
 
 /**
- * @param {string} str
- * @returns {Boolean}
+ * 校验字符串是否是大写
+ * @param {string} str  待校验字符串
+ * @returns {Boolean}   true：是大写字符串；false：不是大写字符串
  */
 export function validUpperCase(str) {
   const reg = /^[A-Z]+$/
@@ -50,8 +55,9 @@ export function validUpperCase(str) {
 }
 
 /**
- * @param {string} str
- * @returns {Boolean}
+ * 校验字符串是否是字母
+ * @param {string} str  待校验字符串
+ * @returns {Boolean}   true：是字母；false：不是字母
  */
 export function validAlphabets(str) {
   const reg = /^[A-Za-z]+$/
@@ -59,8 +65,9 @@ export function validAlphabets(str) {
 }
 
 /**
- * @param {string} email
- * @returns {Boolean}
+ * 校验字符串是否是邮箱地址
+ * @param {string} email  待校验字符串
+ * @returns {Boolean}     true：是邮箱地址；false：不是邮箱地址
  */
 export function validEmail(email) {
   const reg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -68,8 +75,9 @@ export function validEmail(email) {
 }
 
 /**
- * @param {string} str
- * @returns {Boolean}
+ * 校验字符串是否是字符串
+ * @param {string} str  待校验字符串
+ * @returns {Boolean}   true：是字符串；false：不是字符串
  */
 export function isString(str) {
   if (typeof str === 'string' || str instanceof String) {
@@ -79,8 +87,9 @@ export function isString(str) {
 }
 
 /**
- * @param {Array} arg
- * @returns {Boolean}
+ * 校验是否是数组
+ * @param {Array} arg   待校验对象
+ * @returns {Boolean}   true：是数组；false：不是数组
  */
 export function isArray(arg) {
   if (typeof Array.isArray === 'undefined') {
@@ -91,7 +100,8 @@ export function isArray(arg) {
 
 /**
  * 判断是否需要请求头带token的
- * @param url
+ * @param {object} url  请求接口地址
+ * @returns {Boolean}   true：需要携带token；false：不需要携带token
  */
 export function validateUrlAuthentication(url) {
   return !validateUrlNotAuthentication(url)
@@ -99,8 +109,8 @@ export function validateUrlAuthentication(url) {
 
 /**
  * 判断url不是认证相关地址（登录，刷新令牌）
- * @param url
- * @return true url不是认证地址，需要携token； false：url是认证地址，不需要带token
+ * @param {object} url  请求接口地址
+ * @return {Boolean}    true url不是认证地址，需要携token； false：url是认证地址，不需要带token
  */
 export function validateUrlNotAuthentication(url) {
   // url类型是undefined直接返回
@@ -115,7 +125,7 @@ export function validateUrlNotAuthentication(url) {
 
 /**
  * 判断字符串是否是json格式
- * @param str
+ * @param {string} str  待校验对象
  */
 export function isJSON(str) {
   return new Promise((resolve, reject) => {
@@ -137,8 +147,8 @@ export function isJSON(str) {
 
 /**
  * 验证是否是日期
- * @param date
- * @returns {boolean}
+ * @param {string} date
+ * @returns {boolean} true：是日期；false：不是日期
  */
 export function validateDate(date) {
   // 2022-09-10 23:19:09
