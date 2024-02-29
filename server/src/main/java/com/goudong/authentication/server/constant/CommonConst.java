@@ -76,6 +76,16 @@ public class CommonConst {
      */
     public static final Pattern BCRYPT_PATTERN = Pattern.compile("\\A\\$2(a|y|b)?\\$(\\d\\d)\\$[./0-9A-Za-z]{53}");
 
+
+    /**
+     * 认证模式 GOUDONG-SHA256withRSA
+     */
+    public static final String AUTHORIZATION_GOUDONG_MODEL = "GOUDONG-SHA256withRSA";
+
+    /**
+     * application/json
+     */
+    public static final String CONTENT_TYPE_APPLICATION_JSON = "application/json";
     //~methods
     //==================================================================================================================
 }

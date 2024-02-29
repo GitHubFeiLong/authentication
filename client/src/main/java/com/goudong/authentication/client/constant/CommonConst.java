@@ -10,9 +10,14 @@ public class CommonConst {
     //~fields
     //==================================================================================================================
     /**
+     * 请求头属性
+     */
+    public static final String HTTP_HEADER_AUTHORIZATION = "Authorization";
+    public static final String HTTP_HEADER_X_APP_ID = "X-App-Id";
+    /**
      * 认证模式
      */
-    public static final String AUTHENTICATION_TEMPLATE = "GOUDONG-SHA256withRSA appid=\"%s\",serial_number=\"%s\",timestamp=\"%s\",nonce_str=\"%s\" signature=\"%s\"";
+    public static final String AUTHENTICATION_TEMPLATE = "GOUDONG-SHA256withRSA appid=\"%s\",serial_number=\"%s\",timestamp=\"%s\",nonce_str=\"%s\",signature=\"%s\"";
 
     /**
      * 数字

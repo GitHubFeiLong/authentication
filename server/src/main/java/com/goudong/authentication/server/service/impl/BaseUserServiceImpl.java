@@ -334,4 +334,40 @@ public class BaseUserServiceImpl implements BaseUserService {
         return true;
     }
 
+    /**
+     * 查询用户
+     *
+     * @param realAppId 用户的真实应用id
+     * @param username  用户名
+     * @return 用户对象
+     */
+    @Override
+    @Transactional
+    public BaseUser findOneByRealAppIdAndUsername(Long realAppId, String username) {
+        BaseUser baseUser = baseUserRepository.findByRealAppIdAndUsername(realAppId, username);
+        // 懒加载,必须使用才能加载
+        if (baseUser != null) {
+            List<String> roleNames = baseUser.getRoles().stream().map(BaseRole::getName).collect(Collectors.toList());
+        }
+        return baseUser;
+    }
+
+    /**
+     * 查询应用管理员
+     *
+     * @param appId     应用id
+     * @param realAppId 真实应用id
+     * @param name      应用名
+     * @return 应用管理员
+     */
+    @Override
+    public BaseUser findOneByAppIdAndRealAppIdAndUsername(Long appId, Long realAppId, String name) {
+        BaseUser baseUser = baseUserRepository.findByAppIdAndRealAppIdAndUsername(appId, realAppId, name);
+        // 懒加载,必须使用才能加载
+        if (baseUser != null) {
+            List<String> roleNames = baseUser.getRoles().stream().map(BaseRole::getName).collect(Collectors.toList());
+        }
+        return baseUser;
+    }
+
 }

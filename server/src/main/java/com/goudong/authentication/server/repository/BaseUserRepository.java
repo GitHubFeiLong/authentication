@@ -26,4 +26,21 @@ public interface BaseUserRepository extends JpaRepository<BaseUser, Long>, JpaSp
     @Modifying
     @Query(nativeQuery = true, value = "delete from base_user where app_id = ?1 or real_app_id = ?1")
     int deleteByAppId(Long appId);
+
+    /**
+     * 根据真实应用id和用户名查询用户
+     * @param realAppId 真实应用id
+     * @param username  用户名
+     * @return  用户
+     */
+    BaseUser findByRealAppIdAndUsername(Long realAppId, String username);
+
+    /**
+     * 根据应用id和真实应用id和用户名查询用户
+     * @param appId     应用id
+     * @param realAppId 真实应用id
+     * @param username  用户名
+     * @return  用户
+     */
+    BaseUser findByAppIdAndRealAppIdAndUsername(Long appId, Long realAppId, String username);
 }

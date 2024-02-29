@@ -30,7 +30,7 @@ public class BaseUserSimpleCreateReq implements Serializable {
      * 密码{@code password == null || password.length() == 0} 时，使用系统设置的默认密码
      */
     @Size(max = 32)
-    @ApiModelProperty(value = "密码，如果参数是空串，就使用默认密码", required = true)
+    @ApiModelProperty(value = "密码，如果参数是空串，就使用默认密码", required = false)
     private String password;
 
     /**

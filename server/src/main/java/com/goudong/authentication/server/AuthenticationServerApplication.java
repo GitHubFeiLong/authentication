@@ -23,6 +23,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StopWatch;
+import org.springframework.web.servlet.handler.MappedInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;

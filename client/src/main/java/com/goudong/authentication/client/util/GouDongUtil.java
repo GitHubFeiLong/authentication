@@ -1,10 +1,7 @@
 package com.goudong.authentication.client.util;
 
 import com.goudong.authentication.client.constant.CommonConst;
-import com.goudong.authentication.server.service.dto.PermissionDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,10 +12,10 @@ import java.security.cert.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
-import java.util.List;
+import java.util.Date;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * 类描述：
@@ -53,34 +50,6 @@ public class GouDongUtil {
             sb.append(baseNumberChar.charAt(random.nextInt(baseNumberChar.length())));
         }
         return sb.toString();
-    }
-
-    /**
-     * 检查是否能访问
-     * @param uri 资源uri
-     * @param method 请求方式
-     * @param userRoles 用户角色
-     * @return true有权限；false没权限
-     */
-    private boolean check(String uri, String method, List<String> userRoles, List<PermissionDTO> permissionDTOList) {
-        // 查询应用菜单权限
-        AntPathMatcher antPathMatcher = new AntPathMatcher();
-        List<String> permissionRoles = permissionDTOList.parallelStream().filter(f -> {
-                    if (f.getType() == 2 || f.getType() == 3) { // 按钮和接口
-                        return antPathMatcher.match(f.getPath(), uri) && f.getMethod().toUpperCase().contains(method.toUpperCase());
-                    }
-                    return false;
-                })
-                // 扁平化角色
-                .flatMap(m -> m.getRoles().stream())
-                .collect(Collectors.toList());
-
-        log.info("url={}，method={}，用户权限={}，需要权限={}", uri, method, userRoles, permissionRoles);
-        if (CollectionUtil.isEmpty(permissionRoles)) {
-            return true;
-        }
-
-        return permissionRoles.stream().anyMatch(userRoles::contains);
     }
 
     /**
@@ -226,5 +195,42 @@ public class GouDongUtil {
         } catch (SignatureException e) {
             throw new RuntimeException("签名验证过程发生了错误", e);
         }
+    }
+
+    /**
+     * 创建token
+     * @param body 请求体参数
+     * @return GOUDONG-SHA256withRSA 模式的令牌
+     */
+    public static String generateToken(String body) {
+        GoudongAuthenticationClient client = GoudongAuthenticationClient.getClient();
+        return generateToken(client.getAppId(), client.getSerialNumber(), body, client.getPrivateKey());
+    }
+
+    /**
+     * 创建token
+     * @param appId 应用id
+     * @param serialNumber 16位16进制的证书序列号
+     * @param body 请求体参数
+     * @return GOUDONG-SHA256withRSA 模式的令牌
+     */
+    public static String generateToken(Long appId, String serialNumber, String body, PrivateKey privateKey) {
+        // 参数校验
+        assert appId != null;
+        assert serialNumber != null && serialNumber.length() == 16;
+        assert privateKey != null;
+        // 请求体可以是空字符串（不做签名校验）
+        body = Optional.ofNullable(body).orElseGet(() -> "");
+        // 时间戳1970-01-01 00:00:00 至今毫秒数
+        long timestamp = new Date().getTime();
+        // 12位随机字符
+        String nonceStr = GouDongUtil.randomStr(12);
+
+        // 拼装消息
+        String message = appId + "\n" + serialNumber + "\n" + timestamp + "\n" + nonceStr + "\n" + body + "\n";
+        // 将消息生成签名
+        String signature = GouDongUtil.sign(message, privateKey);
+        // 生成令牌
+        return String.format(CommonConst.AUTHENTICATION_TEMPLATE, appId, serialNumber, timestamp, nonceStr, signature);
     }
 }

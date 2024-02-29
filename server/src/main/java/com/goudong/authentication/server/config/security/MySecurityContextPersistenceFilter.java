@@ -3,25 +3,32 @@ package com.goudong.authentication.server.config.security;
 import com.goudong.authentication.common.constant.CommonConst;
 import com.goudong.authentication.common.core.Jwt;
 import com.goudong.authentication.common.core.UserSimple;
+import com.goudong.authentication.common.util.HttpRequestUtil;
 import com.goudong.authentication.server.constant.HttpHeaderConst;
 import com.goudong.authentication.server.domain.BaseApp;
 import com.goudong.authentication.server.domain.BaseRole;
 import com.goudong.authentication.server.domain.BaseUser;
+import com.goudong.authentication.server.pojo.GoudongSHA256withRSARequestHeaderParameter;
+import com.goudong.authentication.server.service.dto.BaseAppCertDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseAppManagerService;
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.boot.web.core.BasicException;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.boot.web.enumerate.ClientExceptionEnum;
+import com.goudong.core.security.cer.CertificateUtil;
 import com.goudong.core.util.AssertUtil;
 import com.goudong.core.util.ListUtil;
 import com.goudong.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.annotation.Resource;
@@ -30,6 +37,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -63,13 +78,26 @@ public class MySecurityContextPersistenceFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         try {
-            Long appId = getAppId(httpServletRequest);
+            // 获取上下文路径
+            // 获取请求地址，不包含上下文（server.servlet.context-path），这样方便迁移。
+            String requestUrl = httpServletRequest.getRequestURI();
+
+            // 本次请求是静态资源，不需要进行后面的token校验
+            AntPathMatcher antPathMatcher = new AntPathMatcher();
+            boolean staticUri = com.goudong.authentication.server.constant.CommonConst.STATIC_URIS.stream()
+                    .anyMatch(f -> antPathMatcher.match(f, requestUrl));
+            if (staticUri) {
+                filterChain.doFilter(httpServletRequest, httpServletResponse);
+                return;
+            }
+
             String authorization = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
             // 未携带令牌，就直接放行
             if (StringUtil.isBlank(authorization)) {
                 // 填充上下文用户，使用匿名用户
                 MyAuthentication myAuthentication = new MyAuthentication();
                 myAuthentication.setId(-1L);
+                Long appId = getAppId(httpServletRequest);
                 // 设置应用id，后续请求鉴权时需要根据应用查询是否需要权限。
                 myAuthentication.setAppId(appId);
                 myAuthentication.setRealAppId(appId);
@@ -91,7 +119,7 @@ public class MySecurityContextPersistenceFilter extends OncePerRequestFilter {
             String model = matcher.group(1);
             UserSimple userSimple;
             if (model.equals(CommonConst.TOKEN_MODEL_BEARER)) { // 直接解析token
-
+                Long appId = getAppId(httpServletRequest);
                 // 设置应用id到请求属性中，供后续使用
                 httpServletRequest.setAttribute(HttpHeaderConst.X_APP_ID, appId);
                 BaseApp app = baseAppManagerService.findById(appId);
@@ -143,18 +171,25 @@ public class MySecurityContextPersistenceFilter extends OncePerRequestFilter {
         }
     }
 
-    // @Transactional(propagation = Propagation.REQUIRED)
-    public UserSimple getAppAdminUser (String authentication) {
+    /**
+     * 获取应用管理员账户
+     * @param authentication    请求头令牌
+     * @return  应用的管理员信息
+     */
+    public UserSimple getAppAdminUser(String authentication) {
+        GoudongSHA256withRSARequestHeaderParameter parameter = GoudongSHA256withRSARequestHeaderParameter.getInstance(authentication);
         // 提取关键信息
-        // 使用正则表达式，提取关键信息
-        Pattern pattern = Pattern.compile("GOUDONG-SHA256withRSA appid=\"(\\d+)\",serial_number=\"(.*)\",timestamp=\"(\\d+)\",nonce_str=\"(.*)\",signature=\"(.*)\"");
-        Matcher matcher = pattern.matcher(authentication);
-        AssertUtil.isTrue(matcher.matches(), "请求头格式错误");
-        Long appId =  Long.parseLong(matcher.group(1));             // 应用id
+        Long appId = parameter.getAppId();                  // 应用id
+        String serialNumber = parameter.getSerialNumber();  // 16位证书序列号
 
         // 查询应用证书
         BaseApp baseApp = baseAppManagerService.findById(appId);
         AssertUtil.isNotNull(baseApp, () -> BasicException.client(String.format("应用id=%s不存在", appId)));
+        // 查询证书信息
+        BaseAppCertDTO baseAppCertDTO = baseAppManagerService.getCertBySerialNumber(serialNumber);
+        AssertUtil.isNotNull(baseAppCertDTO, () -> BasicException.client("证书序列号无效"));
+        AssertUtil.isTrue(Objects.equals(baseAppCertDTO.getAppId(), appId), () -> BasicException.client("证书无效").serverMessage("应用和证书不匹配"));
+        AssertUtil.isTrue(baseAppCertDTO.getValidTime().after(new Date()), () -> BasicException.client("证书无效").serverMessage("证书已过期"));
 
         // 查询应用管理员
         BaseUser baseUser = baseAppManagerService.findAppAdminUser(baseApp.getId(), baseApp.getName());

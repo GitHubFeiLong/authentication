@@ -278,6 +278,17 @@ public class BaseAppManagerServiceImpl implements BaseAppManagerService {
     }
 
     /**
+     * 根据证书序列号查询应用的证书
+     *
+     * @param serialNumber 序列号
+     * @return 证书
+     */
+    @Override
+    public BaseAppCertDTO getCertBySerialNumber(String serialNumber) {
+        return baseAppCertService.getBySerialNumber(serialNumber);
+    }
+
+    /**
      * 查询应用的所有证书
      *
      * @param appId 应用id
@@ -338,14 +349,14 @@ public class BaseAppManagerServiceImpl implements BaseAppManagerService {
 
     /**
      * 查询应用的管理员
-     * @param appId 应用id
-     * @param name 应用名
-     * @return
+     * @param realAppId 真实应用id
+     * @param name      应用名
+     * @return  应用管理员
      */
     @Override
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
-    public BaseUser findAppAdminUser(Long appId, String name) {
-        return baseUserService.findOneByAppIdAndUsername(appId, name);
+    public BaseUser findAppAdminUser(Long realAppId, String name) {
+        return baseUserService.findOneByAppIdAndRealAppIdAndUsername(com.goudong.authentication.server.constant.CommonConst.AUTHENTICATION_SERVER_APP_ID, realAppId, name);
     }
 
 }

@@ -36,8 +36,6 @@ import java.util.stream.Collectors;
 @Component
 public class AuthenticationProviderImpl implements AuthenticationProvider {
 
-
-
     /**
      * 密码编码器
      */

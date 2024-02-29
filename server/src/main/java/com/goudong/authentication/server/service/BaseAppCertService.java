@@ -12,6 +12,12 @@ import java.util.List;
 public interface BaseAppCertService {
     //~methods
     //==================================================================================================================
+    /**
+     * 根据证书序号查询证书
+     * @param serialNumber 证书序号
+     * @return 证书
+     */
+    BaseAppCertDTO getBySerialNumber(String serialNumber);
 
     /**
      * 查询应用的所有证书

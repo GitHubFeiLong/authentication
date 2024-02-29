@@ -2,6 +2,7 @@ package com.goudong.authentication.common.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -121,6 +122,22 @@ public class JsonUtil {
                     .getTypeFactory()
                     .constructCollectionType(ArrayList.class, clazz);
             return getObjectMapper().readValue(json, listType);
+        } catch (JsonProcessingException e) {
+            log.error("json字符串转对象失败：{}", e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * json字符串转对象
+     * @param json 对象
+     * @param typeReference 需要转成的目标类型对象
+     * @return {@code clazz}类型的对象
+     */
+    public static <T> T toObject(String json, TypeReference<T> typeReference) {
+        ObjectMapper objectMapper = getObjectMapper();
+        try {
+            return objectMapper.readValue(json, typeReference);
         } catch (JsonProcessingException e) {
             log.error("json字符串转对象失败：{}", e.getMessage());
             throw new RuntimeException(e);

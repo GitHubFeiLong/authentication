@@ -1,5 +1,7 @@
 package com.goudong.authentication.server.service.manager;
 
+import com.goudong.authentication.server.rest.req.PermissionListPermissionByUsername2SimpleResp;
+import com.goudong.authentication.server.rest.req.PermissionListPermissionByUsernameReq;
 import com.goudong.authentication.server.service.dto.PermissionDTO;
 
 import java.util.List;
@@ -22,4 +24,11 @@ public interface PermissionManagerService {
      * @return
      */
     Boolean checkPermission();
+
+    /**
+     * 根据用户名获取他拥有的所有权限
+     * @param req 获取用户权限的参数
+     * @return 用户拥有的所有角色和权限
+     */
+    PermissionListPermissionByUsername2SimpleResp listPermissionByUsername2Simple(PermissionListPermissionByUsernameReq req);
 }

@@ -61,6 +61,8 @@ public class CommonConst {
      * 匿名用户
      */
     public static final String USER_ANONYMOUS = "USER_ANONYMOUS";
+
+
     //~methods
     //==================================================================================================================
 }

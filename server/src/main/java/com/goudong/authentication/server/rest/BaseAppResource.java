@@ -30,7 +30,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/app")
 @Api(tags = "应用管理")
-// @Secured(value = CommonConst.ROLE_APP_SUPER_ADMIN) // 只有该角色才能处理应用
+@Secured(value = CommonConst.ROLE_APP_SUPER_ADMIN) // 只有该角色才能处理应用
 public class BaseAppResource {
 
     //~fields

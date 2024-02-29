@@ -1,6 +1,7 @@
 package com.goudong.authentication.server.domain;
 
 
+import com.goudong.authentication.common.constant.CommonConst;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.Cache;
@@ -12,6 +13,7 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 角色表
@@ -70,5 +72,21 @@ public class BaseRole extends BasePO implements Serializable {
                 ", name='" + name + '\'' +
                 ", remark='" + remark + '\'' +
                 '}';
+    }
+
+    /**
+     * 是否是超级管理员
+     * @return true 超级管理员，false 不是超级管理员
+     */
+    public boolean superAdmin() {
+        return Objects.equals(this.name, CommonConst.ROLE_APP_SUPER_ADMIN);
+    }
+
+    /**
+     * 判断登录用户，是否是管理员
+     * @return true 管理员，false 普通用户
+     */
+    public boolean admin() {
+        return Objects.equals(this.name, CommonConst.ROLE_APP_ADMIN);
     }
 }

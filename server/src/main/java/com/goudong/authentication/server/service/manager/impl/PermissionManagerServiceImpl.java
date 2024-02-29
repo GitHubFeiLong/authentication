@@ -1,16 +1,20 @@
 package com.goudong.authentication.server.service.manager.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.goudong.authentication.common.core.AuthorizationContext;
 import com.goudong.authentication.common.core.Jwt;
 import com.goudong.authentication.common.core.UserSimple;
 import com.goudong.authentication.common.util.HttpRequestUtil;
-import com.goudong.authentication.server.domain.BaseApp;
-import com.goudong.authentication.server.domain.BaseAppCert;
+import com.goudong.authentication.server.domain.*;
 import com.goudong.authentication.server.rest.req.CheckPermissionReq;
+import com.goudong.authentication.server.rest.req.PermissionListPermissionByUsername2SimpleResp;
+import com.goudong.authentication.server.rest.req.PermissionListPermissionByUsernameReq;
 import com.goudong.authentication.server.service.BaseAppService;
 import com.goudong.authentication.server.service.BaseMenuService;
+import com.goudong.authentication.server.service.BaseRoleService;
+import com.goudong.authentication.server.service.BaseUserService;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.dto.PermissionDTO;
 import com.goudong.authentication.server.service.manager.PermissionManagerService;
@@ -34,6 +38,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +60,12 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
 
     @Resource
     private BaseMenuService baseMenuService;
+
+    @Resource
+    private BaseUserService baseUserService;
+
+    @Resource
+    private BaseRoleService baseRoleService;
 
     @Resource
     private HttpServletRequest httpServletRequest;
@@ -81,7 +92,6 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
             MyAuthentication myAuthentication = SecurityContextUtil.get();
             return baseMenuService.findAllPermission(xAppId);
         }
-
 
         if (authorization.startsWith("GOUDONG-SHA256withRSA")) {
             AuthorizationContext authorizationContext = AuthorizationContext.get(authorization);
@@ -228,6 +238,44 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
         }
 
         throw ClientException.client("未知的认证方式");
+    }
+
+    /**
+     * 根据用户名获取他拥有的所有权限
+     *
+     * @param req 获取用户权限的参数
+     * @return  用户拥有的所有角色和权限
+     */
+    @Override
+    @Transactional
+    public PermissionListPermissionByUsername2SimpleResp listPermissionByUsername2Simple(PermissionListPermissionByUsernameReq req) {
+        MyAuthentication myAuthentication = SecurityContextUtil.get();
+        Long realAppId = myAuthentication.getRealAppId();
+        BaseUser baseUser = baseUserService.findOneByRealAppIdAndUsername(realAppId, req.getUsername());
+        AssertUtil.isNotNull(baseUser, () -> ClientException.client("用户不存在"));
+        // 构造响应对象
+        PermissionListPermissionByUsername2SimpleResp resp = new PermissionListPermissionByUsername2SimpleResp();
+        List<PermissionListPermissionByUsername2SimpleResp.RoleInner> roleInners = new ArrayList<>(baseUser.getRoles().size());
+        resp.setRoles(roleInners);
+        if (CollectionUtil.isNotEmpty(baseUser.getRoles())) {
+            // 循环角色，查询角色对应的权限
+            baseUser.getRoles().forEach(role -> {
+                PermissionListPermissionByUsername2SimpleResp.RoleInner roleInner = new PermissionListPermissionByUsername2SimpleResp.RoleInner();
+                roleInners.add(roleInner);
+                roleInner.setName(role.getName());
+
+                List<BaseMenu> menus = role.getMenus();
+                if (role.superAdmin() || role.admin()) {
+                    log.info("角色id：{}，角色名称：{} 是管理员，需要查询应用下所有菜单", role.getId(), role.getName());
+                    BaseRole baseRole = baseRoleService.findById(role.getId());
+                    menus = baseRole.getMenus();
+                }
+                // 将角色和菜单返回
+                List<PermissionListPermissionByUsername2SimpleResp.MenuInner> menuInners = BeanUtil.copyToList(menus, PermissionListPermissionByUsername2SimpleResp.MenuInner.class);
+                roleInner.setMenus(menuInners);
+            });
+        }
+        return resp;
     }
 
     /**

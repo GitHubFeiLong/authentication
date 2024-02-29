@@ -33,6 +33,18 @@ public class BaseAppCertServiceImpl implements BaseAppCertService {
 
     //~methods
     //==================================================================================================================
+
+    /**
+     * 根据证书序号查询证书
+     *
+     * @param serialNumber 证书序号
+     * @return 证书
+     */
+    @Override
+    public BaseAppCertDTO getBySerialNumber(String serialNumber) {
+        return baseAppCertMapper.toDto(baseAppCertRepository.findBySerialNumber(serialNumber));
+    }
+
     /**
      * 查询应用的所有证书
      *

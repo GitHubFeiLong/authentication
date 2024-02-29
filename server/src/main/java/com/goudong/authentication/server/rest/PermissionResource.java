@@ -1,12 +1,18 @@
 package com.goudong.authentication.server.rest;
 
+import com.goudong.authentication.server.rest.req.PermissionListPermissionByUsername2SimpleResp;
+import com.goudong.authentication.server.rest.req.PermissionListPermissionByUsernameReq;
 import com.goudong.authentication.server.service.dto.PermissionDTO;
 import com.goudong.authentication.server.service.manager.PermissionManagerService;
 import com.goudong.core.lang.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,14 +37,22 @@ public class PermissionResource {
 
     //~methods
     //==================================================================================================================
+    @PostMapping("/list-by-username/simple")
+    @ApiOperation(value = "获取指定用户权限（角色、角色权限）")
+    public Result<PermissionListPermissionByUsername2SimpleResp> listPermissionByUsername2Simple(@RequestBody @Validated PermissionListPermissionByUsernameReq req) {
+        return Result.ofSuccess(permissionManagerService.listPermissionByUsername2Simple(req));
+    }
+
     @PostMapping("/listPermission")
-    @ApiOperation(value = "获取权限", notes = "查询应用的权限列表（资源对应的能访问的角色）")
+    @ApiOperation(value = "获取指定用户权限DE", notes = "")
+    @Deprecated
     public Result<List<PermissionDTO>> listPermission() {
         return Result.ofSuccess(permissionManagerService.listPermission());
     }
 
     @PostMapping("/checkPermission")
     @ApiOperation(value = "校验权限")
+    @Deprecated
     public Result<Boolean> checkPermission() {
         return Result.ofSuccess(permissionManagerService.checkPermission());
     }

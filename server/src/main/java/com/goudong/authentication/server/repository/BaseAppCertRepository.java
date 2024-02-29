@@ -16,6 +16,13 @@ import java.util.List;
 public interface BaseAppCertRepository extends JpaRepository<BaseAppCert, Long>, JpaSpecificationExecutor<BaseAppCert> {
 
     /**
+     * 根据证书序号查询应用证书
+     * @param serialNumber  证书序号
+     * @return  证书
+     */
+    BaseAppCert findBySerialNumber(String serialNumber);
+
+    /**
      * 查询应用所有证书
      * @param appId 应用id
      * @return 应用所有证书

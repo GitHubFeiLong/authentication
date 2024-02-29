@@ -102,4 +102,23 @@ public interface BaseUserService {
      * @return
      */
     Boolean changeLocked(Long userId);
+
+    /**
+     * 查询用户
+     * @param realAppId 用户的真实应用id
+     * @param username  用户名
+     * @return  用户对象
+     */
+    BaseUser findOneByRealAppIdAndUsername(Long realAppId, String username);
+
+    /**
+     * 查询应用管理员
+     * @param appId     应用id
+     * @param realAppId 真实应用id
+     * @param name      应用名
+     * @return  应用管理员
+     */
+    BaseUser findOneByAppIdAndRealAppIdAndUsername(Long appId, Long realAppId, String name);
+
+
 }
