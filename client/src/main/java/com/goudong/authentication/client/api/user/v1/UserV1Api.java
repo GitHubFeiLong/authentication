@@ -4,16 +4,17 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.goudong.authentication.client.api.user.v1.req.BaseUserSimpleCreateReq;
 import com.goudong.authentication.client.constant.ApiConst;
 import com.goudong.authentication.client.constant.CommonConst;
+import com.goudong.authentication.client.core.Result;
 import com.goudong.authentication.client.dto.BaseUserDTO;
 import com.goudong.authentication.client.util.GouDongUtil;
 import com.goudong.authentication.client.util.GoudongAuthenticationClient;
+import com.goudong.authentication.client.util.JsonUtil;
 import com.goudong.authentication.client.util.OkHttpUtil;
-import com.goudong.authentication.common.util.JsonUtil;
-import com.goudong.core.lang.Result;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -43,7 +44,7 @@ public class UserV1Api {
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json;charset=utf-8"), json);
 
         // 生成令牌
-        String authentication = GouDongUtil.generateToken(client.getAppId(), client.getSerialNumber(), json, client.getPrivateKey());
+        String authentication = GouDongUtil.generateToken(json);
 
         Request request = new Request.Builder().url(api)
                 .header(CommonConst.HTTP_HEADER_AUTHORIZATION, authentication)
@@ -66,7 +67,7 @@ public class UserV1Api {
      * @param ids       用户id数组
      * @return          true：删除成功；false：删除失败
      */
-    public static Result<Boolean> deleteByIds(Iterator<Long> ids) {
+    public static Result<Boolean> deleteByIds(Collection<Long> ids) {
         // 获取客户端信息
         GoudongAuthenticationClient client = GoudongAuthenticationClient.getClient();
         final String api = client.getServerUrl() + ApiConst.USER_DELETE_USERS;
@@ -74,7 +75,7 @@ public class UserV1Api {
         OkHttpClient okHttpClient = OkHttpUtil.getOkHttpClient();
         String json = JsonUtil.toJsonString(ids);
         // 生成令牌
-        String authentication = GouDongUtil.generateToken(client.getAppId(), client.getSerialNumber(), null, client.getPrivateKey());
+        String authentication = GouDongUtil.generateToken(client.getAppId(), client.getSerialNumber(), json, client.getPrivateKey());
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json;charset=utf-8"), json);
         Request request = new Request.Builder().url(api)
                 .header(CommonConst.HTTP_HEADER_AUTHORIZATION, authentication)

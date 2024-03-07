@@ -1,5 +1,6 @@
 import { AUTHORIZATION, X_APP_ID } from "@/constant/HttpHeaderConst";
 import LocalStorageUtil from "@/utils/LocalStorageUtil";
+import * as commons from "@/constant/commons";
 
 export function download(content, fileName) {
   // 获取响应数据
@@ -25,5 +26,6 @@ export function download(content, fileName) {
 export function beforeUploadFillHttpHeader(headers) {
   // 请求头
   headers[AUTHORIZATION] = "Bearer " + LocalStorageUtil.getToken().accessToken
-  headers[X_APP_ID] = 1; // 固定值
+  let appId = LocalStorageUtil.getXAppId();
+  headers[X_APP_ID] = (appId === undefined || appId === null) ? commons.X_APP_ID : appId; // 固定值
 }

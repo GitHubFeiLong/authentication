@@ -1,6 +1,5 @@
 package com.goudong.authentication.client.util;
 
-import com.goudong.core.util.AssertUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.security.KeyFactory;

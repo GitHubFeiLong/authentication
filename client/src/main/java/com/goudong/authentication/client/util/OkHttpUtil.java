@@ -1,20 +1,14 @@
 package com.goudong.authentication.client.util;
 
 import com.goudong.authentication.client.interceptor.OKHttpPrintLogInterceptor;
-import com.goudong.authentication.common.util.JsonUtil;
-import okhttp3.*;
+import okhttp3.OkHttpClient;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.io.IOException;
-import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**

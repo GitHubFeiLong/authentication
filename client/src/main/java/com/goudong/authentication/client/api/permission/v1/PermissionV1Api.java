@@ -5,11 +5,11 @@ import com.goudong.authentication.client.api.permission.v1.req.PermissionListPer
 import com.goudong.authentication.client.api.permission.v1.resp.PermissionListPermissionByUsername2SimpleResp;
 import com.goudong.authentication.client.constant.ApiConst;
 import com.goudong.authentication.client.constant.CommonConst;
+import com.goudong.authentication.client.core.Result;
 import com.goudong.authentication.client.util.GouDongUtil;
 import com.goudong.authentication.client.util.GoudongAuthenticationClient;
+import com.goudong.authentication.client.util.JsonUtil;
 import com.goudong.authentication.client.util.OkHttpUtil;
-import com.goudong.authentication.common.util.JsonUtil;
-import com.goudong.core.lang.Result;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
@@ -46,7 +46,7 @@ public class PermissionV1Api {
         Request request = new Request.Builder().url(api)
                 .header(CommonConst.HTTP_HEADER_AUTHORIZATION, authentication)
                 .header(CommonConst.HTTP_HEADER_X_APP_ID, String.valueOf(client.getAppId()))
-                .delete(requestBody)
+                .post(requestBody)
                 .build();
 
         Response response = null;

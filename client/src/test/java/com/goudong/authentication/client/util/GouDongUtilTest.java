@@ -2,8 +2,7 @@ package com.goudong.authentication.client.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.goudong.authentication.client.api.permission.v1.resp.PermissionListPermissionByUsername2SimpleResp;
-import com.goudong.authentication.common.util.JsonUtil;
-import com.goudong.core.lang.Result;
+import com.goudong.authentication.client.core.Result;
 import org.junit.jupiter.api.Test;
 
 import java.security.KeyFactory;

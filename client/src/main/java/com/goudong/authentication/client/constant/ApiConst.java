@@ -9,7 +9,7 @@ public class ApiConst {
     //~user apis
     //==================================================================================================================
     /**
-     * 用户：简单新增用户
+     * POST请求，简单新增用户
      */
     public static final String USER_SIMPLE_CREATE_USER = "/user/base-user/simple-create";
 

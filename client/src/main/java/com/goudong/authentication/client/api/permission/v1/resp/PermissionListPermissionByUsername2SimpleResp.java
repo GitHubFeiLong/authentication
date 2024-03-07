@@ -1,6 +1,8 @@
 package com.goudong.authentication.client.api.permission.v1.resp;
 
-import com.goudong.core.util.tree.v2.TreeInterface;
+import com.goudong.authentication.client.core.MenuInterface;
+import com.goudong.authentication.client.core.RoleInterface;
+import com.goudong.authentication.client.core.TreeInterface;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -28,7 +30,13 @@ public class PermissionListPermissionByUsername2SimpleResp {
      * @author chenf
      */
     @Data
-    public static class RoleInner {
+    public static class RoleInner implements RoleInterface {
+
+        /**
+         * 角色ID
+         */
+        private Long id;
+
         /**
          * 角色名称
          */
@@ -46,7 +54,7 @@ public class PermissionListPermissionByUsername2SimpleResp {
      * @author chenf
      */
     @Data
-    public static class MenuInner implements TreeInterface<Long, Long, MenuInner>, Comparable<MenuInner>, Serializable {
+    public static class MenuInner implements MenuInterface, TreeInterface<Long, Long, MenuInner>, Comparable<MenuInner>, Serializable {
 
         private static final long serialVersionUID = -4395163344388295463L;
 

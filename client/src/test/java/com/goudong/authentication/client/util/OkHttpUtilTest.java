@@ -7,12 +7,6 @@ import okhttp3.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Base64;
 
 class OkHttpUtilTest {
 

@@ -2,14 +2,10 @@ package com.goudong.authentication.server.service.manager.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateUtil;
 import com.goudong.authentication.common.core.*;
-import com.goudong.authentication.common.util.HttpRequestUtil;
 import com.goudong.authentication.common.util.JsonUtil;
 import com.goudong.authentication.server.constant.CommonConst;
 import com.goudong.authentication.server.constant.DateConst;
-import com.goudong.authentication.server.constant.UserConst;
 import com.goudong.authentication.server.domain.BaseApp;
 import com.goudong.authentication.server.domain.BaseMenu;
 import com.goudong.authentication.server.domain.BaseRole;
@@ -26,6 +22,7 @@ import com.goudong.authentication.server.service.BaseUserService;
 import com.goudong.authentication.server.service.dto.BaseUserDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseUserManagerService;
+import com.goudong.authentication.server.util.HttpRequestUtil;
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.boot.web.core.BasicException;
 import com.goudong.boot.web.core.ClientException;
@@ -42,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -120,8 +116,9 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         loginResp.setAppId(myAuthentication.getAppId());
         loginResp.setRealAppId(myAuthentication.getRealAppId());
         loginResp.setRoles(roles);
-
-        BaseApp app = baseAppService.findById(myAuthentication.getAppId());
+        Long appId = HttpRequestUtil.getXAppId();
+        log.info("使用请求头中的appId {} 创建token", appId);
+        BaseApp app = baseAppService.findById(appId);
         // 设置应用首页地址
         loginResp.setHomePage(app.getHomePage());
         loginResp.setAppName(app.getName());

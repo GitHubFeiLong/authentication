@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.goudong.authentication.common.core.AuthorizationContext;
 import com.goudong.authentication.common.core.Jwt;
 import com.goudong.authentication.common.core.UserSimple;
-import com.goudong.authentication.common.util.HttpRequestUtil;
 import com.goudong.authentication.server.domain.*;
 import com.goudong.authentication.server.rest.req.CheckPermissionReq;
 import com.goudong.authentication.server.rest.req.PermissionListPermissionByUsername2SimpleResp;
@@ -18,6 +17,7 @@ import com.goudong.authentication.server.service.BaseUserService;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.dto.PermissionDTO;
 import com.goudong.authentication.server.service.manager.PermissionManagerService;
+import com.goudong.authentication.server.util.HttpRequestUtil;
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.security.cer.CertificateUtil;
@@ -264,11 +264,12 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
                 roleInners.add(roleInner);
                 roleInner.setName(role.getName());
 
-                List<BaseMenu> menus = role.getMenus();
+                List<BaseMenu> menus;
                 if (role.superAdmin() || role.admin()) {
                     log.info("角色id：{}，角色名称：{} 是管理员，需要查询应用下所有菜单", role.getId(), role.getName());
-                    BaseRole baseRole = baseRoleService.findById(role.getId());
-                    menus = baseRole.getMenus();
+                    menus = baseMenuService.findAllByAppId(role.getAppId());
+                } else {
+                    menus = role.getMenus();
                 }
                 // 将角色和菜单返回
                 List<PermissionListPermissionByUsername2SimpleResp.MenuInner> menuInners = BeanUtil.copyToList(menus, PermissionListPermissionByUsername2SimpleResp.MenuInner.class);

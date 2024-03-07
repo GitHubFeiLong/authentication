@@ -1,6 +1,5 @@
 package com.goudong.authentication.server.pojo;
 
-import com.goudong.authentication.common.util.HttpRequestUtil;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.security.cer.CertificateUtil;
 import com.goudong.core.util.AssertUtil;

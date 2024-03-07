@@ -1,6 +1,5 @@
 package com.goudong.authentication.common.core;
 
-import com.goudong.authentication.common.constant.CommonConst;
 import com.goudong.authentication.common.util.JsonUtil;
 import com.goudong.boot.web.core.ClientException;
 import io.jsonwebtoken.Claims;
@@ -9,8 +8,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -27,22 +24,22 @@ public class Jwt {
     /**
      * access token的有效时间
      */
-    private Long accessTokenExpiration = CommonConst.ACCESS_TOKEN_EXPIRATION;
+    private final Long accessTokenExpiration;
 
     /**
      * access token的有效时间单位
      */
-    private TimeUnit accessTokenExpirationTimeUnit = CommonConst.ACCESS_TOKEN_EXPIRATION_TIME_UNIT;
+    private final TimeUnit accessTokenExpirationTimeUnit;
 
     /**
      * refresh token的有效时间
      */
-    private Long refreshTokenExpiration = CommonConst.REFRESH_TOKEN_EXPIRATION;
+    private final Long refreshTokenExpiration;
 
     /**
      * refresh token的有效时间单位
      */
-    private TimeUnit refreshTokenExpirationTimeUnit = CommonConst.REFRESH_TOKEN_EXPIRATION_TIME_UNIT;
+    private final TimeUnit refreshTokenExpirationTimeUnit;
 
     /**
      * 密钥

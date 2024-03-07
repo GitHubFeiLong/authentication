@@ -8,13 +8,13 @@
       :close-on-click-modal="false"
     >
       <div class="choice-page">
-        <el-card :body-style="{ padding: '0px' }" @click.native.prevent="selectApp(realHomePage)" shadow="hover">
+        <el-card :body-style="{ padding: '0px' }" @click.native.prevent="selectApp(realHomePage, realAppId)" shadow="hover">
           <img :src="serverAdminImage" class="image">
           <div class="app-name">
             <span>{{realAppName}}</span>
           </div>
         </el-card>
-        <el-card :body-style="{ padding: '0px' }" @click.native.prevent="selectApp(homePage)" shadow="hover">
+        <el-card :body-style="{ padding: '0px' }" @click.native.prevent="selectApp(homePage, appId)" shadow="hover">
           <img :src="appImage" class="image">
           <div class="app-name">
             <span>{{appName}}</span>
@@ -122,7 +122,9 @@ export default {
       apps: [],
       token: {},  // 登录成功返回的url
       homePage: '',
+      appId: '',
       realHomePage: '',
+      realAppId: '',
       appImage: appImage,
       serverAdminImage: serverAdminImage,
       realAppName: 'Admin',  // 账户真实应用名
@@ -173,8 +175,7 @@ export default {
           let selectAppId = this.loginForm.selectAppId;
           LocalStorageUtil.setXAppId(selectAppId !== '' ? selectAppId : commons.X_APP_ID)
           loginApi(this.loginForm.username.trim(), encodeURIComponent(this.loginForm.password), this.loginForm.selectAppId).then(data => {
-            const { homePage, realHomePage, token, appName, realAppName } = data
-            const {accessToken, refreshToken, accessExpires, refreshExpires} = token
+            const { homePage, realHomePage, token, appId, appName, realAppId, realAppName } = data
             this.token = token
             this.homePage = homePage
             this.realHomePage = realHomePage
@@ -186,6 +187,9 @@ export default {
               window.location.href = url
             } else {
               this.homePage = this.getFullUrl(this.homePage)
+              this.appId = appId
+              this.homePage = this.getFullUrl(this.homePage)
+              this.realAppId = realAppId
               this.realHomePage = this.getFullUrl(this.realHomePage)
               this.showSelectApp = true
             }
@@ -210,9 +214,30 @@ export default {
         return acc
       }, {})
     },
-    selectApp(url) {
+    selectApp(url, selectAppId) {
       console.log(url)
-      window.location.href = url
+      console.log(selectAppId)
+      // 使用选择得应用，重新进行登录！！！不然解析token会出现错误
+      // 设置应用id到本次存储，请求时取出放在请求头
+      LocalStorageUtil.setXAppId(selectAppId)
+      loginApi(this.loginForm.username.trim(), encodeURIComponent(this.loginForm.password), selectAppId).then(data => {
+        const { homePage, realHomePage, token, appId, appName, realAppId, realAppName } = data
+        this.token = token
+        this.homePage = homePage
+        this.realHomePage = realHomePage
+        this.appName = appName
+        this.realAppName = realAppName
+        // 同一个应用
+        if (selectAppId === appId) {
+          const url = this.getFullUrl(this.homePage)
+          window.location.href = url
+        } else {
+          const url = this.getFullUrl(this.realHomePage)
+          window.location.href = url
+        }
+      }).finally(() => {
+        this.loading = false
+      })
     }
   }
 }
