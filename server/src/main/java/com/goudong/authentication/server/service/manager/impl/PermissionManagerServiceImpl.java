@@ -8,7 +8,8 @@ import com.goudong.authentication.common.core.Jwt;
 import com.goudong.authentication.common.core.UserSimple;
 import com.goudong.authentication.server.domain.*;
 import com.goudong.authentication.server.rest.req.CheckPermissionReq;
-import com.goudong.authentication.server.rest.req.PermissionListPermissionByUsername2SimpleResp;
+import com.goudong.authentication.server.rest.resp.ListAllMenusResp;
+import com.goudong.authentication.server.rest.resp.PermissionListPermissionByUsername2SimpleResp;
 import com.goudong.authentication.server.rest.req.PermissionListPermissionByUsernameReq;
 import com.goudong.authentication.server.service.BaseAppService;
 import com.goudong.authentication.server.service.BaseMenuService;
@@ -276,6 +277,22 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
                 roleInner.setMenus(menuInners);
             });
         }
+        return resp;
+    }
+
+    /**
+     * 获取应用下的所有菜单
+     *
+     * @return
+     */
+    @Override
+    public ListAllMenusResp ListAllMenusResp() {
+        MyAuthentication myAuthentication = SecurityContextUtil.get();
+        Long realAppId = myAuthentication.getRealAppId();
+        ListAllMenusResp resp = new ListAllMenusResp();
+        // 查询应用下的所有菜单
+        List<BaseMenu> menus = baseMenuService.findAllByAppId(realAppId);
+        resp.setMenus(BeanUtil.copyToList(menus, ListAllMenusResp.MenuInner.class));
         return resp;
     }
 

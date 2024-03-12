@@ -1,4 +1,4 @@
-package com.goudong.authentication.server.rest.req;
+package com.goudong.authentication.server.rest.resp;
 
 import com.goudong.authentication.server.service.dto.BaseMenuDTO;
 import com.goudong.core.util.tree.v2.TreeInterface;

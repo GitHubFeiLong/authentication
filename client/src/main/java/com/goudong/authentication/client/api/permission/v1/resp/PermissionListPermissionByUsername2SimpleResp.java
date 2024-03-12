@@ -6,6 +6,7 @@ import com.goudong.authentication.client.core.TreeInterface;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**

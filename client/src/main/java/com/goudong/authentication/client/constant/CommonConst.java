@@ -13,7 +13,12 @@ public class CommonConst {
      * 请求头属性
      */
     public static final String HTTP_HEADER_AUTHORIZATION = "Authorization";
+
+    /**
+     * 应用id请求头
+     */
     public static final String HTTP_HEADER_X_APP_ID = "X-App-Id";
+
     /**
      * 认证模式
      */

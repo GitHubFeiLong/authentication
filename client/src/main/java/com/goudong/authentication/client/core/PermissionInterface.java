@@ -14,8 +14,17 @@ import java.util.Collection;
 public interface PermissionInterface {
 
     /**
-     * 获取用户的所有
+     * 获取用户的所有角色权限
+     * @param username 用户名
      * @return
      */
-    Collection<? extends RoleInterface> getRoles();
+    Collection<? extends RoleInterface> getRoles(String username);
+
+    /**
+     * 判断用户是否有访问资源的权限
+     * @param username  用户名
+     * @param resource  资源
+     * @return true：有权限，false：无权限
+     */
+    boolean hasPermission(String username, Resource resource);
 }

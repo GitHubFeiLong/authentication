@@ -1,6 +1,9 @@
 package com.goudong.authentication.client.api.permission.v1.req;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 /**
@@ -9,6 +12,9 @@ import lombok.Data;
  * @author chenf
  */
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PermissionListPermissionByUsernameReq {
     //~fields
     //==================================================================================================================

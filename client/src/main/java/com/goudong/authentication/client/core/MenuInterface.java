@@ -1,6 +1,7 @@
 package com.goudong.authentication.client.core;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * 类描述：
