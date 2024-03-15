@@ -17,6 +17,8 @@ import java.util.Date;
 @Data
 public class BaseRoleDTO implements Serializable {
 
+    private static final long serialVersionUID = 7000635489217514230L;
+
     private Long id;
 
     /**

@@ -48,4 +48,11 @@ public interface BaseRoleRepository extends JpaRepository<BaseRole, Long>, JpaSp
      */
     @Query("from BaseRole where appId=?1 and name in ?2")
     List<BaseRole> findAllByAppIdAndNameIn(Long appId, List<String> names);
+
+    /**
+     * 查询角色
+     * @param appId 应用ID
+     * @return  返回应用的角色
+     */
+    List<BaseRole> findAllByAppId(Long appId);
 }

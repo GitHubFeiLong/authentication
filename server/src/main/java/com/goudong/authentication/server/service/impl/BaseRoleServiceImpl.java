@@ -100,6 +100,18 @@ public class BaseRoleServiceImpl implements BaseRoleService {
     }
 
     /**
+     * 获取应用下的角色
+     *
+     * @param appId 应用ID
+     * @return 应用下的角色
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<BaseRole> listByAppId(Long appId) {
+        return baseRoleRepository.findAllByAppId(appId);
+    }
+
+    /**
      * 分页查询角色列表
      *
      * @param req 条件查询参数

@@ -7,8 +7,12 @@ import com.goudong.authentication.common.core.AuthorizationContext;
 import com.goudong.authentication.common.core.Jwt;
 import com.goudong.authentication.common.core.UserSimple;
 import com.goudong.authentication.server.domain.*;
+import com.goudong.authentication.server.rest.req.BaseMenuGetAllReq;
 import com.goudong.authentication.server.rest.req.CheckPermissionReq;
-import com.goudong.authentication.server.rest.resp.ListAllMenusResp;
+import com.goudong.authentication.server.rest.req.PermissionGetUserReq;
+import com.goudong.authentication.server.rest.resp.PermissionGetMenusResp;
+import com.goudong.authentication.server.rest.resp.PermissionGetRolesMenusResp;
+import com.goudong.authentication.server.rest.resp.PermissionGetUserResp;
 import com.goudong.authentication.server.rest.resp.PermissionListPermissionByUsername2SimpleResp;
 import com.goudong.authentication.server.rest.req.PermissionListPermissionByUsernameReq;
 import com.goudong.authentication.server.service.BaseAppService;
@@ -43,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -76,6 +81,68 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
 
     //~methods
     //==================================================================================================================
+    /**
+     * 获取应用下的所有菜单
+     * @return  应用所有菜单
+     */
+    @Override
+    public PermissionGetMenusResp getMenus() {
+        MyAuthentication myAuthentication = SecurityContextUtil.get();
+        Long realAppId = myAuthentication.getRealAppId();
+        PermissionGetMenusResp resp = new PermissionGetMenusResp();
+        // 查询应用下的所有菜单
+        List<BaseMenu> menus = baseMenuService.findAllByAppId(realAppId);
+        resp.setMenus(BeanUtil.copyToList(menus, PermissionGetMenusResp.MenuInner.class));
+        return resp;
+    }
+
+    /**
+     * 获取角色和角色拥有的权限
+     *
+     * @return 角色集合
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public PermissionGetRolesMenusResp getRolesMenus() {
+        MyAuthentication myAuthentication = SecurityContextUtil.get();
+        Long realAppId = myAuthentication.getRealAppId();
+        // 查询应用下的角色
+        List<BaseRole> baseRoles = baseRoleService.listByAppId(realAppId);
+
+        // 针对管理员角色进行填充菜单信息
+        AtomicReference<List<BaseMenu>> adminMenus = new AtomicReference<>(null);
+        baseRoles.forEach(role -> {
+            // 管理员，需要查询应用下的所有菜单
+            if (role.admin() || role.superAdmin()) {
+                if (adminMenus.get() == null) {
+                    adminMenus.set(baseMenuService.findAllByAppId(realAppId));
+                }
+                role.setMenus(adminMenus.get());
+            }
+        });
+        PermissionGetRolesMenusResp resp = new PermissionGetRolesMenusResp();
+        resp.setRoles(BeanUtil.copyToList(baseRoles, PermissionGetRolesMenusResp.RoleInner.class));
+        return resp;
+    }
+
+    /**
+     * 获取用户的信息
+     *
+     * @param req 用户名等参数
+     * @return 用户信息
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public PermissionGetUserResp getUser(PermissionGetUserReq req) {
+        MyAuthentication myAuthentication = SecurityContextUtil.get();
+        Long realAppId = myAuthentication.getRealAppId();
+        // 查询用户
+        BaseUser baseUser = baseUserService.findOneByRealAppIdAndUsername(realAppId, req.getUsername());
+        PermissionGetUserResp resp = BeanUtil.copyProperties(baseUser, PermissionGetUserResp.class);
+        return resp;
+    }
+
+
     /**
      * 查询权限列表
      *
@@ -280,21 +347,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
         return resp;
     }
 
-    /**
-     * 获取应用下的所有菜单
-     *
-     * @return
-     */
-    @Override
-    public ListAllMenusResp ListAllMenusResp() {
-        MyAuthentication myAuthentication = SecurityContextUtil.get();
-        Long realAppId = myAuthentication.getRealAppId();
-        ListAllMenusResp resp = new ListAllMenusResp();
-        // 查询应用下的所有菜单
-        List<BaseMenu> menus = baseMenuService.findAllByAppId(realAppId);
-        resp.setMenus(BeanUtil.copyToList(menus, ListAllMenusResp.MenuInner.class));
-        return resp;
-    }
+
 
     /**
      * 检查是否能访问

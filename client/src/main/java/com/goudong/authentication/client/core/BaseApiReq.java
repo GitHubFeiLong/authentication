@@ -1,27 +1,24 @@
-package com.goudong.authentication.client.api.permission.v1.req;
+package com.goudong.authentication.client.core;
 
-import com.goudong.authentication.client.core.BaseApiReq;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-
 /**
  * 类描述：
- * 获取用户权限列表的请求对象
+ *
  * @author chenf
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder
-@AllArgsConstructor
 @NoArgsConstructor
-public class PermissionListPermissionByUsernameReq extends BaseApiReq {
+public class BaseApiReq {
     //~fields
     //==================================================================================================================
     /**
-     * 用户名 username不能为空
+     * 应用id，请求参数携带该参数时，将获取该应用的信息生成令牌
      */
-    private String username;
+    protected Long appId;
+
     //~methods
     //==================================================================================================================
 }

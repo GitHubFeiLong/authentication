@@ -1,52 +1,24 @@
-package com.goudong.authentication.client.api.permission.v1.resp;
+package com.goudong.authentication.server.rest.resp;
 
-import com.goudong.authentication.client.core.MenuInterface;
-import com.goudong.authentication.client.core.RoleInterface;
-import com.goudong.authentication.client.core.TreeInterface;
-import com.goudong.authentication.client.core.UserInterface;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 /**
  * 类描述：
- * 获取用户权限列表响应-简化版
+ * 获取
  * @author chenf
  */
 @Data
-public class PermissionListPermissionByUsername2SimpleResp implements UserInterface {
+public class PermissionGetRolesMenusResp implements Serializable {
     //~fields
     //==================================================================================================================
-    /**
-     * 用户id
-     */
-    private Long id;
+    private static final long serialVersionUID = 4713784610537488037L;
 
     /**
-     * 用户名
-     */
-    private String username;
-
-    /**
-     * 激活状态：true 激活；false 未激活
-     */
-    private Boolean enabled;
-
-    /**
-     * 锁定状态：true 锁定；false 未锁定
-     */
-    private Boolean locked;
-
-    /**
-     * 有效截止时间
-     */
-    private Date validTime;
-
-    /**
-     * 角色信息
+     * 角色集合
      */
     private List<RoleInner> roles;
 
@@ -58,24 +30,29 @@ public class PermissionListPermissionByUsername2SimpleResp implements UserInterf
      * @author chenf
      */
     @Data
-    public static class RoleInner implements RoleInterface {
+    public static class RoleInner {
         /**
          * 应用ID
          */
+        @ApiModelProperty(value = "应用ID", required = true)
         private Long appId;
+
         /**
          * 角色ID
          */
+        @ApiModelProperty(value = "角色ID", required = true)
         private Long id;
 
         /**
          * 角色名称
          */
+        @ApiModelProperty(value = "角色名称", required = true)
         private String name;
 
         /**
-         * 菜单信息
+         * 角色拥有的权限列表
          */
+        @ApiModelProperty(value = "角色拥有的权限列表", required = true)
         private List<MenuInner> menus;
     }
 
@@ -85,83 +62,78 @@ public class PermissionListPermissionByUsername2SimpleResp implements UserInterf
      * @author chenf
      */
     @Data
-    public static class MenuInner implements MenuInterface, TreeInterface<Long, Long, MenuInner>, Comparable<MenuInner>, Serializable {
-
-        private static final long serialVersionUID = -4395163344388295463L;
+    public static class MenuInner {
 
         /**
-         * 菜单id
+         * 应用ID
          */
+        @ApiModelProperty(value = "应用ID", required = true)
+        private Long appId;
+
+        /**
+         * 菜单ID
+         */
+        @ApiModelProperty(value = "菜单ID", required = true)
         private Long id;
 
         /**
          * 父级主键id
          */
+        @ApiModelProperty(value = "父级主键id")
         private Long parentId;
-
-        /**
-         * 应用id
-         */
-        private Long appId;
 
         /**
          * 权限标识
          */
+        @ApiModelProperty(value = "权限标识", required = true)
         private String permissionId;
 
         /**
          * 菜单名称
          */
+        @ApiModelProperty(value = "菜单名称", required = true)
         private String name;
 
         /**
          * 菜单类型（1：菜单；2：按钮；3：接口）
          */
+        @ApiModelProperty(value = "菜单类型（1：菜单；2：按钮；3：接口）", required = true)
         private Integer type;
 
         /**
          * 路由或接口地址
          */
+        @ApiModelProperty(value = "路由或接口地址")
         private String path;
 
         /**
          * 请求方式
          */
+        @ApiModelProperty(value = "请求方式")
         private String method;
 
         /**
          * 排序字段（值越小越靠前，仅仅针对前端路由）
          */
+        @ApiModelProperty(value = "排序字段（值越小越靠前，仅仅针对前端路由）")
         private Integer sortNum;
 
         /**
          * 是否是隐藏菜单
          */
+        @ApiModelProperty(value = "是否是隐藏菜单", required = true)
         private Boolean hide;
 
         /**
          * 前端菜单元数据
          */
+        @ApiModelProperty(value = "前端菜单元数据")
         private String meta;
 
         /**
          * 备注
          */
+        @ApiModelProperty(value = "备注")
         private String remark;
-
-        /**
-         * 子菜单
-         */
-        private List<MenuInner> children;
-
-        @Override
-        public void setChildren(List<MenuInner> children) {
-            this.children = children;
-        }
-
-        @Override
-        public int compareTo(MenuInner o) {
-            return this.getSortNum().compareTo(o.getSortNum());
-        }
     }
 }

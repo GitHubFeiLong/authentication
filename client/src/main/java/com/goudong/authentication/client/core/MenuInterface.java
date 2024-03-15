@@ -1,8 +1,5 @@
 package com.goudong.authentication.client.core;
 
-import java.util.Collection;
-import java.util.List;
-
 /**
  * 类描述：
  * 菜单接口，定义菜单基本方法
@@ -10,42 +7,68 @@ import java.util.List;
  */
 public interface MenuInterface {
     /**
-     * 菜单id
+     * 获取菜单ID
+     * @return 菜单ID
      */
     Long getId();
 
     /**
-     * 父级主键id
+     * 获取父级主键id
+     * @return 父菜单ID
      */
     Long getParentId();
 
     /**
-     * 权限标识
+     * 获取应用ID
+     * @return 应用ID
+     */
+    Long getAppId();
+
+    /**
+     * 获取权限标识
+     * @return 权限标识
      */
     String getPermissionId();
 
     /**
-     * 菜单名称
+     * 获取菜单名称
+     * @return 菜单名称
      */
     String getName();
 
     /**
      * 菜单类型（1：菜单；2：按钮；3：接口）
+     * @return 菜单类型
      */
     Integer getType();
 
     /**
-     * 路由或接口地址
+     * 获取路由或接口地址
+     * @return 获取地址
      */
     String getPath();
 
     /**
      * 请求方式，JSON数组，格式类似是：["GET","POST"]
+     * @return 请求方式
      */
     String getMethod();
 
     /**
-     * 子菜单
+     * 获取菜单排序值
+     * @return 排序
      */
-    Collection<? extends MenuInterface> getChildren();
+    Integer getSortNum();
+
+    /**
+     * 获取是否隐藏
+     * @return true：隐藏菜单；false：显示菜单
+     */
+    Boolean getHide();
+
+    /**
+     * 获取菜单元数据
+     * @return 菜单元数据
+     */
+    String getMeta();
 }

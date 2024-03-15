@@ -1,33 +1,36 @@
 package com.goudong.authentication.client.core;
 
-import com.goudong.authentication.client.enums.HttpMethodEnum;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * 类描述：
- * 资源
- * @author cfl
- * @version 1.0
+ * 角色基本信息
+ * @author chenf
  */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class Resource implements ResourceInterface{
+public class BaseRole implements RoleInterface{
     //~fields
     //==================================================================================================================
     /**
-     * 资源访问路径
+     * 角色所在的应用ID
      */
-    private String url;
+    private Long appId;
+    /**
+     * 角色ID
+     */
+    private Long id;
 
     /**
-     * 资源访问方法
+     * 角色名称
      */
-    private HttpMethodEnum method;
+    private String name;
+
+    /**
+     * 菜单信息
+     */
+    private Collection<? extends MenuInterface> menus;
     //~methods
     //==================================================================================================================
 }

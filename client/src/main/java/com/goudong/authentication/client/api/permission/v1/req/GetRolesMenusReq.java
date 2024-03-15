@@ -1,27 +1,24 @@
 package com.goudong.authentication.client.api.permission.v1.req;
 
 import com.goudong.authentication.client.core.BaseApiReq;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
 
 /**
  * 类描述：
- * 获取用户权限列表的请求对象
+ * 获取应用配置的所有角色和菜单的请求对象
  * @author chenf
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder
-@AllArgsConstructor
-@NoArgsConstructor
-public class PermissionListPermissionByUsernameReq extends BaseApiReq {
+public class GetRolesMenusReq extends BaseApiReq {
     //~fields
     //==================================================================================================================
-    /**
-     * 用户名 username不能为空
-     */
-    private String username;
+
     //~methods
     //==================================================================================================================
 }

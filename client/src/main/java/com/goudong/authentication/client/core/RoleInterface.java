@@ -10,17 +10,22 @@ import java.util.Collection;
 public interface RoleInterface {
 
     /**
-     * 角色ID
+     * @return 角色所在的应用ID
+     */
+    Long getAppId();
+
+    /**
+     * @return 角色的ID
      */
     Long getId();
 
     /**
-     * 角色名称
+     * @return 角色的名称
      */
     String getName();
 
     /**
-     * 菜单信息
+     * @return 菜单信息
      */
     Collection<? extends MenuInterface> getMenus();
 }

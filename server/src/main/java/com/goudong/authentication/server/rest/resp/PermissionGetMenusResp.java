@@ -1,8 +1,5 @@
 package com.goudong.authentication.server.rest.resp;
 
-import com.goudong.authentication.server.domain.BaseMenu;
-import com.goudong.core.util.tree.v2.TreeInterface;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -11,7 +8,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,7 +17,9 @@ import java.util.List;
  * @version 1.0
  */
 @Data
-public class ListAllMenusResp implements Serializable{
+public class PermissionGetMenusResp implements Serializable{
+
+    private static final long serialVersionUID = 5299706948323095938L;
 
     @ApiModelProperty("菜单集合")
     private List<MenuInner> menus;
@@ -32,6 +30,7 @@ public class ListAllMenusResp implements Serializable{
      * @author cfl
      * @version 1.0
      */
+    @Data
     public static class MenuInner{
         @ApiModelProperty(value = "菜单id")
         private Long id;

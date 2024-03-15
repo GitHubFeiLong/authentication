@@ -35,6 +35,13 @@ public interface BaseRoleService {
     List<BaseRole> listByIds(List<Long> ids);
 
     /**
+     * 获取应用下的角色
+     * @param appId 应用ID
+     * @return  应用下的角色
+     */
+    List<BaseRole> listByAppId(Long appId);
+
+    /**
      * 分页查询角色列表
      *
      * @param req 条件查询参数

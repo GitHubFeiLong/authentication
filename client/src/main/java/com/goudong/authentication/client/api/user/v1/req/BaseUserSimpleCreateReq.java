@@ -1,9 +1,8 @@
 package com.goudong.authentication.client.api.user.v1.req;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.goudong.authentication.client.core.BaseApiReq;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,11 +11,12 @@ import java.util.List;
  * 新增用户
  * @author chenf
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class BaseUserSimpleCreateReq implements Serializable {
+@NoArgsConstructor
+@SuperBuilder
+public class BaseUserSimpleCreateReq extends BaseApiReq implements Serializable {
 
     private static final long serialVersionUID = -7466849523525350832L;
     /**

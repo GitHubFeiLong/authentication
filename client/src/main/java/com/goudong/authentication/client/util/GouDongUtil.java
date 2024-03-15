@@ -199,16 +199,6 @@ public class GouDongUtil {
 
     /**
      * 创建token
-     * @param body 请求体参数
-     * @return GOUDONG-SHA256withRSA 模式的令牌
-     */
-    public static String generateToken(String body) {
-        GoudongAuthenticationClient client = GoudongAuthenticationClient.getClient();
-        return generateToken(client.getAppId(), client.getSerialNumber(), body, client.getPrivateKey());
-    }
-
-    /**
-     * 创建token
      * @param appId 应用id
      * @param serialNumber 16位16进制的证书序列号
      * @param body 请求体参数

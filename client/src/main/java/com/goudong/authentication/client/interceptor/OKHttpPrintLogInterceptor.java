@@ -30,7 +30,7 @@ public class OKHttpPrintLogInterceptor implements Interceptor {
      */
     @Override
     public Response intercept(Chain chain) throws IOException {
-        final String START_END = "-------------------------------------------------------------\n";
+        final String START_END = "\n-------------------------------------------------------------\n";
 
         Request request = chain.request();
         Request.Builder requestBuilder = request.newBuilder();
@@ -87,8 +87,7 @@ public class OKHttpPrintLogInterceptor implements Interceptor {
         sb.append("请求状态：").append(response.isSuccessful() ? "请求成功" : "请求失败").append(";响应码").append(response.code()).append("\n");
         sb.append("响应参数：").append(bodyString).append("\n");
         sb.append(START_END);
-        log.info(sb.toString());
-        System.out.println(sb);
+        log.debug(sb.toString());
         if (response.body() != null) {// 深坑！打印body后原ResponseBody会被清空，需要重新设置body
             ResponseBody body = ResponseBody.create(contentType, bodyString);
             return response.newBuilder().body(body).build();

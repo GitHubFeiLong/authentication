@@ -1,21 +1,18 @@
 package com.goudong.authentication.client.api.user.v1;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.goudong.authentication.client.api.user.v1.req.BaseUserDeleteByIdsReq;
 import com.goudong.authentication.client.api.user.v1.req.BaseUserSimpleCreateReq;
 import com.goudong.authentication.client.constant.ApiConst;
 import com.goudong.authentication.client.constant.CommonConst;
 import com.goudong.authentication.client.core.Result;
 import com.goudong.authentication.client.dto.BaseUserDTO;
-import com.goudong.authentication.client.util.GouDongUtil;
-import com.goudong.authentication.client.util.GoudongAuthenticationClient;
-import com.goudong.authentication.client.util.JsonUtil;
-import com.goudong.authentication.client.util.OkHttpUtil;
+import com.goudong.authentication.client.util.*;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * 类描述：
@@ -36,7 +33,7 @@ public class UserV1Api {
      */
     public static Result<BaseUserDTO> simpleCreateUser(BaseUserSimpleCreateReq req) {
         // 获取客户端信息
-        GoudongAuthenticationClient client = GoudongAuthenticationClient.getClient();
+        GoudongAuthenticationClient client = GoudongAuthenticationClient.getClient(req.getAppId());
         final String api = client.getServerUrl() + ApiConst.USER_SIMPLE_CREATE_USER;
 
         OkHttpClient okHttpClient = OkHttpUtil.getOkHttpClient();
@@ -44,7 +41,7 @@ public class UserV1Api {
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json;charset=utf-8"), json);
 
         // 生成令牌
-        String authentication = GouDongUtil.generateToken(json);
+        String authentication = client.generateToken(json);
 
         Request request = new Request.Builder().url(api)
                 .header(CommonConst.HTTP_HEADER_AUTHORIZATION, authentication)
@@ -57,7 +54,7 @@ public class UserV1Api {
             response = okHttpClient.newCall(request).execute();
             return JsonUtil.toObject(response.body().string(), new TypeReference<Result<BaseUserDTO>>() {});
         } catch (IOException e) {
-            log.error("请求接口失败，接口地址：{}, 失败因素：{}", api, e.getMessage());
+            LogUtil.error(log, () -> "请求接口失败，接口地址：{}, 失败因素：{}", () -> ArrayUtil.create(api, e.getMessage()));
             throw new RuntimeException(e);
         }
     }
@@ -67,13 +64,13 @@ public class UserV1Api {
      * @param ids       用户id数组
      * @return          true：删除成功；false：删除失败
      */
-    public static Result<Boolean> deleteByIds(Collection<Long> ids) {
+    public static Result<Boolean> deleteByIds(BaseUserDeleteByIdsReq req) {
         // 获取客户端信息
-        GoudongAuthenticationClient client = GoudongAuthenticationClient.getClient();
+        GoudongAuthenticationClient client = GoudongAuthenticationClient.getClient(req.getAppId());
         final String api = client.getServerUrl() + ApiConst.USER_DELETE_USERS;
 
         OkHttpClient okHttpClient = OkHttpUtil.getOkHttpClient();
-        String json = JsonUtil.toJsonString(ids);
+        String json = JsonUtil.toJsonString(req.getIds());
         // 生成令牌
         String authentication = GouDongUtil.generateToken(client.getAppId(), client.getSerialNumber(), json, client.getPrivateKey());
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json;charset=utf-8"), json);
@@ -88,7 +85,7 @@ public class UserV1Api {
             response = okHttpClient.newCall(request).execute();
             return JsonUtil.toObject(response.body().string(), new TypeReference<Result<Boolean>>() {});
         } catch (IOException e) {
-            log.error("请求接口失败，接口地址：{}, 失败因素：{}", api, e.getMessage());
+            LogUtil.error(log, () -> "请求接口失败，接口地址：{}, 失败因素：{}", () -> ArrayUtil.create(api, e.getMessage()));
             throw new RuntimeException(e);
         }
     }
