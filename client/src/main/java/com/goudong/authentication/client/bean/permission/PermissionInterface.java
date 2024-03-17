@@ -9,11 +9,7 @@ import java.util.Collection;
 
 /**
  * 类描述：
- * 权限接口：
- * <pre>
- *     1. 获取用户所有权限
- *     2. 判断请求是否有权限
- * </pre>
+ * 用户权限相关功能
  * @author chenf
  */
 public interface PermissionInterface {
@@ -42,10 +38,16 @@ public interface PermissionInterface {
 
     /**
      * 检查用户是否有访问资源的权限
-     * @param appId     用用ID，当参数{@code appId}值为null时，内部使用默认应用ID
+     * @param appId     应用ID，当参数{@code appId}值为null时，内部使用默认应用ID
      * @param username  用户名
      * @param resource  资源
      * @return true：有权限，false：无权限
      */
     boolean checkAccessRight(Long appId, String username, Resource resource);
+
+    /**
+     * 清理缓存
+     * @param appId
+     */
+    void clean(Long appId);
 }

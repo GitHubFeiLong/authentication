@@ -20,13 +20,13 @@ import java.util.*;
 
 /**
  * 类描述：
- * 默认方式，每次调用方法都需要去请求认证服务
+ * 使用内存的存储
  * @author cfl
  * @version 1.0
  */
 @Slf4j
 @Component
-public class DefaultPermission implements PermissionInterface {
+public class MemoryPermission implements PermissionInterface {
 
     //~fields
     //==================================================================================================================
@@ -35,10 +35,23 @@ public class DefaultPermission implements PermissionInterface {
      */
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
+    /**
+     * 应用ID为key，应用下的用户为VALUE，角色属性中不包含菜单信息
+     */
+    protected final Map<Long, Collection<UserInterface>> APP_USER_ROLE_MAP = new HashMap<>();
+
+    /**
+     * 应用ID为key，应用下所有角色为VALUE，角色属性中包含菜单信息
+     */
+    protected final Map<Long, Collection<? extends RoleInterface>> APP_ROLE_MENU_MAP = new HashMap<>();
+
+    /**
+     * 应用ID为key，应用下所有菜单为VALUE
+     */
+    protected final Map<Long, Collection<? extends MenuInterface>> APP_MENU_MAP = new HashMap<>();
+
     //~methods
     //==================================================================================================================
-    public DefaultPermission() {
-    }
 
     /**
      * 获取应用配置的所有权限
@@ -51,9 +64,21 @@ public class DefaultPermission implements PermissionInterface {
         appId = Optional.ofNullable(appId).orElseGet(() -> GoudongAuthenticationClient.getDefaultClient().getAppId());
         Long finalAppId = appId;
         LogUtil.debug(log, () -> "查询应用{}所有菜单权限", () -> ArrayUtil.create(finalAppId));
-        GetMenusResp menusResp = PermissionV1Api.getMenus(GetMenusReq.builder().appId(appId).build()).getData();
-        LogUtil.debug(log, () -> "查询应用{}所有菜单权限:{}", () -> ArrayUtil.create(finalAppId, JsonUtil.toJsonString(menusResp.getMenus())));
-        return menusResp.getMenus();
+        if (APP_MENU_MAP.containsKey(appId)) {
+            LogUtil.debug(log, () -> "存在应用缓存，直接取出缓存");
+            return APP_MENU_MAP.get(appId);
+        }
+        synchronized (this) {
+            if (APP_MENU_MAP.containsKey(appId)) {
+                LogUtil.debug(log, () -> "存在应用缓存，直接取出缓存");
+                return APP_MENU_MAP.get(appId);
+            }
+            LogUtil.debug(log, () -> "应用缓存不存在，需要查询接口");
+            GetMenusResp menusResp = PermissionV1Api.getMenus(GetMenusReq.builder().appId(appId).build()).getData();
+            LogUtil.debug(log, () -> "查询应用{}所有菜单权限:{}", () -> ArrayUtil.create(finalAppId, JsonUtil.toJsonString(menusResp.getMenus())));
+            APP_MENU_MAP.put(appId, menusResp.getMenus());
+            return menusResp.getMenus();
+        }
     }
 
     /**
@@ -67,9 +92,22 @@ public class DefaultPermission implements PermissionInterface {
         appId = Optional.ofNullable(appId).orElseGet(() -> GoudongAuthenticationClient.getDefaultClient().getAppId());
         Long finalAppId = appId;
         LogUtil.debug(log, () -> "查询应用{}所有角色及角色权限", () -> ArrayUtil.create(finalAppId));
-        GetRolesMenusResp rolesMenusResp = PermissionV1Api.getRolesMenus(GetRolesMenusReq.builder().appId(appId).build()).getData();
-        LogUtil.debug(log, () -> "查询应用{}所有角色及角色权限:{}", () -> ArrayUtil.create(finalAppId, JsonUtil.toJsonString(rolesMenusResp.getRoles())));
-        return rolesMenusResp.getRoles();
+        if (APP_ROLE_MENU_MAP.containsKey(appId)) {
+            LogUtil.debug(log, () -> "存在应用缓存，直接取出缓存");
+            return APP_ROLE_MENU_MAP.get(appId);
+        }
+        synchronized (this) {
+            if (APP_ROLE_MENU_MAP.containsKey(appId)) {
+                LogUtil.debug(log, () -> "存在应用缓存，直接取出缓存");
+                return APP_ROLE_MENU_MAP.get(appId);
+            }
+
+            LogUtil.debug(log, () -> "应用缓存不存在，需要查询接口");
+            GetRolesMenusResp rolesMenusResp = PermissionV1Api.getRolesMenus(GetRolesMenusReq.builder().appId(appId).build()).getData();
+            LogUtil.debug(log, () -> "查询应用{}所有角色及角色权限:{}", () -> ArrayUtil.create(finalAppId, JsonUtil.toJsonString(rolesMenusResp.getRoles())));
+            APP_ROLE_MENU_MAP.put(appId, rolesMenusResp.getRoles());
+            return rolesMenusResp.getRoles();
+        }
     }
 
     /**
@@ -84,15 +122,48 @@ public class DefaultPermission implements PermissionInterface {
         appId = Optional.ofNullable(appId).orElseGet(() -> GoudongAuthenticationClient.getDefaultClient().getAppId());
         Long finalAppId = appId;
         LogUtil.debug(log, () -> "查询应用{}用户{}的信息", () -> ArrayUtil.create(finalAppId, username));
-        GetUserResp userResp = PermissionV1Api.getUser(GetUserReq.builder().appId(appId).username(username).build()).getData();
-        LogUtil.debug(log, () -> "查询应用{}用户{}的信息:{}", () -> ArrayUtil.create(finalAppId, username, JsonUtil.toJsonString(userResp.getRoles())));
-        return userResp;
+        // 先查询缓存是否命中
+        if (APP_USER_ROLE_MAP.containsKey(appId)) {
+            LogUtil.debug(log, () -> "存在应用缓存，直接取出缓存", () -> ArrayUtil.create(finalAppId));
+            Optional<? extends UserInterface> first = APP_USER_ROLE_MAP.get(appId).stream().filter(f -> Objects.equals(username, f.getUsername())).findFirst();
+            // 命中缓存，直接返回
+            if (first.isPresent()) {
+                return first.get();
+            }
+            LogUtil.debug(log, () -> "未查询到用户缓存，需要调用接口查询用户");
+        }
+        // 存缓存
+        synchronized (this) {
+            // 先查询缓存
+            if (APP_USER_ROLE_MAP.containsKey(appId)) {
+                LogUtil.debug(log, () -> "存在应用缓存，直接取出缓存", () -> ArrayUtil.create(finalAppId));
+                Optional<? extends UserInterface> first = APP_USER_ROLE_MAP.get(appId).stream().filter(f -> Objects.equals(username, f.getUsername())).findFirst();
+                if (first.isPresent()) {
+                    return first.get();
+                }
+                LogUtil.debug(log, () -> "未查询到用户缓存，需要调用接口查询用户");
+            }
+            GetUserResp userResp = PermissionV1Api.getUser(GetUserReq.builder().appId(appId).username(username).build()).getData();
+            LogUtil.debug(log, () -> "查询应用{}用户{}的信息:{}", () -> ArrayUtil.create(finalAppId, username, JsonUtil.toJsonString(userResp.getRoles())));
+
+            // 存缓存
+            if (APP_USER_ROLE_MAP.containsKey(appId)) {
+                Collection<UserInterface> users = APP_USER_ROLE_MAP.get(appId);
+                users.add(userResp);
+            } else {
+                Collection<UserInterface> users = new ArrayList<>();
+                users.add(userResp);
+                APP_USER_ROLE_MAP.put(appId, users);
+            }
+
+            return userResp;
+        }
     }
 
     /**
      * 检查用户是否有访问资源的权限
      *
-     * @param appId    应用ID，当参数{@code appId}值为null时，内部使用默认应用ID
+     * @param appId    用用ID，当参数{@code appId}值为null时，内部使用默认应用ID
      * @param username 用户名
      * @param resource 资源
      * @return true：有权限，false：无权限
@@ -152,6 +223,9 @@ public class DefaultPermission implements PermissionInterface {
      */
     @Override
     public void clean(Long appId) {
-
+        APP_USER_ROLE_MAP.remove(appId);
+        APP_ROLE_MENU_MAP.remove(appId);
+        APP_MENU_MAP.remove(appId);
     }
+
 }

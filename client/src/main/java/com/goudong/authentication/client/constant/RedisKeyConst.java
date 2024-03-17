@@ -15,14 +15,19 @@ public class RedisKeyConst {
     private static final String PATTERN = "\\{.*\\}";
 
     /**
-     * 用户角色
+     * 应用下的所有菜单
      */
-    public static final String USER_ROLE = "goudong:user:role:{username}";
+    public static final String APP_MENUS = "goudong:app:{appId}:menus";
 
     /**
-     * 角色菜单权限
+     * 应用下的所有角色
      */
-    public static final String ROLE_MENU = "goudong:role:menu:{roleName}";
+    public static final String APP_ROLES = "goudong:app:{appId}:roles";
+
+    /**
+     * 应用下的用户
+     */
+    public static final String APP_USERS = "goudong:app:{appId}:users:{username}";
 
     //~methods
     //==================================================================================================================
