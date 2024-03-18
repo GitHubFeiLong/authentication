@@ -56,6 +56,4 @@ public interface PermissionManagerService {
      */
     PermissionListPermissionByUsername2SimpleResp listPermissionByUsername2Simple(PermissionListPermissionByUsernameReq req);
 
-
-
 }

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：
@@ -77,7 +78,7 @@ public class DefaultPermission implements PermissionInterface {
      *
      * @param appId    应用ID，当参数{@code appId}值为null时，内部使用默认应用ID
      * @param username 用户名
-     * @return 用户信息，包含用户基本信息和拥有的角色权限信息
+     * @return 用户信息，包含用户基本信息和拥有的角色信息
      */
     @Override
     public UserInterface getUser(Long appId, String username) {
@@ -86,6 +87,34 @@ public class DefaultPermission implements PermissionInterface {
         LogUtil.debug(log, () -> "查询应用{}用户{}的信息", () -> ArrayUtil.create(finalAppId, username));
         GetUserResp userResp = PermissionV1Api.getUser(GetUserReq.builder().appId(appId).username(username).build()).getData();
         LogUtil.debug(log, () -> "查询应用{}用户{}的信息:{}", () -> ArrayUtil.create(finalAppId, username, JsonUtil.toJsonString(userResp.getRoles())));
+        return userResp;
+    }
+
+    /**
+     * 获取用户信息（包含菜单权限）
+     *
+     * @param appId    应用ID，当参数{@code appId}值为null时，内部使用默认应用ID
+     * @param username 用户名
+     * @return 用户信息，包含用户基本信息和拥有的角色权限信息
+     */
+    @Override
+    public UserInterface getUserDetail(Long appId, String username) {
+        appId = Optional.ofNullable(appId).orElseGet(() -> GoudongAuthenticationClient.getDefaultClient().getAppId());
+        Long finalAppId = appId;
+        LogUtil.debug(log, () -> "查询应用{}用户{}的详细信息", () -> ArrayUtil.create(finalAppId, username));
+        UserInterface userResp = this.getUser(appId, username);
+        if (CollectionUtil.isNotEmpty(userResp.getRoles())) {
+            LogUtil.debug(log, () -> "查询用户角色的权限信息");
+            Collection<? extends RoleInterface> rolesMenus = this.getRolesMenus(appId);
+            Map<Long, ? extends RoleInterface> roleIdRolemap = rolesMenus.stream().collect(Collectors.toMap(RoleInterface::getId, p -> p, (k1, k2) -> k1));
+            userResp.getRoles().forEach(p -> {
+                if (roleIdRolemap.containsKey(p.getId())) {
+                    Collection<? extends MenuInterface> menus = roleIdRolemap.get(p.getId()).getMenus();
+                    p.setMenus(menus);
+                }
+            });
+        }
+        LogUtil.debug(log, () -> "查询应用{}用户{}的详细信息:{}", () -> ArrayUtil.create(finalAppId, username, JsonUtil.toJsonString(userResp.getRoles())));
         return userResp;
     }
 
@@ -147,11 +176,12 @@ public class DefaultPermission implements PermissionInterface {
 
     /**
      * 清理缓存
-     *
-     * @param appId
+     * @param appId 应用ID，当参数appId值为null时，内部使用默认应用ID
      */
     @Override
     public void clean(Long appId) {
-
+        appId = Optional.ofNullable(appId).orElseGet(() -> GoudongAuthenticationClient.getDefaultClient().getAppId());
+        Long finalAppId = appId;
+        LogUtil.debug(log, () -> "清理应用{}缓存", () -> ArrayUtil.create(finalAppId));
     }
 }

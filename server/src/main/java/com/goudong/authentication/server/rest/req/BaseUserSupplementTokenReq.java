@@ -4,20 +4,28 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * 类描述：
- * 刷新token请求对象
- * @Author Administrator
- * @Version 1.0
+ * 补充token信息
+ * @author chenf
  */
 @Data
-public class RefreshToken {
+public class BaseUserSupplementTokenReq {
     //~fields
     //==================================================================================================================
-    @ApiModelProperty(value = "刷新token", required = true)
+    @ApiModelProperty(value = "用户令牌", required = true)
     @NotBlank
-    private String refreshToken;
+    private String token;
+
+    @ApiModelProperty(value = "待添加的参数", required = true)
+    @NotNull
+    @NotEmpty
+    private Map<String, Object> detail;
+
     //~methods
     //==================================================================================================================
 }

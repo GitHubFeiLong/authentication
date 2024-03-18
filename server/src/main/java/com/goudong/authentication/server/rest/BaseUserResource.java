@@ -1,5 +1,6 @@
 package com.goudong.authentication.server.rest;
 
+import com.goudong.authentication.common.constant.CommonConst;
 import com.goudong.authentication.common.core.Token;
 import com.goudong.authentication.common.core.UserDetail;
 import com.goudong.authentication.server.domain.BaseUser;
@@ -14,13 +15,13 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
-import java.util.Map;
 
 
 /**
@@ -66,7 +67,7 @@ public class BaseUserResource {
      */
     @PostMapping("/refresh-token")
     @ApiOperation(value = "刷新token")
-    public Result<Token> refreshToken(@RequestBody RefreshToken token) {
+    public Result<Token> refreshToken(@RequestBody BaseUserRefreshTokenReq token) {
         return Result.ofSuccess(baseUserManagerService.refreshToken(token));
     }
 
@@ -181,14 +182,9 @@ public class BaseUserResource {
         return Result.ofSuccess(baseUserManagerService.deleteByIds(Arrays.asList(ids)));
     }
 
-    /**
-     * 补充token信息
-     * @param req 填充的内容
-     * @return  填充后新生成的token
-     */
     @PostMapping("/supplement-token")
     @ApiOperation(value = "补充token")
-    public Result<Token> supplementToken(@RequestBody Map<String, Object> req) {
+    public Result<Token> supplementToken(@RequestBody BaseUserSupplementTokenReq req) {
         return Result.ofSuccess(baseUserManagerService.supplementToken(req));
     }
 
@@ -201,5 +197,12 @@ public class BaseUserResource {
     @ApiOperation(value = "修改用户密码")
     public Result<Boolean> changePassword(@RequestBody @Validated BaseUserChangePasswordReq req) {
         return Result.ofSuccess(baseUserManagerService.changePassword(req));
+    }
+
+    @PostMapping("/create-token")
+    @ApiOperation(value = "给指定用户创建令牌")
+    @Secured(value = {CommonConst.ROLE_APP_SUPER_ADMIN, CommonConst.ROLE_APP_ADMIN}) // 只有该角色才能处理应用
+    public Result<Token> createToken(@RequestBody BaseUserCreateTokenReq req) {
+        return Result.ofSuccess(baseUserManagerService.createToken(req));
     }
 }

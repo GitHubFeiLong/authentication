@@ -1,7 +1,5 @@
 package com.goudong.authentication.client.constant;
 
-import lombok.Data;
-
 /**
  * 类描述：
  * api接口的地址，不包含上下文
@@ -10,6 +8,16 @@ import lombok.Data;
 public class ApiConst {
     //~user apis
     //==================================================================================================================
+    /**
+     * 给指定用户创建token
+     */
+    public static final String USER_CREATE_TOKEN = "/user/create-token";
+
+    /**
+     * 刷新token
+     */
+    public static final String USER_REFRESH_TOKEN = "/user/refresh-token";
+
     /**
      * POST请求，简单新增用户
      */
@@ -20,6 +28,10 @@ public class ApiConst {
      */
     public static final String USER_DELETE_USERS = "/user/base-users";
 
+    /**
+     * 补充token，返回新的令牌
+     */
+    public static final String USER_SUPPLEMENT_TOKEN = "/user/create-token";
 
     //~permission apis
     //==================================================================================================================
@@ -43,8 +55,6 @@ public class ApiConst {
      */
     @Deprecated
     public static final String PERMISSION_LIST_BY_USERNAME = "/permission/list-by-username/simple";
-
-
 
     //~methods
     //==================================================================================================================

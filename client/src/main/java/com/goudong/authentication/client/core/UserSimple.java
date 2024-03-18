@@ -1,6 +1,6 @@
-package com.goudong.authentication.common.core;
+package com.goudong.authentication.client.core;
 
-import com.goudong.authentication.common.constant.CommonConst;
+import com.goudong.authentication.client.constant.CommonConst;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -86,5 +86,14 @@ public class UserSimple {
      */
     public boolean admin() {
         return this.roles.stream().anyMatch(f -> Objects.equals(f, CommonConst.ROLE_APP_ADMIN) || Objects.equals(f, CommonConst.ROLE_APP_SUPER_ADMIN));
+    }
+
+    /**
+     * 获取用的detail信息
+     * @param key   key
+     * @return  key对应的信息
+     */
+    public Object getByDetail(String key) {
+        return detail.get(key);
     }
 }

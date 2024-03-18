@@ -7,14 +7,14 @@ import com.goudong.authentication.common.core.AuthorizationContext;
 import com.goudong.authentication.common.core.Jwt;
 import com.goudong.authentication.common.core.UserSimple;
 import com.goudong.authentication.server.domain.*;
-import com.goudong.authentication.server.rest.req.BaseMenuGetAllReq;
+import com.goudong.authentication.server.properties.AuthenticationServerProperties;
 import com.goudong.authentication.server.rest.req.CheckPermissionReq;
 import com.goudong.authentication.server.rest.req.PermissionGetUserReq;
+import com.goudong.authentication.server.rest.req.PermissionListPermissionByUsernameReq;
 import com.goudong.authentication.server.rest.resp.PermissionGetMenusResp;
 import com.goudong.authentication.server.rest.resp.PermissionGetRolesMenusResp;
 import com.goudong.authentication.server.rest.resp.PermissionGetUserResp;
 import com.goudong.authentication.server.rest.resp.PermissionListPermissionByUsername2SimpleResp;
-import com.goudong.authentication.server.rest.req.PermissionListPermissionByUsernameReq;
 import com.goudong.authentication.server.service.BaseAppService;
 import com.goudong.authentication.server.service.BaseMenuService;
 import com.goudong.authentication.server.service.BaseRoleService;
@@ -78,6 +78,9 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
 
     @Resource
     private ObjectMapper objectMapper;
+
+    @Resource
+    private AuthenticationServerProperties authenticationServerProperties;
 
     //~methods
     //==================================================================================================================
@@ -346,8 +349,6 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
         }
         return resp;
     }
-
-
 
     /**
      * 检查是否能访问

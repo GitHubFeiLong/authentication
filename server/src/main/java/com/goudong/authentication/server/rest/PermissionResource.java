@@ -55,6 +55,7 @@ public class PermissionResource {
         return Result.ofSuccess(permissionManagerService.getUser(req));
     }
 
+
     @PostMapping("/list-by-username/simple")
     @ApiOperation(value = "获取指定用户权限（角色、角色权限）")
     @Deprecated

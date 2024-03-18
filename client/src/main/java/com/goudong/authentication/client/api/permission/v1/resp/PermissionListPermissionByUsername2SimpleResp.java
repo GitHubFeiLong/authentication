@@ -48,7 +48,7 @@ public class PermissionListPermissionByUsername2SimpleResp implements UserInterf
     /**
      * 角色信息
      */
-    private List<RoleInner> roles;
+    private Collection<? extends RoleInterface> roles;
 
     //~methods
     //==================================================================================================================
@@ -76,7 +76,7 @@ public class PermissionListPermissionByUsername2SimpleResp implements UserInterf
         /**
          * 菜单信息
          */
-        private List<MenuInner> menus;
+        private Collection<? extends MenuInterface> menus;
     }
 
     /**
@@ -152,10 +152,10 @@ public class PermissionListPermissionByUsername2SimpleResp implements UserInterf
         /**
          * 子菜单
          */
-        private List<MenuInner> children;
+        private Collection<MenuInner> children;
 
         @Override
-        public void setChildren(List<MenuInner> children) {
+        public void setChildren(Collection<MenuInner> children) {
             this.children = children;
         }
 

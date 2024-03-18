@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 
 /**
@@ -87,7 +88,7 @@ public class JsonUtil {
     public static String toJsonString(Object obj) {
         ObjectMapper objectMapper = getObjectMapper();
         try {
-            return objectMapper.writeValueAsString(obj);
+            return objectMapper.writeValueAsString(Optional.ofNullable(obj).orElseGet(() -> "null"));
         } catch (JsonProcessingException e) {
             log.error("对象转json字符串失败：{}", e.getMessage());
             throw new RuntimeException(e);

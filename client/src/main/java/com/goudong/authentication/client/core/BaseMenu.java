@@ -3,7 +3,7 @@ package com.goudong.authentication.client.core;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * 类描述：
@@ -79,10 +79,10 @@ public class BaseMenu implements MenuInterface, TreeInterface<Long, Long, BaseMe
     /**
      * 子菜单
      */
-    private List<BaseMenu> children;
+    private Collection<BaseMenu> children;
 
     @Override
-    public void setChildren(List<BaseMenu> children) {
+    public void setChildren(Collection<BaseMenu> children) {
         this.children = children;
     }
 

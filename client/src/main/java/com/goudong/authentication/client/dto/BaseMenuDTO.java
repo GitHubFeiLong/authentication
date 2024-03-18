@@ -5,7 +5,7 @@ import com.goudong.authentication.client.core.TreeInterface;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * 类描述：
@@ -13,7 +13,7 @@ import java.util.List;
  * @author chenf
  */
 @Data
-public class BaseMenuDTO implements MenuInterface, TreeInterface<Long, Long, BaseMenuDTO>, Comparable<BaseMenuDTO>, Serializable {
+public class BaseMenuDTO implements MenuInterface, TreeInterface<Long, Long, MenuInterface>, Comparable<MenuInterface>, Serializable {
     //~fields
     //==================================================================================================================
     private static final long serialVersionUID = 7735354335308355087L;
@@ -81,18 +81,20 @@ public class BaseMenuDTO implements MenuInterface, TreeInterface<Long, Long, Bas
     /**
      * 子菜单
      */
-    private List<BaseMenuDTO> children;
+    private Collection<MenuInterface> children;
 
     @Override
-    public void setChildren(List<BaseMenuDTO> children) {
+    public void setChildren(Collection<MenuInterface> children) {
         this.children = children;
     }
 
     @Override
-    public int compareTo(BaseMenuDTO o) {
+    public int compareTo(MenuInterface o) {
         return this.getSortNum().compareTo(o.getSortNum());
     }
 
     //~methods
     //==================================================================================================================
+
+
 }

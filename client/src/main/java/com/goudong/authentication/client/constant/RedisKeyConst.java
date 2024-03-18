@@ -17,17 +17,17 @@ public class RedisKeyConst {
     /**
      * 应用下的所有菜单
      */
-    public static final String APP_MENUS = "goudong:app:{appId}:menus";
+    public static final String APP_MENUS = "goudong:app:menus:{appId}";
 
     /**
      * 应用下的所有角色
      */
-    public static final String APP_ROLES = "goudong:app:{appId}:roles";
+    public static final String APP_ROLES = "goudong:app:roles:{appId}";
 
     /**
      * 应用下的用户
      */
-    public static final String APP_USERS = "goudong:app:{appId}:users:{username}";
+    public static final String APP_USERS = "goudong:app:users:{appId}:{username}";
 
     //~methods
     //==================================================================================================================

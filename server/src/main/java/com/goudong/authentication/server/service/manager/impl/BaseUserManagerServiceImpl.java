@@ -31,7 +31,9 @@ import com.goudong.core.util.AssertUtil;
 import com.goudong.core.util.CollectionUtil;
 import com.goudong.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -148,7 +150,7 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
      * @return      token对象
      */
     @Override
-    public Token refreshToken(RefreshToken token) {
+    public Token refreshToken(BaseUserRefreshTokenReq token) {
         Long xAppId = HttpRequestUtil.getXAppId();
         BaseApp app = baseAppService.findById(xAppId);
         AuthenticationServerProperties.TokenConfigInner tokenConfig = authenticationServerProperties.getToken();
@@ -366,19 +368,19 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
 
     /**
      * 补充token信息
+     *
      * @param req 填充的内容
      * @return  填充后新生成的token
      */
     @Override
-    public Token supplementToken(Map<String, Object> req) {
-        // 获取userSimple对象
-        MyAuthentication myAuthentication = SecurityContextUtil.get();
-        UserSimple userSimple = myAuthentication.convertUserSimple();
-        userSimple.setDetail(req);
-
+    public Token supplementToken(BaseUserSupplementTokenReq req) {
         // 构造新的token
         Long xAppId = HttpRequestUtil.getXAppId();
         BaseApp app = baseAppService.findById(xAppId);
+        // 获取userSimple对象
+        UserSimple userSimple = Jwt.parseToken(app.getSecret(), req.getToken());
+        userSimple.getDetail().putAll(req.getDetail());
+
         AuthenticationServerProperties.TokenConfigInner tokenConfig = authenticationServerProperties.getToken();
         Jwt jwt = new Jwt(tokenConfig.getAccessTokenExpiration(), tokenConfig.getAccessTokenExpirationTimeUnit(), tokenConfig.getRefreshTokenExpiration(), tokenConfig.getRefreshTokenExpirationTimeUnit(), app.getSecret());
         return jwt.generateToken(userSimple);
@@ -413,5 +415,43 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         }
         baseUserService.save(user);
         return true;
+    }
+
+    /**
+     * 给指定用户创建token
+     *
+     * @param req 请求对象
+     * @return token
+     */
+    @Override
+    public Token createToken(BaseUserCreateTokenReq req) {
+        // 构造新的token
+        Long xAppId = HttpRequestUtil.getXAppId();
+        BaseApp app = baseAppService.findById(xAppId);
+        AssertUtil.isTrue(app.getEnabled(), () -> new DisabledException("应用未激活"));
+        // 查询用户信息
+        BaseUser user = Optional.ofNullable(baseUserService.findOneByRealAppIdAndUsername(xAppId, req.getUsername())).orElseThrow(() -> ClientException.client("用户不存在"));
+        // 校验用户状态
+        AssertUtil.isTrue(user.getEnabled(), () -> {
+            log.warn("选择了应用,用户未激活");
+            return new DisabledException("用户未激活");
+        });
+
+        AssertUtil.isFalse(user.getLocked(), () -> {
+            log.warn("根据X-App-Id查询用户，用户已锁定");
+            return new LockedException("用户已锁定");
+        });
+
+        AssertUtil.isTrue(user.getValidTime().after(new Date()), () -> {
+            log.warn("选择了应用,账户已过期");
+            return new AccountExpiredException("账户已过期");
+        });
+        List<String> roleNames = user.getRoles().stream().map(BaseRole::getName).collect(Collectors.toList());
+        // 获取userSimple对象
+        UserSimple userSimple = new UserSimple(user.getId(), user.getAppId(), user.getRealAppId(), user.getUsername(), roleNames);
+
+        AuthenticationServerProperties.TokenConfigInner tokenConfig = authenticationServerProperties.getToken();
+        Jwt jwt = new Jwt(tokenConfig.getAccessTokenExpiration(), tokenConfig.getAccessTokenExpirationTimeUnit(), tokenConfig.getRefreshTokenExpiration(), tokenConfig.getRefreshTokenExpirationTimeUnit(), app.getSecret());
+        return jwt.generateToken(userSimple);
     }
 }

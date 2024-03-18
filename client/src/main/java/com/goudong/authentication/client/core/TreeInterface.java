@@ -5,6 +5,7 @@ import com.goudong.authentication.client.util.AssertUtil;
 import com.goudong.authentication.client.util.CollectionUtil;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -21,9 +22,9 @@ public interface TreeInterface<ID, PID, T> {
 
     PID getParentId();
 
-    List<T> getChildren();
+    Collection<T> getChildren();
 
-    void setChildren(List<T> children);
+    void setChildren(Collection<T> children);
 
     /**
      * 转成Tree

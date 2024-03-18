@@ -38,6 +38,11 @@ public class GoudongAuthenticationClient {
     private Long appId;
 
     /**
+     * 应用密钥
+     */
+    private String appSecret;
+
+    /**
      * 证书序号
      */
     private String serialNumber;
@@ -66,15 +71,17 @@ public class GoudongAuthenticationClient {
      * @param serialNumber  证书序号
      * @param privateKeyStr 私钥
      */
-    public synchronized static GoudongAuthenticationClient init(String serverUrl, Long appId, String serialNumber, String privateKeyStr) {
+    public synchronized static GoudongAuthenticationClient init(String serverUrl, Long appId, String appSecret, String serialNumber, String privateKeyStr) {
         AssertUtil.isNotBlank(serverUrl, "serverUrl不能为空");
         AssertUtil.isNotNull(appId, "appId不能为null");
+        AssertUtil.isNotBlank(appSecret, "appSecret不能为空");
         AssertUtil.isNotBlank(serialNumber, "serialNumber不能为空");
         AssertUtil.isNotBlank(privateKeyStr, "privateKey不能为空");
         boolean containsApp = CLIENT_MAP.containsKey(appId);
         GoudongAuthenticationClient client = containsApp ? CLIENT_MAP.get(appId) : new GoudongAuthenticationClient();
         client.serverUrl = serverUrl;
         client.appId = appId;
+        client.appSecret = appSecret;
         client.serialNumber = serialNumber;
         client.privateKeyStr = privateKeyStr;
         try {
@@ -134,6 +141,14 @@ public class GoudongAuthenticationClient {
      */
     public Long getAppId() {
         return appId;
+    }
+
+    /**
+     * 获取应用密钥
+     * @return  应用密钥
+     */
+    public String getAppSecret() {
+        return appSecret;
     }
 
     /**

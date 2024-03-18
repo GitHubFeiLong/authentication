@@ -1,11 +1,11 @@
 package com.goudong.authentication.client.api.permission.v1.resp;
 
+import com.goudong.authentication.client.core.RoleInterface;
 import com.goudong.authentication.client.core.UserInterface;
-import com.goudong.authentication.client.dto.BaseRoleDTO;
 import lombok.Data;
 
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 类描述：
@@ -31,7 +31,6 @@ public class GetUserResp implements UserInterface {
      */
     private String username;
 
-
     /**
      * 激活状态：true 激活；false 未激活
      */
@@ -50,7 +49,10 @@ public class GetUserResp implements UserInterface {
     /**
      * 角色
      */
-    private List<BaseRoleDTO> roles;
+    private Collection<? extends RoleInterface> roles;
+
     //~methods
     //==================================================================================================================
+
+
 }

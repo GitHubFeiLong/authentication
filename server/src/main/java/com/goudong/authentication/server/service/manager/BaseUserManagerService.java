@@ -13,7 +13,6 @@ import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.core.lang.PageResult;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 类描述：
@@ -42,7 +41,7 @@ public interface BaseUserManagerService {
      * @param token refreshToken
      * @return      token对象
      */
-    Token refreshToken(RefreshToken token);
+    Token refreshToken(BaseUserRefreshTokenReq token);
 
     /**
      * 根据{@code token}获取用户信息
@@ -112,7 +111,7 @@ public interface BaseUserManagerService {
      * @param req 填充的内容
      * @return  填充后新生成的token
      */
-    Token supplementToken(Map<String, Object> req);
+    Token supplementToken(BaseUserSupplementTokenReq req);
 
     /**
      * 修改用户密码
@@ -120,4 +119,11 @@ public interface BaseUserManagerService {
      * @return  true:修改成功；false：修改失败
      */
     Boolean changePassword(BaseUserChangePasswordReq req);
+
+    /**
+     * 给指定用户创建token
+     * @param req   请求对象
+     * @return  token
+     */
+    Token createToken(BaseUserCreateTokenReq req);
 }

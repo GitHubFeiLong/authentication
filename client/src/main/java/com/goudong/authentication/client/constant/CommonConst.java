@@ -9,6 +9,17 @@ package com.goudong.authentication.client.constant;
 public class CommonConst {
     //~fields
     //==================================================================================================================
+
+    /**
+     * 超级管理员角色
+     */
+    public static final String ROLE_APP_SUPER_ADMIN = "ROLE_APP_SUPER_ADMIN";
+
+    /**
+     * 创建应用时，创建一个应用管理员在server端
+     */
+    public static final String ROLE_APP_ADMIN = "ROLE_APP_ADMIN";
+
     /**
      * 请求头属性
      */
