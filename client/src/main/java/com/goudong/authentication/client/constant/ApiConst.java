@@ -31,7 +31,7 @@ public class ApiConst {
     /**
      * 补充token，返回新的令牌
      */
-    public static final String USER_SUPPLEMENT_TOKEN = "/user/create-token";
+    public static final String USER_SUPPLEMENT_TOKEN = "/user/supplement-token";
 
     //~permission apis
     //==================================================================================================================

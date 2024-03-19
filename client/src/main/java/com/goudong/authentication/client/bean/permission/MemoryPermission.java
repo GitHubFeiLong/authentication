@@ -44,12 +44,12 @@ public class MemoryPermission implements PermissionInterface {
     /**
      * 应用ID为key，应用下所有角色为VALUE，角色属性中包含菜单信息
      */
-    protected final Map<Long, Collection<? extends RoleInterface>> APP_ROLE_MENU_MAP = new HashMap<>();
+    protected final Map<Long, Collection<RoleInterface>> APP_ROLE_MENU_MAP = new HashMap<>();
 
     /**
      * 应用ID为key，应用下所有菜单为VALUE
      */
-    protected final Map<Long, Collection<? extends MenuInterface>> APP_MENU_MAP = new HashMap<>();
+    protected final Map<Long, Collection<MenuInterface>> APP_MENU_MAP = new HashMap<>();
 
     //~methods
     //==================================================================================================================
@@ -61,7 +61,7 @@ public class MemoryPermission implements PermissionInterface {
      * @return 应用的所有菜单
      */
     @Override
-    public Collection<? extends MenuInterface> getMenus(Long appId) {
+    public Collection<MenuInterface> getMenus(Long appId) {
         appId = Optional.ofNullable(appId).orElseGet(() -> GoudongAuthenticationClient.getDefaultClient().getAppId());
         Long finalAppId = appId;
         LogUtil.debug(log, () -> "查询应用{}所有菜单权限", () -> ArrayUtil.create(finalAppId));
@@ -89,7 +89,7 @@ public class MemoryPermission implements PermissionInterface {
      * @return 应用的所有角色信息及角色对应的菜单
      */
     @Override
-    public Collection<? extends RoleInterface> getRolesMenus(Long appId) {
+    public Collection<RoleInterface> getRolesMenus(Long appId) {
         appId = Optional.ofNullable(appId).orElseGet(() -> GoudongAuthenticationClient.getDefaultClient().getAppId());
         Long finalAppId = appId;
         LogUtil.debug(log, () -> "查询应用{}所有角色及角色权限", () -> ArrayUtil.create(finalAppId));
@@ -176,11 +176,11 @@ public class MemoryPermission implements PermissionInterface {
         UserInterface userResp = this.getUser(appId, username);
         if (CollectionUtil.isNotEmpty(userResp.getRoles())) {
             LogUtil.debug(log, () -> "查询用户角色的权限信息");
-            Collection<? extends RoleInterface> rolesMenus = this.getRolesMenus(appId);
-            Map<Long, ? extends RoleInterface> roleIdRolemap = rolesMenus.stream().collect(Collectors.toMap(RoleInterface::getId, p -> p, (k1, k2) -> k1));
+            Collection<RoleInterface> rolesMenus = this.getRolesMenus(appId);
+            Map<Long, RoleInterface> roleIdRolemap = rolesMenus.stream().collect(Collectors.toMap(RoleInterface::getId, p -> p, (k1, k2) -> k1));
             userResp.getRoles().forEach(p -> {
                 if (roleIdRolemap.containsKey(p.getId())) {
-                    Collection<? extends MenuInterface> menus = roleIdRolemap.get(p.getId()).getMenus();
+                    Collection<MenuInterface> menus = roleIdRolemap.get(p.getId()).getMenus();
                     p.setMenus(menus);
                 }
             });

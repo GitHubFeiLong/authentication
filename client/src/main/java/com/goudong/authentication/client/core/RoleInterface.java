@@ -46,11 +46,11 @@ public interface RoleInterface {
     /**
      * @return 菜单信息
      */
-    Collection<? extends MenuInterface> getMenus();
+    Collection<MenuInterface> getMenus();
 
     /**
      * 设置菜单权限
      * @param menus 菜单权限
      */
-    void setMenus(Collection<? extends MenuInterface> menus);
+    void setMenus(Collection<MenuInterface> menus);
 }

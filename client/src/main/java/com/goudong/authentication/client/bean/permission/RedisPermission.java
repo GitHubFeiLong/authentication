@@ -61,7 +61,7 @@ public class RedisPermission implements PermissionInterface {
      * @return 应用的所有菜单
      */
     @Override
-    public Collection<? extends MenuInterface> getMenus(Long appId) {
+    public Collection<MenuInterface> getMenus(Long appId) {
         redisTemplate.getConnectionFactory().getConnection().info("xxx");
 
         appId = Optional.ofNullable(appId).orElseGet(() -> GoudongAuthenticationClient.getDefaultClient().getAppId());
@@ -81,7 +81,7 @@ public class RedisPermission implements PermissionInterface {
             }
             LogUtil.debug(log, () -> "应用缓存不存在，需要查询接口");
             GetMenusResp menusResp = PermissionV1Api.getMenus(GetMenusReq.builder().appId(appId).build()).getData();
-            List<BaseMenuDTO> menus = menusResp.getMenus();
+            Collection<MenuInterface> menus = menusResp.getMenus();
             LogUtil.debug(log, () -> "查询应用{}所有菜单权限:{}", () -> ArrayUtil.create(finalAppId, JsonUtil.toJsonString(menus)));
 
             redisTemplate.execute(new SessionCallback() {
@@ -107,7 +107,7 @@ public class RedisPermission implements PermissionInterface {
      * @return 应用的所有角色信息及角色对应的菜单
      */
     @Override
-    public Collection<? extends RoleInterface> getRolesMenus(Long appId) {
+    public Collection<RoleInterface> getRolesMenus(Long appId) {
         appId = Optional.ofNullable(appId).orElseGet(() -> GoudongAuthenticationClient.getDefaultClient().getAppId());
         Long finalAppId = appId;
         LogUtil.debug(log, () -> "查询应用{}所有角色及角色权限", () -> ArrayUtil.create(finalAppId));
@@ -127,7 +127,7 @@ public class RedisPermission implements PermissionInterface {
 
             LogUtil.debug(log, () -> "应用缓存不存在，需要查询接口");
             GetRolesMenusResp rolesMenusResp = PermissionV1Api.getRolesMenus(GetRolesMenusReq.builder().appId(appId).build()).getData();
-            List<BaseRoleDTO> roles = rolesMenusResp.getRoles();
+            Collection<RoleInterface> roles = rolesMenusResp.getRoles();
 
             LogUtil.debug(log, () -> "查询应用{}所有角色及角色权限:{}", () -> ArrayUtil.create(finalAppId, JsonUtil.toJsonString(roles)));
             redisTemplate.execute(new SessionCallback() {
@@ -193,11 +193,11 @@ public class RedisPermission implements PermissionInterface {
         UserInterface userResp = this.getUser(appId, username);
         if (CollectionUtil.isNotEmpty(userResp.getRoles())) {
             LogUtil.debug(log, () -> "查询用户角色的权限信息");
-            Collection<? extends RoleInterface> rolesMenus = this.getRolesMenus(appId);
-            Map<Long, ? extends RoleInterface> roleIdRolemap = rolesMenus.stream().collect(Collectors.toMap(RoleInterface::getId, p -> p, (k1, k2) -> k1));
+            Collection<RoleInterface> rolesMenus = this.getRolesMenus(appId);
+            Map<Long, RoleInterface> roleIdRolemap = rolesMenus.stream().collect(Collectors.toMap(RoleInterface::getId, p -> p, (k1, k2) -> k1));
             userResp.getRoles().forEach(p -> {
                 if (roleIdRolemap.containsKey(p.getId())) {
-                    Collection<? extends MenuInterface> menus = roleIdRolemap.get(p.getId()).getMenus();
+                    Collection<MenuInterface> menus = roleIdRolemap.get(p.getId()).getMenus();
                     p.setMenus(menus);
                 }
             });

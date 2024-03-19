@@ -1,9 +1,14 @@
 package com.goudong.authentication.client.api.user.v1;
 
-import com.goudong.authentication.client.api.user.v1.req.BaseUserSimpleCreateReq;
+import com.goudong.authentication.client.api.user.v1.req.*;
+import com.goudong.authentication.client.api.user.v1.resp.BaseUserCreateTokenResp;
+import com.goudong.authentication.client.api.user.v1.resp.BaseUserRefreshTokenResp;
+import com.goudong.authentication.client.api.user.v1.resp.BaseUserSupplementTokenResp;
 import com.goudong.authentication.client.core.Result;
 import com.goudong.authentication.client.dto.BaseUserDTO;
+import com.goudong.authentication.client.util.CollectionUtil;
 import com.goudong.authentication.client.util.GoudongAuthenticationClient;
+import com.goudong.authentication.client.util.JsonUtil;
 import com.goudong.authentication.client.util.ListUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,6 +31,18 @@ class UserV1ApiTest {
     }
 
     @Test
+    void testCreateToken() {
+        Result<BaseUserCreateTokenResp> app3 = UserV1Api.createToken(BaseUserCreateTokenReq.builder().username("小米mix4").build());
+        System.out.println(JsonUtil.toJsonString(app3));
+    }
+
+    @Test
+    void testRefreshToken() {
+        Result<BaseUserRefreshTokenResp> result = UserV1Api.refreshToken(BaseUserRefreshTokenReq.builder().refreshToken("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ7XCJpZFwiOlwiMTc1OTQ1NTU1MzYwNjEwMzA0MFwiLFwiYXBwSWRcIjpcIjFcIixcInJlYWxBcHBJZFwiOlwiMTc1OTQ1NTU0NjExNTA3NjA5NlwiLFwidXNlcm5hbWVcIjpcImFwcDNcIixcInJvbGVzXCI6W1wiUk9MRV9BUFBfQURNSU5cIl0sXCJkZXRhaWxcIjp7fX0iLCJpYXQiOjE3MTA4MzcyMjksImV4cCI6MTcxMDg0NDQyOX0.TOEn2oQO7527ta98ttaXu4JpBBF3c8VqdWZEx89OAKQ").build());
+        System.out.println(JsonUtil.toJsonString(result));
+    }
+
+    @Test
     void simpleCreateUser() {
         BaseUserSimpleCreateReq req = new BaseUserSimpleCreateReq();
         req.setUsername("小米mix5");
@@ -34,10 +53,24 @@ class UserV1ApiTest {
         System.out.println("baseUserDTOResult = " + baseUserDTOResult);
     }
 
-    // @Test
-    // void deleteByIds() {
-    //     ArrayList<Long> userIds = ListUtil.newArrayList(1765300852140531712L);
-    //     Result<Boolean> booleanResult = UserV1Api.deleteByIds(userIds);
-    //     System.out.println("booleanResult = " + booleanResult);
-    // }
+    @Test
+    void testDeleteByIds() {
+        Result<Boolean> booleanResult = UserV1Api.deleteByIds(BaseUserDeleteByIdsReq.builder().ids(ListUtil.newArrayList(1770006966048362496L)).build());
+        System.out.println(JsonUtil.toJsonString(booleanResult));
+    }
+
+    @Test
+    void testSupplementToken() {
+        Map<String, Object> detail = new HashMap<>();
+        detail.put("key1", "value1");
+        detail.put("key2", 2);
+        detail.put("key3", ListUtil.newArrayList(1, 2, 3));
+        detail.put("key4", "value4");
+        Result<BaseUserSupplementTokenResp> result = UserV1Api.supplementToken(BaseUserSupplementTokenReq.builder()
+                .token("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ7XCJpZFwiOlwiMTc2NTI4OTc2MTYxNjQyMDg2NFwiLFwiYXBwSWRcIjpcIjE3NTk0NTU1NDYxMTUwNzYwOTZcIixcInJlYWxBcHBJZFwiOlwiMTc1OTQ1NTU0NjExNTA3NjA5NlwiLFwidXNlcm5hbWVcIjpcIuWwj-exs21peDRcIixcInJvbGVzXCI6W1wiUk9MRV9ZRVdVWVVBTlwiXSxcImRldGFpbFwiOnt9fSIsImlhdCI6MTcxMDgzOTA1OCwiZXhwIjoxNzEwODQyNjU4fQ.aXe_Oxf6WBtJO1WKzRDvnYWq29-0TCpBhyXDVL0d2w8")
+                .detail(detail)
+                .build());
+
+        System.out.println(JsonUtil.toJsonString(result));
+    }
 }

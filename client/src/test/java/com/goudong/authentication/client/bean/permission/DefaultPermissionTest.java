@@ -46,7 +46,7 @@ class DefaultPermissionTest {
 
     @Test
     void getUser() {
-        UserInterface result = defaultPermission.getUser(null, "app31");
+        UserInterface result = defaultPermission.getUser(null, "app3");
         System.out.println(JsonUtil.toJsonString(result));
     }
 

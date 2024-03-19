@@ -6,9 +6,11 @@ import com.goudong.authentication.client.api.permission.v1.req.GetUserReq;
 import com.goudong.authentication.client.api.permission.v1.req.PermissionListPermissionByUsernameReq;
 import com.goudong.authentication.client.api.permission.v1.resp.GetMenusResp;
 import com.goudong.authentication.client.api.permission.v1.resp.GetRolesMenusResp;
+import com.goudong.authentication.client.api.permission.v1.resp.GetUserResp;
 import com.goudong.authentication.client.api.permission.v1.resp.PermissionListPermissionByUsername2SimpleResp;
 import com.goudong.authentication.client.core.Result;
 import com.goudong.authentication.client.util.GoudongAuthenticationClient;
+import com.goudong.authentication.client.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,16 +37,19 @@ class PermissionV1ApiTest {
     @Test
     void testGetMenus() {
         Result<GetMenusResp> menus = PermissionV1Api.getMenus(GetMenusReq.builder().build());
+        System.out.println("menus = " + JsonUtil.toJsonString(menus));
     }
 
     @Test
     void testGetRolesMenus() {
         Result<GetRolesMenusResp> rolesMenus = PermissionV1Api.getRolesMenus(GetRolesMenusReq.builder().build());
+        System.out.println(JsonUtil.toJsonString(rolesMenus));
     }
 
     @Test
     void testGetUser() {
-        PermissionV1Api.getUser(GetUserReq.builder().username("app3").appId(GoudongAuthenticationClient.getDefaultClient().getAppId()).build());
+        Result<GetUserResp> app3 = PermissionV1Api.getUser(GetUserReq.builder().username("app3").appId(GoudongAuthenticationClient.getDefaultClient().getAppId()).build());
+        System.out.println(JsonUtil.toJsonString(app3));
     }
 
     @Test
@@ -52,7 +57,8 @@ class PermissionV1ApiTest {
         PermissionListPermissionByUsernameReq req = new PermissionListPermissionByUsernameReq();
         // req.setUsername("小米mix4");
         req.setUsername("app3");
-        PermissionV1Api.listPermissionByUsername2Simple(req);
+        Result<PermissionListPermissionByUsername2SimpleResp> result = PermissionV1Api.listPermissionByUsername2Simple(req);
+        System.out.println(JsonUtil.toJsonString(result));
     }
 
     @Test
@@ -60,7 +66,7 @@ class PermissionV1ApiTest {
         String privateKey = "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCS2DesxghcLWryYKd73tZbMv9gOurpS9xCkbNDkZ1XXKpq1ZGEuqV9Upqr1wPAMUT3fQ1Jk0lPoAN4XXJed6XP6aQuA5a5d5YDw/vQkf+zv7s9iJcUV/ymZmDCuZvWtFzdr+oT4zXSgK46vgx7XNI3r22VH3PGqUkBWQtrjqHVwxkroz++nLGQWDeL+RmrRBAphAzCKfGJinRsPN3Fzmqf+bUtYzCvGgLECKnHyOANFmrhEoiVXo5KUg3+nCDvU9ncXg2xVsZ/Ccrfrf86sLWSiA+szMG9MATFbUxGikuXt7h13KUvwHWRo5syglAlzxOYMYKS0GqUMYnFdKfEHKTbAgMBAAECggEAeG4DGxs+d/p3n1hNg3V570mfz1gCmFqyxZWgo2Wk2KUSzpNgyK4aUvGQECZC2TiPCznvz8uPcFIXBnv89CTERAOltmcTEgBVc7kjqCZUwyIXeZuv6+tNNVr5ODno6Oj60IUZQD4zQfRu75Y1vmadsTWadZZZ6S+kxAo3J3rOlvQnI28LbxFKpxug3lryEZ8EfkjW1gdv9uusxocxA25oiiw2avBCQU2d1ZgEN31tjHpyVmZ+sG9r0gcVGMEVv3YFez8AT7yXD93O7Qtujwb4IRmtjCRz+CvEJQGET8kAA6RcRuag6Vlnbu5j6TYNP75cTnS8OR4DaTdEk7QNjEmSoQKBgQD3DxOT6IBlkWjXSEmYfSE5G4zW1UfwlNTQStwVbl0coFDFTif5g/oRHQQd49btXSsLmAL2eEp2+2TRUeVAEKex+g8jmTwzHJUBLfKHfkvzT2+ic93pEIYsTHKdkvXz1G2W/XMaSfMrjpIUhDKlZ/Z2IU2/hVzIqe4WBikThms4RwKBgQCYKK/WEHaEsTsM2InpypW7WNBqayq3GYAbWLRxCI0yXuWJxu1ryEPmIToJFSX0ZIzcjCN0qhwD8dgwWVBeDpur424V3MDAemtYCUiRWVXr492U9Le/cmKSL8FF2lMhFLcqPNyAoPm7wAQoPh/apgOdbCO0z92KENmNpMWjcVjMzQKBgQCJer1FQEs6udjie5pgnbkAI2GTJuo6aUenhRDFaD2uMVPhB6XdBmEAZuoki+XM/lx2vidf6f5eCXTHuk/c/6ehtWn5QEsskgoktuHQHiq7gYe4mctx5z0Sp5PcNaxh++Lj87O6fE4x/csyWYIpYxnWEKBIJDlGfLE9Vj5DXDiL/wKBgFecPbps2kEG5zA7UhVqTxKDTeWodPzeUvPr/GGFAf+5wkK1ZqkDs4zDHu5x3du9NZobmqKm++CNlOQp2Ot/T8UF+7Hc3KM3Ga2kEsOWA7ICDuigi1hRXU487vTwg6LtkZVhW7k4dvLS2dHuC1tS8Yvn4xtOAIppr0ouUJoOPooVAoGAU8Qu32jjamDbpgWzVxr7WrMpLoXS/V8mN9HlcTW3lKTbyxLvyOCHjyrtuJ7eI8+liPacHv7F7t8wOmsj2ojvXGBcMqfuj6jLnSQLJ4q7JSmULMHOb2u/LzVRiU/EV6Pe8zTeaYJXOgrPkuYWMyoqm7HXiwlCRlku0PlD2x1Czsc=";
         GoudongAuthenticationClient.init("http://127.0.0.1:8080/api/authentication-server", 1766741549166358528L,"8bd225b8130e47d4935b6c832c327a8a","636b44dd6e696149", privateKey);
         PermissionListPermissionByUsernameReq req = new PermissionListPermissionByUsernameReq();
-        req.setUsername("app");
+        req.setUsername("app3");
         Result<PermissionListPermissionByUsername2SimpleResp> permissionListPermissionByUsername2SimpleRespResult = PermissionV1Api.listPermissionByUsername2Simple(req);
         System.out.println("permissionListPermissionByUsername2SimpleRespResult = " + permissionListPermissionByUsername2SimpleRespResult);
     }

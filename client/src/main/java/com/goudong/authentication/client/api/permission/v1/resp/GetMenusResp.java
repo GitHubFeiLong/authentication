@@ -1,9 +1,14 @@
 package com.goudong.authentication.client.api.permission.v1.resp;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.goudong.authentication.client.core.BaseMenu;
+import com.goudong.authentication.client.core.MenuInterface;
+import com.goudong.authentication.client.databind.MenuInterfaceCollectionDeserializer;
 import com.goudong.authentication.client.dto.BaseMenuDTO;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -19,6 +24,7 @@ public class GetMenusResp implements Serializable{
     /**
      * 菜单集合
      */
-    private List<BaseMenuDTO> menus;
+    @JsonDeserialize(contentAs = BaseMenu.class)
+    private Collection<MenuInterface> menus;
 
 }

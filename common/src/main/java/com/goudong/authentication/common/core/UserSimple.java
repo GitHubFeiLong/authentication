@@ -87,4 +87,12 @@ public class UserSimple {
     public boolean admin() {
         return this.roles.stream().anyMatch(f -> Objects.equals(f, CommonConst.ROLE_APP_ADMIN) || Objects.equals(f, CommonConst.ROLE_APP_SUPER_ADMIN));
     }
+
+    /**
+     * 判断是否是系统用户
+     * @return true 系统创建的用户，false 普通用户
+     */
+    public boolean sysUser() {
+        return !Objects.equals(this.appId, this.realAppId);
+    }
 }

@@ -25,6 +25,7 @@ import com.goudong.authentication.server.service.manager.PermissionManagerServic
 import com.goudong.authentication.server.util.HttpRequestUtil;
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.boot.web.core.ClientException;
+import com.goudong.boot.web.enumerate.ClientExceptionEnum;
 import com.goudong.core.security.cer.CertificateUtil;
 import com.goudong.core.util.AssertUtil;
 import com.goudong.core.util.CollectionUtil;
@@ -140,7 +141,8 @@ public class PermissionManagerServiceImpl implements PermissionManagerService {
         MyAuthentication myAuthentication = SecurityContextUtil.get();
         Long realAppId = myAuthentication.getRealAppId();
         // 查询用户
-        BaseUser baseUser = baseUserService.findOneByRealAppIdAndUsername(realAppId, req.getUsername());
+        BaseUser baseUser = Optional.ofNullable(baseUserService.findOneByRealAppIdAndUsername(realAppId, req.getUsername()))
+                .orElseThrow(() -> ClientException.client(ClientExceptionEnum.NOT_FOUND, "用户不存在"));
         PermissionGetUserResp resp = BeanUtil.copyProperties(baseUser, PermissionGetUserResp.class);
         return resp;
     }

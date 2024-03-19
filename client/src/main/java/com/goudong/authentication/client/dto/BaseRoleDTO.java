@@ -33,7 +33,7 @@ public class BaseRoleDTO implements RoleInterface {
     /**
      * 角色拥有的菜单权限
      */
-    private Collection<? extends MenuInterface> menus;
+    private Collection<MenuInterface> menus;
 
     //~methods
     //==================================================================================================================

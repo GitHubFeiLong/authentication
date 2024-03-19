@@ -33,7 +33,7 @@ public class UserV1Api {
      * @param req   用户信息
      * @return      创建成功的token信息
      */
-    public static Result<BaseUserCreateTokenResp> createToken(BaseUserSimpleCreateReq req) {
+    public static Result<BaseUserCreateTokenResp> createToken(BaseUserCreateTokenReq req) {
         // 获取客户端信息
         GoudongAuthenticationClient client = GoudongAuthenticationClient.getClient(req.getAppId());
         final String api = client.getServerUrl() + ApiConst.USER_CREATE_TOKEN;

@@ -1,7 +1,10 @@
 package com.goudong.authentication.client.api.permission.v1.resp;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.goudong.authentication.client.core.BaseRole;
 import com.goudong.authentication.client.core.RoleInterface;
 import com.goudong.authentication.client.core.UserInterface;
+import com.goudong.authentication.client.databind.RoleInterfaceCollectionDeserializer;
 import lombok.Data;
 
 import java.util.Collection;
@@ -49,10 +52,8 @@ public class GetUserResp implements UserInterface {
     /**
      * 角色
      */
-    private Collection<? extends RoleInterface> roles;
-
+    @JsonDeserialize(contentAs = BaseRole.class)
+    private Collection<RoleInterface> roles;
     //~methods
     //==================================================================================================================
-
-
 }

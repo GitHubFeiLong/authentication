@@ -1,5 +1,7 @@
 package com.goudong.authentication.client.constant;
 
+import java.time.format.DateTimeFormatter;
+
 /**
  * 类描述：
  *
@@ -31,6 +33,11 @@ public class CommonConst {
     public static final String HTTP_HEADER_X_APP_ID = "X-App-Id";
 
     /**
+     * application/json;
+     */
+    public static final String HTTP_HEADER_VALUE_APPLICATION_JSON = "application/json";
+
+    /**
      * 认证模式
      */
     public static final String AUTHENTICATION_TEMPLATE = "GOUDONG-SHA256withRSA appid=\"%s\",serial_number=\"%s\",timestamp=\"%s\",nonce_str=\"%s\",signature=\"%s\"";
@@ -49,6 +56,11 @@ public class CommonConst {
      * 数字+字母
      */
     public static final String DIGITAL_ALPHABET = DIGITAL + ALPHABET;
+
+    /**
+     * 日期时间格式化
+     */
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     //~methods
     //==================================================================================================================
 }

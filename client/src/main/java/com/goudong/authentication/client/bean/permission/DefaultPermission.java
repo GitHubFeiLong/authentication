@@ -48,7 +48,7 @@ public class DefaultPermission implements PermissionInterface {
      * @return 应用的所有菜单
      */
     @Override
-    public Collection<? extends MenuInterface> getMenus(Long appId) {
+    public Collection<MenuInterface> getMenus(Long appId) {
         appId = Optional.ofNullable(appId).orElseGet(() -> GoudongAuthenticationClient.getDefaultClient().getAppId());
         Long finalAppId = appId;
         LogUtil.debug(log, () -> "查询应用{}所有菜单权限", () -> ArrayUtil.create(finalAppId));
@@ -64,7 +64,7 @@ public class DefaultPermission implements PermissionInterface {
      * @return 应用的所有角色信息及角色对应的菜单
      */
     @Override
-    public Collection<? extends RoleInterface> getRolesMenus(Long appId) {
+    public Collection<RoleInterface> getRolesMenus(Long appId) {
         appId = Optional.ofNullable(appId).orElseGet(() -> GoudongAuthenticationClient.getDefaultClient().getAppId());
         Long finalAppId = appId;
         LogUtil.debug(log, () -> "查询应用{}所有角色及角色权限", () -> ArrayUtil.create(finalAppId));
@@ -85,9 +85,9 @@ public class DefaultPermission implements PermissionInterface {
         appId = Optional.ofNullable(appId).orElseGet(() -> GoudongAuthenticationClient.getDefaultClient().getAppId());
         Long finalAppId = appId;
         LogUtil.debug(log, () -> "查询应用{}用户{}的信息", () -> ArrayUtil.create(finalAppId, username));
-        GetUserResp userResp = PermissionV1Api.getUser(GetUserReq.builder().appId(appId).username(username).build()).getData();
-        LogUtil.debug(log, () -> "查询应用{}用户{}的信息:{}", () -> ArrayUtil.create(finalAppId, username, JsonUtil.toJsonString(userResp.getRoles())));
-        return userResp;
+        UserInterface user = PermissionV1Api.getUser(GetUserReq.builder().appId(appId).username(username).build()).getData();
+        LogUtil.debug(log, () -> "查询应用{}用户{}的信息:{}", () -> ArrayUtil.create(finalAppId, username, JsonUtil.toJsonString(user.getRoles())));
+        return user;
     }
 
     /**
@@ -106,10 +106,10 @@ public class DefaultPermission implements PermissionInterface {
         if (CollectionUtil.isNotEmpty(userResp.getRoles())) {
             LogUtil.debug(log, () -> "查询用户角色的权限信息");
             Collection<? extends RoleInterface> rolesMenus = this.getRolesMenus(appId);
-            Map<Long, ? extends RoleInterface> roleIdRolemap = rolesMenus.stream().collect(Collectors.toMap(RoleInterface::getId, p -> p, (k1, k2) -> k1));
+            Map<Long, RoleInterface> roleIdRolemap = rolesMenus.stream().collect(Collectors.toMap(RoleInterface::getId, p -> p, (k1, k2) -> k1));
             userResp.getRoles().forEach(p -> {
                 if (roleIdRolemap.containsKey(p.getId())) {
-                    Collection<? extends MenuInterface> menus = roleIdRolemap.get(p.getId()).getMenus();
+                    Collection<MenuInterface> menus = roleIdRolemap.get(p.getId()).getMenus();
                     p.setMenus(menus);
                 }
             });

@@ -1,5 +1,6 @@
 package com.goudong.authentication.client.api.permission.v1.resp;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.goudong.authentication.client.core.MenuInterface;
 import com.goudong.authentication.client.core.RoleInterface;
 import com.goudong.authentication.client.core.TreeInterface;
@@ -9,7 +10,6 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 类描述：
@@ -48,7 +48,8 @@ public class PermissionListPermissionByUsername2SimpleResp implements UserInterf
     /**
      * 角色信息
      */
-    private Collection<? extends RoleInterface> roles;
+    @JsonDeserialize(contentAs = RoleInner.class)
+    private Collection<RoleInterface> roles;
 
     //~methods
     //==================================================================================================================
@@ -76,7 +77,8 @@ public class PermissionListPermissionByUsername2SimpleResp implements UserInterf
         /**
          * 菜单信息
          */
-        private Collection<? extends MenuInterface> menus;
+        @JsonDeserialize(contentAs = MenuInner.class)
+        private Collection<MenuInterface> menus;
     }
 
     /**

@@ -68,11 +68,11 @@ public interface UserInterface {
     /**
      * @return 获取权限信息
      */
-    Collection<? extends RoleInterface> getRoles();
+    Collection<RoleInterface> getRoles();
 
     /**
      * 设置权限信息
      * @param roles 权限信息
      */
-    void setRoles(Collection<? extends RoleInterface> roles);
+    void setRoles(Collection<RoleInterface> roles);
 }

@@ -1,9 +1,11 @@
 package com.goudong.authentication.client.core;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * 类描述：
@@ -11,7 +13,7 @@ import java.util.Collection;
  * @author chenf
  */
 @Data
-public class BaseMenu implements MenuInterface, TreeInterface<Long, Long, BaseMenu>, Comparable<BaseMenu>, Serializable {
+public class BaseMenu implements MenuInterface, TreeInterface<Long, Long, MenuInterface>, Comparable<MenuInterface>, Serializable {
     //~fields
     //==================================================================================================================
     private static final long serialVersionUID = -1924856851948151836L;
@@ -77,17 +79,39 @@ public class BaseMenu implements MenuInterface, TreeInterface<Long, Long, BaseMe
     private String remark;
 
     /**
+     * 创建时间
+     */
+    private Date createdDate;
+
+    /**
+     * 最后修改时间
+     */
+    private Date lastModifiedDate;
+
+    /**
+     * 创建人
+     */
+    private String createdBy;
+
+    /**
+     * 最后修改人
+     */
+    private String lastModifiedBy;
+
+    /**
      * 子菜单
      */
-    private Collection<BaseMenu> children;
+    @JsonDeserialize(contentAs = BaseMenu.class)
+    private Collection<MenuInterface> children;
 
     @Override
-    public void setChildren(Collection<BaseMenu> children) {
+    @JsonDeserialize(contentAs = BaseMenu.class)
+    public void setChildren(Collection<MenuInterface> children) {
         this.children = children;
     }
 
     @Override
-    public int compareTo(BaseMenu o) {
+    public int compareTo(MenuInterface o) {
         return this.getSortNum().compareTo(o.getSortNum());
     }
 

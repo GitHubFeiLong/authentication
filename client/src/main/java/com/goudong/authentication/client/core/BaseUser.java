@@ -1,25 +1,22 @@
-package com.goudong.authentication.client.dto;
+package com.goudong.authentication.client.core;
 
-import com.goudong.authentication.client.core.RoleInterface;
-import com.goudong.authentication.client.core.UserInterface;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 
 /**
  * 类描述：
- * 用户实体对象
+ *
  * @author chenf
  */
 @Data
-public class BaseUserDTO implements Serializable, UserInterface {
-
-    private static final long serialVersionUID = 1287763063397498182L;
-
+public class BaseUser implements UserInterface{
+    //~fields
+    //==================================================================================================================
     /**
-     * 用户id
+     * 用户ID
      */
     private Long id;
 
@@ -29,7 +26,12 @@ public class BaseUserDTO implements Serializable, UserInterface {
     private Long appId;
 
     /**
-     * 用户名（16位）
+     * 真实应用id（例如xx应用管理员，app_id是认证服务应用的app_id，但是real_app_id是自己所管理xx应用的app_id）
+     */
+    private Long realAppId;
+
+    /**
+     * 用户名
      */
     private String username;
 
@@ -78,5 +80,12 @@ public class BaseUserDTO implements Serializable, UserInterface {
      */
     private String lastModifiedBy;
 
+    /**
+     * 角色
+     */
+    @JsonDeserialize(contentAs = BaseRole.class)
     private Collection<RoleInterface> roles;
+
+    //~methods
+    //==================================================================================================================
 }

@@ -1,5 +1,9 @@
 package com.goudong.authentication.client.interceptor;
 
+import com.goudong.authentication.client.constant.CommonConst;
+import com.goudong.authentication.client.core.BasicException;
+import com.goudong.authentication.client.core.Result;
+import com.goudong.authentication.client.util.JsonUtil;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +49,7 @@ public class OKHttpPrintLogInterceptor implements Interceptor {
         sb.append("请求参数：\n");
 
         StringBuilder paramSb = new StringBuilder();
+
         if ("GET".equals(request.method())) { // GET方法
             // 这里可以添加一些公共get参数
             HttpUrl httpUrl = urlBuilder.build();
@@ -73,6 +78,26 @@ public class OKHttpPrintLogInterceptor implements Interceptor {
                     paramSb.delete(paramSb.length() - 1, paramSb.length());
                 }
             }
+        } else {
+            RequestBody requestBody = request.body();
+
+            if (requestBody != null) {
+                MediaType mediaType = requestBody.contentType();
+                // application 请求方式
+                if (mediaType.type() != null && mediaType.type().contains(CommonConst.HTTP_HEADER_VALUE_APPLICATION_JSON)) {
+                    // 把已有的post参数添加到新的构造器
+                    if (request.body() instanceof FormBody) {
+                        FormBody formBody = (FormBody) request.body();
+                        for (int i = 0; i < formBody.size(); i++) {
+                            paramSb.append(formBody.encodedName(i)).append("=").append( formBody.encodedValue(i)).append(",");
+                        }
+
+                        if (paramSb.length() > 0) {
+                            paramSb.delete(paramSb.length() - 1, paramSb.length());
+                        }
+                    }
+                }
+            }
         }
 
         Response response = chain.proceed(request);
@@ -88,6 +113,9 @@ public class OKHttpPrintLogInterceptor implements Interceptor {
         sb.append("响应参数：").append(bodyString).append("\n");
         sb.append(START_END);
         log.debug(sb.toString());
+        if (!response.isSuccessful()) {
+            throw BasicException.ofResult(JsonUtil.toObject(bodyString, Result.class));
+        }
         if (response.body() != null) {// 深坑！打印body后原ResponseBody会被清空，需要重新设置body
             ResponseBody body = ResponseBody.create(contentType, bodyString);
             return response.newBuilder().body(body).build();

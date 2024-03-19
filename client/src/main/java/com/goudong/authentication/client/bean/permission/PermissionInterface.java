@@ -19,14 +19,14 @@ public interface PermissionInterface {
      * @param appId 应用ID，当参数{@code appId}值为null时，内部使用默认应用ID
      * @return  应用的所有菜单
      */
-    Collection<? extends MenuInterface> getMenus(Long appId);
+    Collection<MenuInterface> getMenus(Long appId);
 
     /**
      * 获取应用配置的所有角色和菜单
      * @param appId 应用ID，当参数{@code appId}值为null时，内部使用默认应用ID
      * @return  应用的所有角色信息及角色对应的菜单
      */
-    Collection<? extends RoleInterface> getRolesMenus(Long appId);
+    Collection<RoleInterface> getRolesMenus(Long appId);
 
     /**
      * 获取用户信息

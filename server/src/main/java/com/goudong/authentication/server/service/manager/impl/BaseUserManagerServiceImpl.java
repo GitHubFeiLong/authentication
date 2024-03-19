@@ -213,29 +213,32 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
             List<Menu> menus = BeanUtil.copyToList(baseMenuService.findAllByAppId(CommonConst.AUTHENTICATION_SERVER_APP_ID), Menu.class, CopyOptions.create());
             menuHashSet.addAll(menus);
         } else if (isAdmin) {    // 管理员，查询应用下所有菜单
-            log.info("用户是管理员，查询认证服务下的所有菜单");
-            // 查询管理后台菜单
-            List<BaseMenu> menus1 = baseMenuService.findAllByAppId(CommonConst.AUTHENTICATION_SERVER_APP_ID);
-            // 排除某些只能超级管理员才能拥有的权限
-            menus1 = menus1.stream().filter(f -> {
-                boolean flag = true;
-                for (Long im : CommonConst.ROLE_APP_ADMIN_IGNORE_MENUS) {
-                    // 菜单
-                    if (Objects.equals(f.getId(), im) || Objects.equals(f.getParentId(), im)) {
-                        flag = false;
-                        break;
+            if (userSimple.sysUser()) {
+                log.info("用户是认证服务的管理员，查询认证服务的下的所有菜单");
+                // 查询管理后台菜单
+                List<BaseMenu> menus1 = baseMenuService.findAllByAppId(CommonConst.AUTHENTICATION_SERVER_APP_ID);
+                // 排除某些只能超级管理员才能拥有的权限
+                menus1 = menus1.stream().filter(f -> {
+                    boolean flag = true;
+                    for (Long im : CommonConst.ROLE_APP_ADMIN_IGNORE_MENUS) {
+                        // 菜单
+                        if (Objects.equals(f.getId(), im) || Objects.equals(f.getParentId(), im)) {
+                            flag = false;
+                            break;
+                        }
                     }
-                }
-                return flag;
-            }).collect(Collectors.toList());
+                    return flag;
+                }).collect(Collectors.toList());
+                List<Menu> menus = BeanUtil.copyToList(menus1, Menu.class, CopyOptions.create());
+                menuHashSet.addAll(menus);
+            } else {
+                log.info("用户是管理员，查询自己应用下的所有菜单");
+                // 查询自己应用的所有菜单
+                List<BaseMenu> menus2 = baseMenuService.findAllByAppId(baseUser.getRealAppId());
 
-            // 查询自己应用的所有菜单
-            log.info("用户是管理员，查询自己应用下的所有菜单");
-            List<BaseMenu> menus2 = baseMenuService.findAllByAppId(baseUser.getRealAppId());
-            menus1.addAll(menus2);
-
-            List<Menu> menus = BeanUtil.copyToList(menus1, Menu.class, CopyOptions.create());
-            menuHashSet.addAll(menus);
+                List<Menu> menus = BeanUtil.copyToList(menus2, Menu.class, CopyOptions.create());
+                menuHashSet.addAll(menus);
+            }
         }
 
         List<Menu> menuArrayList = new ArrayList<>(menuHashSet);
