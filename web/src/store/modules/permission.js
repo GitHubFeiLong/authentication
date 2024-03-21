@@ -1,4 +1,5 @@
 import Layout from "@/layout";
+import Iframe from "@/views/iframe";
 import {goudongWebAdminComponent} from "@/router/modules/goudong-web-admin-router";
 import LocalStorageUtil from "@/utils/LocalStorageUtil";
 
@@ -80,9 +81,10 @@ function permissionRoutesComponent(permission_routes) {
       let com = goudongWebAdminComponent.find(c => {
         return c.permissionId === item.permissionId
       })
-
       if (com) {
         item.component = com.component
+      } else if (item.meta.isIframeMenu){
+        item.component = Iframe
       }
     }
     if (item.children && item.children.length > 0) {

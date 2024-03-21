@@ -33,4 +33,5 @@ authentication分为服务端（server）和客户端（client）
 ## 待办
 + spring mvc 跳转/error 请求怎么获取正确的uri
 + 将login-success页面相关代码封装，并书写文档，方便第三方应用后台接入
-+ 
++ 菜单管理同步勾选下级
++ 字典管理，字典类型、字典、字典配置

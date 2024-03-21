@@ -1,7 +1,8 @@
 import {getUserDetailApi, getUserDetailApiByPost} from '@/api/user'
-import {resetRouter} from '@/router'
+import router, {resetRouter} from '@/router'
 import LocalStorageUtil from '@/utils/LocalStorageUtil'
 import {arrayToTree} from "@/utils/tree";
+import store from "@/store";
 
 const state = {
   user: {}
@@ -49,8 +50,7 @@ const actions = {
             const metadata = item.metadata ? JSON.parse(item.metadata) : {};
             switch (item.type) {
               case 1:
-                // 菜单
-                permission_routes.push({
+                let menu = {
                   id: item.id,
                   parentId: item.parentId,
                   permissionId: item.permissionId,
@@ -60,7 +60,25 @@ const actions = {
                   meta: item.meta ? JSON.parse(item.meta) : {},
                   sortNum: item.sortNum,
                   openModel: item.openModel
-                })
+                }
+                // 默认title
+                if (menu.meta.title === null || menu.meta.title === undefined) {
+                  menu.meta.title = menu.name
+                }
+                // 默认icon
+                if (menu.meta.icon === null || menu.meta.icon === undefined) {
+                  menu.meta.icon = "defaultRouteIcon"
+                }
+                // 默认icon
+                if (menu.path !== null && menu.path !== undefined && menu.path.startsWith("http")) {
+                  menu.meta.isIframeMenu = true
+                  menu.meta.iframeLinnk = menu.path
+                  menu.path = '/iframe/' + menu.name;
+                }
+
+                // 菜单
+                permission_routes.push(menu)
+
                 break;
               default: // 按钮
                 permission_buttons.push(item.permissionId)
@@ -78,6 +96,10 @@ const actions = {
         LocalStorageUtil.setPermissionRoutes(permission_routes)
         LocalStorageUtil.setPermissionButtons(permission_buttons)
 
+        // console.log("1111111111");
+        // let accessRoutes = store.dispatch('permission/generateRoutes');
+        // router.addRoutes(accessRoutes)
+        // console.log("1111111111");
         resolve(data);
       }).catch(reason => reject());
     })

@@ -11,11 +11,14 @@
 </template>
 <script>
 export default {
-  name: 'UserPage',
+  name: 'Iframe',
   data() {
     return {
-      src: "https://element.eleme.cn/#/zh-CN/component/icon"
+      src: this.$router.currentRoute.meta.iframeLinnk
     }
+  },
+  created() {
+    console.log(this.$router.currentRoute.meta.iframeLinnk);
   }
 }
 </script>
