@@ -1,4 +1,5 @@
 @import 'src/styles/element-variables';
+@import 'src/styles/variables.scss';
 @import 'element-ui/packages/theme-chalk/src/common/var.scss';
 // 关于表格相关的自定义样式
 .filter-container-1 {
@@ -191,7 +192,6 @@
               }
             }
           }
-
         }
       }
     }
@@ -228,4 +228,16 @@
     padding: 0; // 表格第一列设置padding 0
   }
 
+}
+
+// 表格选择后修改颜色
+tr.el-table__row:has(>td>div.cell>label.is-checked) {
+  background-color: $TABLE_SELECT_TR_BG_COLOR;
+  color: $TABLE_SELECT_FONT_COLOR;
+}
+tr.hover-row:has(>td>div.cell >label.is-checked) > td{
+  background-color: $TABLE_SELECT_TR_BG_COLOR;
+}
+.el-table--enable-row-hover .el-table__body tr:has(>td>div.cell >label.is-checked):hover > td {
+  background-color: $TABLE_SELECT_TR_BG_COLOR;
 }

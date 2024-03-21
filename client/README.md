@@ -147,24 +147,45 @@ public class Demo {
 API介绍：
 创建用户：
 ```mermaid
-	%% 注释
+	
 	sequenceDiagram
 	participant user as 用户端
 	participant client as 认证服务客户端
 	participant server as 认证服务服务端
-	
+    %% 创建用户
 	user ->> + client: 创建用户(UserV1Api.createToken())
 	activate user
     client ->> + server: 创建用户
     server -->> - client: 创建成功
     client -->> - user: 创建成功
     deactivate user
-    
+    %% 删除用户
     user ->> + client: 删除用户(UserV1Api.deleteByIds())
     activate user
     client ->> + server: 删除用户
     server -->> - client: 删除成功
     client -->> - user: 删除成功
+    deactivate user
+    %% 获取用户令牌
+    user ->> + client: 创建用户令牌(UserV1Api.createToken())
+    activate user
+    client ->> + server: 创建用户令牌
+    server -->> - client: 创建用户令牌成功
+    client -->> - user: 创建用户令牌成功
+    deactivate user
+    %% 刷新用户令牌，令牌过期了刷新
+    user ->> + client: 刷新用户令牌(UserV1Api.refreshToken())
+    activate user
+    client ->> + server: 刷新用户令牌
+    server -->> - client: 刷新用户令牌成功
+    client -->> - user: 刷新用户令牌成功
+    deactivate user
+    %% 刷新用户令牌，令牌过期了刷新
+    user ->> + client: 填充令牌(UserV1Api.supplementToken())
+    activate user
+    client ->> + server: 填充令牌令牌
+    server -->> - client: 填充令牌令牌成功
+    client -->> - user: 填充令牌令牌成功
     deactivate user
 ```
 
