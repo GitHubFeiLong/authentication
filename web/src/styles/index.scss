@@ -124,6 +124,8 @@ aside {
 //main-container全局样式
 .app-container {
   padding: 20px;
+  height: calc(100% - 30px) !important;
+  overflow: auto;
 }
 
 .app-grayness-container {

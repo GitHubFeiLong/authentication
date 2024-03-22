@@ -10,7 +10,7 @@ import {API_PREFIX} from "@/constant/commons";
  *     name: "菜单名称，使用name属性，才有面包屑",
  *     type: "菜单类型（0：接口；1：菜单；2：按钮）",
  *     openModel: "打开方式（0：内链；1：外链）",
- *     path: "前端路由或接口地址,路由打开的地址栏地址 前期P{@code path}也指向组件地址，后期可能加字段区分",
+ *     path: "前端路由或接口地址,路由打开的地址栏地址 前期P{@code path}也指向组件地址，后期可能加字段区分；当值是以http开头时，会使用if",
  *     component: "前端的组件",
  *     componentPath: "前端的组件地址，不传使用path做组件地址",
  *     permissionId: "权限标识，唯一，通常children是在当前基础上累加",

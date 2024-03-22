@@ -1,4 +1,4 @@
-import router from './router'
+import router, {resetRouter} from './router'
 import store from './store'
 import {Message} from 'element-ui'
 import NProgress from 'nprogress' // progress bar
@@ -49,21 +49,21 @@ router.beforeEach(async(to, from, next) => {
         next({ path: '/' })
         NProgress.done() // hack: https://github.com/PanJiaChen/vue-element-admin/pull/2939
       } else {
+        // 刷新后缓存没有内容
         const createdRoutes = await store.getters.createdRoutes
         if (createdRoutes) {
           next()
         } else {
-          // 当页面刷新时会store会清空。
+          // 当页面刷新时会store会清空，重新构造路由信息
           try {
             console.log("开始生成路由")
             const accessRoutes = await store.dispatch('permission/generateRoutes')
             console.log("accessRoutes", accessRoutes)
             await router.addRoutes(accessRoutes)
-            router.options.routes.push(...accessRoutes)
-            console.log(router.options.routes,'添加之后的路由')
-            // router.options.routes = accessRoutes
+            // 下面代码执行后，清除路由不会成功
+            // router.options.routes.push(...accessRoutes)
+            // console.log(router.options.routes,'添加之后的路由')
             next({ ...to, replace: true })
-
           } catch (error) {
             Message.error(error || 'Has Error')
             next(`/login?redirect=${to.path}`)

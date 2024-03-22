@@ -59,7 +59,6 @@ new Vue({
   el: '#app',
   router,
   store,
-
   render: h => h(App)
 })
 // 全局 权限指令

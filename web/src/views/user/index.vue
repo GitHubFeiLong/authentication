@@ -305,6 +305,7 @@ export default {
   mounted() {
     // 优先加载表格数据
     this.loadPageUser()
+    console.log(this.$router.currentRoute);
     // 强制渲染，解决表格 固定列后，列错位问题
     this.$nextTick(() => {
       this.$refs.table.doLayout()

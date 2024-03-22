@@ -2,6 +2,7 @@ import Layout from "@/layout";
 import Iframe from "@/views/iframe";
 import {goudongWebAdminComponent} from "@/router/modules/goudong-web-admin-router";
 import LocalStorageUtil from "@/utils/LocalStorageUtil";
+import {resetRouter} from "@/router";
 
 function hasPermissionByMenus(menus, route) {
   if (route.type !== 0 && route.path) {
@@ -41,6 +42,7 @@ const mutations = {
   SET_ROUTES: (state, routes) => {
     state.routes = routes
   },
+  // 设置标识，在路由守卫判断该值进行重构路由
   SET_CREATED_ROUTES: (state, flag) => {
     state.createdRoutes = flag
   },
@@ -57,11 +59,10 @@ const actions = {
       let permission_routes = LocalStorageUtil.getPermissionRoutes();
       // 循环设置组件
       permissionRoutesComponent(permission_routes);
-      // permission_routes = constantRoutes.concat(permission_routes)
-      // permission_routes = permission_routes.concat(constantRoutes)
-      // 必须放在最后 404
+      // 404 路由必须放在最后
       permission_routes.push({ path: '*', redirect: '/404', hidden: true })
       commit('SET_ROUTES', permission_routes)
+      // 设置标识，重新创建路由信息
       commit('SET_CREATED_ROUTES', true)
       console.log("permission_routes", permission_routes)
       resolve(permission_routes)
@@ -70,10 +71,11 @@ const actions = {
 }
 
 /**
- * 组件
+ * 处理路由信息
  * @param permission_routes
  */
 function permissionRoutesComponent(permission_routes) {
+  // 循环处理路由
   permission_routes.forEach(item => {
     if (item.parentId === null || item.parentId === undefined) { // 顶级菜单
       item.component = Layout
@@ -81,13 +83,19 @@ function permissionRoutesComponent(permission_routes) {
       let com = goudongWebAdminComponent.find(c => {
         return c.permissionId === item.permissionId
       })
+      // 有预定义的菜单，就使用对应的组件
       if (com) {
         item.component = com.component
-      } else if (item.meta.isIframeMenu){
+      } else { // 其余使用 iframe 组件
         item.component = Iframe
       }
     }
+    // 处理子菜单
     if (item.children && item.children.length > 0) {
+      // 下级只有一个子菜单，也让本菜单显示出来
+      if (item.children.length === 1) {
+        item.alwaysShow = true;
+      }
       permissionRoutesComponent(item.children)
     }
   })

@@ -24,11 +24,7 @@ export default {
 </script>
 <style lang="scss">
  #app-container-parent{
-
     height: calc(100% - 30px)!important;
-   #app-container {
-      height: 100%;
-   }
 }
 
 </style>

@@ -61,6 +61,9 @@ const actions = {
                   sortNum: item.sortNum,
                   openModel: item.openModel
                 }
+                /*
+                  给菜单赋值
+                 */
                 // 默认title
                 if (menu.meta.title === null || menu.meta.title === undefined) {
                   menu.meta.title = menu.name
@@ -73,9 +76,9 @@ const actions = {
                 if (menu.path !== null && menu.path !== undefined && menu.path.startsWith("http")) {
                   menu.meta.isIframeMenu = true
                   menu.meta.iframeLinnk = menu.path
-                  menu.path = '/iframe/' + menu.name;
+                  // 避免菜单名相同路由重复
+                  menu.path = '/iframe/' + menu.name + "_" +menu.id;
                 }
-
                 // 菜单
                 permission_routes.push(menu)
 
@@ -96,10 +99,6 @@ const actions = {
         LocalStorageUtil.setPermissionRoutes(permission_routes)
         LocalStorageUtil.setPermissionButtons(permission_buttons)
 
-        // console.log("1111111111");
-        // let accessRoutes = store.dispatch('permission/generateRoutes');
-        // router.addRoutes(accessRoutes)
-        // console.log("1111111111");
         resolve(data);
       }).catch(reason => reject());
     })

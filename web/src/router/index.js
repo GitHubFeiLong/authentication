@@ -41,6 +41,11 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    path: '/iframe',
+    component: () => import('@/views/iframe'),
+    hidden: true
+  },
+  {
     path: '/redirect',
     component: () => import('@/layout'),
     hidden: true,
@@ -128,10 +133,10 @@ export const constantRoutes = [
  */
 // export const asyncRoutes = goudongWebAdminRouters
 
-const createRouter = () => new Router({
+let createRouter = () => new Router({
   // mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
-  routes: constantRoutes
+  routes: constantRoutes,
 })
 
 export const router = createRouter()
@@ -140,8 +145,7 @@ export const router = createRouter()
 export function resetRouter() {
   const newRouter = createRouter()
   router.matcher = newRouter.matcher // reset router
-  // 清除上次生成的路由
-  // store.commit('permission/SET_ROUTES', [])
+  // 设置状态，路由守卫判断后判断是否生成新的路由
   store.commit('permission/SET_CREATED_ROUTES', false)
 }
 

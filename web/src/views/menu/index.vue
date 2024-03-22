@@ -85,6 +85,7 @@
       </div>
     </div>
     <!-- 表格  -->
+    <!--      @selection-change="selectionChangeFunc"-->
     <el-table
       ref="table"
       v-loading="table.isLoading"
@@ -97,7 +98,9 @@
       :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
       :header-row-class-name="table.EL_TABLE.size"
       :size="table.EL_TABLE.size"
-      @selection-change="selectionChangeFunc"
+
+      @select="select"
+      @select-all="selectAll"
     >
       <el-table-column
           width="50"
@@ -418,20 +421,6 @@ export default {
         this.getReturnNode(node.parent, _array, value);
       }
     },
-    // 推送菜单
-    initMenu() {
-      const menus = [];
-      console.log(goudongWebAdminResource)
-      goudongWebAdminResource.filter(f => !f.hidden).forEach((item, index, arr) => {
-        const obj = this.generate(item);
-        menus.push(obj)
-      })
-      console.log(menus);
-
-      initMenuApi(menus).then(data => {
-        this.$message.success("推送成功")
-      })
-    },
     // 查询
     searchFunc() {
       // 筛选
@@ -441,6 +430,9 @@ export default {
       })
       this.table.data = arr
       console.log(JSON.stringify(arr));
+
+      let findParent1 = this.findParent(this.table.data, 1100);
+      console.log("find", findParent1)
     },
     menuFilter(menu, arr) {
       // 本节点满足条件，直接添加到数组arr。
@@ -509,15 +501,173 @@ export default {
       this.createMenuDialog = true
     },
     // 复选框勾选事件
+    /**
+     * 复选框勾选事件
+     * @param rows  已被勾选的行
+     */
     selectionChangeFunc(rows) {
-      const ids = rows.map(m => m.id)
+      console.log("勾选事件 = ", rows);
+      const ids = rows.map(m => {
+        return m.id
+      })
+      // const ids = [];
+      // this.getAllId(rows, ids);
       console.log("ids = " + ids);
-      // this.$refs.table;
-      // console.log(this.$refs.table)
+
       // this.table.data.map((value, index, array) => {
+      //   console.log(value)
+      //   // this.$refs.table.toggleRowSelection(value)
       //   this.$refs.table.toggleRowSelection(value)
       // })
       this.checkIds = ids
+    },
+    /**
+     * 选中/取消选中行的所有子元素
+     * @param {Array} rows      需要勾选/取消勾选的行
+     * @param {Boolean} checked true：勾选；false：取消勾选
+     */
+    childrenSelection(rows, checked) {
+      if (rows) {
+        rows.map(c => {
+          this.$refs.table.toggleRowSelection(c, checked)
+          c.isChecked = checked
+          // 勾选就添加,取消勾选就删除
+          if (checked) {
+            this.addId(c)
+          } else {
+            this.deleteId(c)
+          }
+          if (c.children) {
+            this.childrenSelection(c.children, checked);
+          }
+        })
+      }
+    },
+    rowChildrenExistsChecked(row) {
+      if (row && row.children) {
+        // 先查询一次层级
+        let checked = row.children.some(el => el.isChecked === true)
+        // 如果没有就需要递归查询第二层级和第三层级
+        if (!checked) {
+          let length = row.children.length;
+          for (let i = 0; i < length; i++) {
+            checked = this.rowChildrenExistsChecked(row.children[i]);
+            if (checked) {
+              return checked;
+            }
+          }
+        }
+        return checked;
+      }
+    },
+    findParent(els, parentId) {
+      console.log(els, parentId)
+      if (els != null && parentId != null) {
+        for (let i= 0; i < els.length; i++) {
+          let ce = els[i];
+          if (ce != null && ce.id != null) {
+            console.log("判断菜单【"+ce.name+"】是否满足", ce.id, parentId)
+            if (ce.id == parentId) {
+              console.log("满足", ce.name)
+              return ce;
+            } else {
+              console.log("不满足", ce.name)
+              if (ce.children) {
+                let p = this.findParent(ce.children, parentId)
+                if (p != null) {
+                  return p;
+                }
+              }
+            }
+          }
+        }
+      }
+      return null;
+    },
+    /**
+     * 点击每行的复选框事件事件
+     * @param {Array} selection 已经选中的行
+     * @param {Object} row      本次勾选/取消勾选的行
+     */
+    select(selection, row) {
+      let vm = this
+      console.log(selection)
+      console.log(row)
+      // 操作行 row 在 已选范围 selection 内，认为是选中，否则是取消选中
+      if (selection.some((el) => el !== null && el !== undefined && row.id === el.id)) {
+        // 设置当前行选中状态
+        row.isChecked = true
+        // 记录选中id
+        this.addId(row)
+        // 若存在子级，自己全选
+        this.childrenSelection(row.children, true);
+        // 若存在父级，设置父级选中
+        if (row.parentId) {
+          let pNode = vm.table.data.find(x => x !== null && x !== undefined && x.id === row.parentId)
+          this.$refs.table.toggleRowSelection(pNode, true)
+          pNode.isChecked = true
+          this.addId(pNode)
+        }
+      } else {
+        // 取消选中本行和所有子行
+        row.isChecked = false
+        this.deleteId(row)
+        // 若存在子级，子级全部取消选中
+        this.childrenSelection(row.children, false);
+        // 若存在父级，判断父级的子级(当前行的兄弟) ，若全部未选中，取消父级选中
+        if (row.parentId) {
+          // let pNode = vm.table.data.find(x =>  x !== null && x !== undefined && x.id === row.parentId)
+          console.log("parentId", vm.table.data, row.parentId, row.name)
+          let pNode = this.findParent(vm.table.data, row.parentId);
+          console.log("pNode", pNode)
+          // if (!pNode.children.some(el => el.isChecked === true)) {
+          if (!this.rowChildrenExistsChecked(pNode)) {
+            this.$refs.table.toggleRowSelection(pNode, false)
+            pNode.isChecked = false
+            this.deleteId(pNode)
+          }
+        }
+      }
+    },
+    selectAll(selection) {
+      // 判断当前是否有已选中的
+      let rA = this.table.data.some(el => {
+        let r = false
+        if (el.children) {
+          r = el.children.some(e => e.isChecked)
+        }
+        if (r) return r
+        return el.isChecked
+      })
+      // 若有选中则全部取消，否则全部选中
+      if (rA) {
+        this.table.data.forEach(el => {
+          el.isChecked = false
+          this.$refs.table.toggleRowSelection(el, false)
+          this.deleteId(el)
+          this.childrenSelection(el.children, false)
+        })
+      } else {
+        this.table.data.forEach(el => {
+          el.isChecked = true
+          this.$refs.table.toggleRowSelection(el, true)
+          this.addId(el)
+          this.childrenSelection(el.children, true)
+        })
+      }
+    },
+    // 增加选中
+    addId(o) {
+      let id = o.id
+      if (this.checkIds.indexOf(id) < 0) {
+        this.checkIds.push(id)
+      }
+      console.log(this.checkIds)
+    },
+    // 删除选中
+    deleteId(o) {
+      let id = o.posId
+      this.checkIds = this.checkIds.filter(item => item !== id);
     },
     // 批量删除菜单
     deleteMenus() {
