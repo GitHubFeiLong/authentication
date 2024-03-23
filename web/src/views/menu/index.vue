@@ -543,6 +543,11 @@ export default {
         })
       }
     },
+    /**
+     * 行的下级存在选中
+     * @param row
+     * @returns {*}
+     */
     rowChildrenExistsChecked(row) {
       if (row && row.children) {
         // 先查询一次层级
@@ -560,6 +565,31 @@ export default {
         return checked;
       }
     },
+    /**
+     * 行的下级不存在选中
+     * @param row
+     * @returns {*}
+     */
+    rowChildrenNotExistsChecked(row) {
+      if (row && row.children) {
+        let children = row.children
+        for (let i = 0; i < children.length; i++) {
+          let e = children[i];
+          if (e.isChecked === true) {
+            return false;
+          }
+          if (e.children) {
+            return this.rowChildrenNotExistsChecked(e);
+          }
+        }
+      }
+    },
+    /**
+     * 找到id==parentId的元素
+     * @param {Array} els
+     * @param {Object} parentId
+     * @returns {{id}|*|null}
+     */
     findParent(els, parentId) {
       console.log(els, parentId)
       if (els != null && parentId != null) {
@@ -601,12 +631,16 @@ export default {
         this.addId(row)
         // 若存在子级，自己全选
         this.childrenSelection(row.children, true);
-        // 若存在父级，设置父级选中
+        // 若存在父级，且父级下的所有元素都选中了，就设置父级选中
         if (row.parentId) {
-          let pNode = vm.table.data.find(x => x !== null && x !== undefined && x.id === row.parentId)
-          this.$refs.table.toggleRowSelection(pNode, true)
-          pNode.isChecked = true
-          this.addId(pNode)
+          let parent = this.findParent(vm.table.data, row.parentId);
+          let notExists = this.rowChildrenNotExistsChecked(parent);
+          console.log("notExists",notExists)
+          if (!notExists) {
+            this.$refs.table.toggleRowSelection(parent, true)
+            parent.isChecked = true
+            this.addId(parent)
+          }
         }
       } else {
         // 取消选中本行和所有子行
@@ -621,7 +655,9 @@ export default {
           let pNode = this.findParent(vm.table.data, row.parentId);
           console.log("pNode", pNode)
           // if (!pNode.children.some(el => el.isChecked === true)) {
-          if (!this.rowChildrenExistsChecked(pNode)) {
+          let existsChecked = this.rowChildrenExistsChecked(pNode);
+          console.log("existsChecked", existsChecked)
+          if (!existsChecked) {
             this.$refs.table.toggleRowSelection(pNode, false)
             pNode.isChecked = false
             this.deleteId(pNode)
