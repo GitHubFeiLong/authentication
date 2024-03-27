@@ -33,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -135,6 +137,13 @@ public class BaseMenuServiceImpl implements BaseMenuService {
         Specification<BaseMenu> specification = (root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> andPredicateList = new ArrayList<>();
             andPredicateList.add(criteriaBuilder.equal(root.get("appId"), req.getAppId()));
+
+            //1.获取比较的属性
+            if (CollectionUtil.isNotEmpty(req.getIds())) {
+                Expression<Long> exp = root.<Long>get("id");
+                andPredicateList.add(exp.in(req.getIds()));
+            }
+
             if (StringUtil.isNotBlank(req.getName())) {
                 andPredicateList.add(criteriaBuilder.like(root.get("name").as(String.class), "%" + req.getName() + "%"));
             }
@@ -148,7 +157,6 @@ public class BaseMenuServiceImpl implements BaseMenuService {
             if (StringUtil.isNotBlank(req.getPermissionId())) {
                 andPredicateList.add(criteriaBuilder.like(root.get("permissionId").as(String.class), "%" + req.getPermissionId() + "%"));
             }
-
 
             return criteriaBuilder.and(andPredicateList.toArray(new Predicate[0]));
         };

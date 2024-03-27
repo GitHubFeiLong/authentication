@@ -41,10 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -133,6 +130,11 @@ public class BaseRoleServiceImpl implements BaseRoleService {
                     req.getIds().forEach(id -> ids.value(id));
                     andPredicateList.add(ids);
                 }
+                if (CollectionUtil.isNotEmpty(req.getIds())) {
+                    Expression<Long> exp = root.<Long>get("id");
+                    andPredicateList.add(exp.in(req.getIds()));
+                }
+
                 if (StringUtil.isNotBlank(req.getName())) {
                     Predicate name = criteriaBuilder.like(root.get("name").as(String.class), "%" + req.getName() + "%");
                     andPredicateList.add(name);

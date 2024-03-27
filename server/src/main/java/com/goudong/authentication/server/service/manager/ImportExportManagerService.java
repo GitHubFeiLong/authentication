@@ -61,7 +61,7 @@ public interface ImportExportManagerService {
      * @param response  响应
      * @param req       导出参数
      */
-    void exportMenu(HttpServletResponse response, BaseMenuGetAllReq req);
+    void exportMenu(HttpServletResponse response, BaseMenuExportReq req);
 
     /**
      * 导入应用

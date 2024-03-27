@@ -15,6 +15,13 @@ import java.util.List;
 public class BaseMenuGetAllReq {
     //~fields
     //==================================================================================================================
+
+    @ApiModelProperty(value = "菜单id集合", hidden = true)
+    private List<Long> ids;
+
+    @ApiModelProperty(value = "应用Id", hidden = true)
+    private Long appId;
+
     @ApiModelProperty("菜单名称")
     private String name;
 
@@ -27,6 +34,5 @@ public class BaseMenuGetAllReq {
     @ApiModelProperty("资源路径")
     private String path;
 
-    @ApiModelProperty(value = "应用Id", hidden = true)
-    private Long appId;
+
 }

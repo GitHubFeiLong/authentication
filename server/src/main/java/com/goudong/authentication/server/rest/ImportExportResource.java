@@ -85,7 +85,7 @@ public class ImportExportResource {
 
     @PostMapping("/export-menu")
     @ApiOperation("菜单导出")
-    public void exportMenu(HttpServletResponse response, @RequestBody BaseMenuGetAllReq req) {
+    public void exportMenu(HttpServletResponse response, @RequestBody BaseMenuExportReq req) {
         importExportManagerService.exportMenu(response, req);
     }
 

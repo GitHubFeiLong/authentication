@@ -24,6 +24,7 @@ import com.goudong.boot.redis.core.RedisTool;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.lang.PageResult;
 import com.goudong.core.util.AssertUtil;
+import com.goudong.core.util.CollectionUtil;
 import com.goudong.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -172,6 +173,10 @@ public class BaseUserServiceImpl implements BaseUserService {
             if (req.getId() != null) {
                 Path<Object> idPath = root.get("id");
                 andPredicateList.add(criteriaBuilder.equal(idPath, req.getId()));
+            }
+            if (CollectionUtil.isNotEmpty(req.getIds())) {
+                Expression<Long> exp = root.<Long>get("id");
+                andPredicateList.add(exp.in(req.getIds()));
             }
             if (StringUtil.isNotBlank(req.getUsername())) {
                 Path<Object> usernamePath = root.get("username");

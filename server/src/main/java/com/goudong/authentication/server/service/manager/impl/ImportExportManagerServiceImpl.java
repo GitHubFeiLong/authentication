@@ -9,6 +9,7 @@ import com.alibaba.excel.write.metadata.WriteSheet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.goudong.authentication.common.util.JsonUtil;
 import com.goudong.authentication.server.constant.CommonConst;
+import com.goudong.authentication.server.domain.BaseMenu;
 import com.goudong.authentication.server.easyexcel.listener.BaseAppImportExcelListener;
 import com.goudong.authentication.server.easyexcel.listener.BaseMenuImportExcelListener;
 import com.goudong.authentication.server.easyexcel.listener.BaseRoleImportExcelListener;
@@ -49,10 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -218,6 +216,7 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
             BaseUserPageReq pageReq = req.getPageReq();
             // 每次查询100条
             pageReq.setSize(100);
+            pageReq.setIds(req.getIds());
             // 初始分页设置0
             int page = 0;
             // 总店铺数量
@@ -375,7 +374,7 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
      * @param req       导出参数
      */
     @Override
-    public void exportMenu(HttpServletResponse response, BaseMenuGetAllReq req) {
+    public void exportMenu(HttpServletResponse response, BaseMenuExportReq req) {
         log.info("开始执行菜单导出");
         String fileName = "导出菜单" + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
         // 这里注意 有同学反应使用swagger 会导致各种问题，请直接用浏览器或者用postman
@@ -397,21 +396,39 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
             WriteSheet writeSheet = EasyExcel.writerSheet("sheet01").build();
             MyAuthentication myAuthentication = SecurityContextUtil.get();
             Long appId = myAuthentication.getRealAppId();
-            req.setAppId(appId);
+            BaseMenuGetAllReq pageReq = req.getPageReq();
+            pageReq.setIds(req.getIds());
+            pageReq.setAppId(appId);
             // 查询菜单
-            List<BaseMenuDTO> menus = baseMenuService.findAll(req);
+            List<BaseMenuDTO> menus = baseMenuService.findAll(pageReq);
             // 转map
             Map<Long, BaseMenuDTO> longBaseMenuDTOMap = menus.stream().collect(Collectors.toMap(BaseMenuDTO::getId, p -> p, (k1, k2) -> k1));
 
+            Map<Long, BaseMenu> parentMenuMap = new HashMap<>();
             AtomicInteger sequenceNumber = new AtomicInteger(1);
             List<BaseMenuExportTemplate> result = new ArrayList<>();
             menus.forEach(p -> {
                 BaseMenuExportTemplate resp = new BaseMenuExportTemplate();
                 resp.setSequenceNumber(sequenceNumber.getAndIncrement());
                 resp.setPermissionId(p.getPermissionId());
-                if (p.getParentId() != null && longBaseMenuDTOMap.containsKey(p.getParentId())) {
-                    BaseMenuDTO parentMenuDTO = longBaseMenuDTOMap.get(p.getParentId());
-                    resp.setParentPermissionId(parentMenuDTO.getPermissionId());
+                if (p.getParentId() != null) {
+                    if (longBaseMenuDTOMap.containsKey(p.getParentId())) {
+                        BaseMenuDTO parentMenuDTO = longBaseMenuDTOMap.get(p.getParentId());
+                        resp.setParentPermissionId(parentMenuDTO.getPermissionId());
+                    } else {
+                        if (parentMenuMap.containsKey(p.getParentId())) {
+                            BaseMenu baseMenu = parentMenuMap.get(p.getParentId());
+                            if (baseMenu != null) {
+                                resp.setParentPermissionId(baseMenu.getPermissionId());
+                            }
+                        } else {
+                            BaseMenu baseMenu = baseMenuService.findById(p.getParentId());
+                            parentMenuMap.put(p.getParentId(), baseMenu);
+                            if (baseMenu != null) {
+                                resp.setParentPermissionId(baseMenu.getPermissionId());
+                            }
+                        }
+                    }
                 }
                 if (StringUtil.isNotBlank(p.getMethod())) {
                     List<String> methods = JsonUtil.toList(p.getMethod(), String.class);
@@ -487,6 +504,7 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
             BaseAppPageReq pageReq = req.getPageReq();
             // 每次查询100条
             pageReq.setSize(100);
+            pageReq.setIds(req.getIds());
             // 初始分页设置0
             int page = 0;
             // 总店铺数量

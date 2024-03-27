@@ -41,6 +41,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.servlet.http.HttpServletRequest;
@@ -161,9 +162,8 @@ public class BaseAppServiceImpl implements BaseAppService {
         Specification<BaseApp> specification = (root, query, criteriaBuilder) -> {
             List<Predicate> andPredicateList = new ArrayList<>();
             if (CollectionUtil.isNotEmpty(req.getIds())) {
-                CriteriaBuilder.In<Object> ids = criteriaBuilder.in(root.get("id"));
-                req.getIds().forEach(id -> ids.value(id));
-                andPredicateList.add(ids);
+                Expression<Long> exp = root.<Long>get("id");
+                andPredicateList.add(exp.in(req.getIds()));
             }
             if (req.getId() != null) {
                 Path<Object> idPath = root.get("id");
