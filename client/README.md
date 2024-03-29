@@ -3,67 +3,12 @@
 客户端SDK，使用最小依赖开发(用户需要某个功能，自己要在项目中引入某些依赖)
 > 项目打包时，不会将三方jar依赖一起打包进来。只要不使用到三方jar的类，就不会报错。如果使用过程中，有需要使用三方类，就需要自己引入相关依赖。
 ## 功能
-+ 常用接口调用编写(注意使用签名)
-
-### 常用接口调用编写
-
++ 封装三方应用需要使用到的接口调用编写(注意使用签名)
 ## 基本需求
 1. jdk 1.8
-2. 基础依赖：
-```xml
-<dependencies>
-    <!--【基础依赖】-->
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <scope>provided</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter</artifactId>
-        <scope>test</scope>
-    </dependency>
-    <!--【必须】-->
-    <dependency>
-        <groupId>com.squareup.okhttp3</groupId>
-        <artifactId>okhttp</artifactId>
-        <exclusions>
-            <exclusion>
-                <groupId>com.google.android</groupId>
-                <artifactId>android</artifactId>
-            </exclusion>
-        </exclusions>
-    </dependency>
-    <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-    </dependency>
+2. maven基础依赖
+3. 三方应用手动引入maven项目
 
-    <!-- 【可选依赖】 -->
-    <!--redis-->
-    <dependency>
-        <groupId>org.springframework.data</groupId>
-        <artifactId>spring-data-redis</artifactId>
-    </dependency>
-    <!--JWT-->
-    <dependency>
-        <groupId>io.jsonwebtoken</groupId>
-        <artifactId>jjwt</artifactId>
-    </dependency>
-</dependencies>
-```
-
-
-## Quick Start
-将本应用打包后引用到spring项目中去。
 ```xml
 <dependencies>
     <!--【必须依赖】-->
@@ -109,7 +54,7 @@
 必须依赖：需要该项目频繁使用了它们的API，所以三方应用必须引入才能正常使用工具。
 可选依赖：在用户使用一些具体功能或模块时，必须引入对应的依赖。
 
-### 使用
+## 使用
 在使用之前，需要进行客户端应用的初始化：
 ```java
 import com.goudong.authentication.client.util.GoudongAuthenticationClient;
@@ -144,49 +89,98 @@ public class Demo {
     }
 }
 ```
-API介绍：
-创建用户：
-```mermaid
-	
-	sequenceDiagram
-	participant user as 用户端
-	participant client as 认证服务客户端
-	participant server as 认证服务服务端
-    %% 创建用户
-	user ->> + client: 创建用户(UserV1Api.createToken())
-	activate user
-    client ->> + server: 创建用户
-    server -->> - client: 创建成功
-    client -->> - user: 创建成功
-    deactivate user
-    %% 删除用户
-    user ->> + client: 删除用户(UserV1Api.deleteByIds())
-    activate user
-    client ->> + server: 删除用户
-    server -->> - client: 删除成功
-    client -->> - user: 删除成功
-    deactivate user
-    %% 获取用户令牌
-    user ->> + client: 创建用户令牌(UserV1Api.createToken())
-    activate user
-    client ->> + server: 创建用户令牌
-    server -->> - client: 创建用户令牌成功
-    client -->> - user: 创建用户令牌成功
-    deactivate user
-    %% 刷新用户令牌，令牌过期了刷新
-    user ->> + client: 刷新用户令牌(UserV1Api.refreshToken())
-    activate user
-    client ->> + server: 刷新用户令牌
-    server -->> - client: 刷新用户令牌成功
-    client -->> - user: 刷新用户令牌成功
-    deactivate user
-    %% 刷新用户令牌，令牌过期了刷新
-    user ->> + client: 填充令牌(UserV1Api.supplementToken())
-    activate user
-    client ->> + server: 填充令牌令牌
-    server -->> - client: 填充令牌令牌成功
-    client -->> - user: 填充令牌令牌成功
-    deactivate user
+获取Token内部存储的信息
+```java
+import com.goudong.authentication.client.util.GoudongAuthenticationClient;
+import com.goudong.authentication.client.util.GoudongJwtUtil;
+
+public class Demo {
+    public static void main(String[] args) {
+        // 应用ID
+        Long appId = 1754050005607776256L;
+        // 获取应用的上下文
+        GoudongAuthenticationClient appClient = GoudongAuthenticationClient.getClient(appId);
+        // 获取应用密钥
+        String appSecret = appClient.getAppSecret();
+        
+        // 解析密钥
+        String token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ7XCJpZFwiOlwiMVwiLFwiYXBwSWRcIjpcIjE3NTQwNTAwMDU2MDc3NzYyNTZcIixcInJlYWxBcHBJZFwiOlwiMTc1NDA1MDAwNTYwNzc3NjI1NlwiLFwidXNlcm5hbWVcIjpcIuW8oOS4iVwiLFwicm9sZXNcIjpbXCJST0xFX0FETUlOXCIsXCJST0xFX1lFV1VZVUFOXCJdLFwiZGV0YWlsXCI6e1wicGhvbmVcIjpcIjE1Mnh4eHg3NzE2XCIsXCJvcGVuSWRcIjpcIm9RZExnNU12Q3RlQTlBdkZDNE5QQmtodE91TTRcIixcImFwcElkXCI6XCJ3eDRiNmQ0MjA1NGI3OWExNThcIn19IiwiaWF0IjoxNzExNTkwNzAyLCJleHAiOjQ4NjUxOTA3MDJ9.s_0kfcSQ1OL4SK_eVEQzhcn8gVgvkkP2NDqjUiSjjfU";
+        UserSimple userSimple = GoudongJwtUtil.parseToken(appSecret, token);
+        System.out.println("userSimple = " + JsonUtil.toJsonString(userSimple));
+        System.out.println(userSimple.getByDetail("appId"));
+        System.out.println(userSimple.getByDetail("openId"));
+        System.out.println(userSimple.getByDetail("phone"));
+    }
+}
+
 ```
+### API介绍
+#### 用户相关API
+查看代码：[UserV1Api.java](src%2Fmain%2Fjava%2Fcom%2Fgoudong%2Fauthentication%2Fclient%2Fapi%2Fuser%2Fv1%2FUserV1Api.java)
+#### 权限相关API
+权限API使用接口进行抽离,可以创建对象来处理。
+> 基础权限API请查看：[PermissionV1Api.java](src%2Fmain%2Fjava%2Fcom%2Fgoudong%2Fauthentication%2Fclient%2Fapi%2Fpermission%2Fv1%2FPermissionV1Api.java)
+> 权限API接口：[PermissionInterface.java](src%2Fmain%2Fjava%2Fcom%2Fgoudong%2Fauthentication%2Fclient%2Fbean%2Fpermission%2FPermissionInterface.java)
++ DefaultPermission：默认的权限处理API，没有缓存，每次调用API都会发起HTTP请求。
++ MemoryPermission：使用内存做缓存，减少HTTP的请求次数。
++ RedisPermission：使用Redis做缓存，减少HTTP的请求次数（但是必须引入`spring-data-redis`maven依赖）。
+>推荐使用`RedisPermission`。当然也可以自定义权限处理API，只需要实现`PermissionInterface`接口即可。
 
+## 基本流程
+```mermaid
+sequenceDiagram
+participant people as 用户
+participant app as 三方应用
+participant client as 认证服务客户端
+%% 注册用户
+people ->> + app: 用户注册
+activate people
+app ->> + client: 创建用户（UserV1Api.simpleCreateUser()）
+client -->> - app: 用户创建成功
+app -->> - people: 注册成功
+deactivate people
 
+%% 用户登录
+people ->> + app: 用户登录
+activate people
+app ->> + client: 创建登录令牌（UserV1Api.createToken()）
+client -->> - app: 用户令牌信息
+app ->> + client: 获取用户权限（PermissionInterface.getUserDetail()）
+client -->> -app: 返回用户的基本信息（用户、用户拥有的角色、角色拥有的菜单权限）
+app -->> app: 根据权限，渲染页面
+app -->> - people: 登录成功
+deactivate people
+
+%% 用户请求资源
+people ->> + app: 用户请求资源
+activate people
+app ->> + client: 对用户本次请求进行鉴权（PermissionInterface.checkAccessRight()）
+client -->> - app: 校验结果
+opt 用户有权限
+    app -->> -people: 鉴权成功，允许用户访问
+end
+opt 用户没有权限
+    app -->> people: 鉴权失败，拒绝用户访问
+end
+deactivate people
+
+%% 刷新令牌
+people ->> + app: 刷新用户令牌
+activate people
+app ->> + client: 刷新用户令牌（UserV1Api.refreshToken()）
+client -->> - app: 新的令牌信息
+app -->> - people: 新令牌信息
+deactivate people
+
+%% 修改令牌
+activate app
+app ->> + client: 给令牌存储额外信息（UserV1Api.supplementToken()）
+client -->> - app: 新的令牌信息
+deactivate app
+
+%% 删除用户
+activate app
+app ->> + client: 删除用户（UserV1Api.deleteByIds()）
+client -->> - app: 删除响应
+deactivate app
+```

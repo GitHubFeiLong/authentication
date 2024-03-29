@@ -19,7 +19,9 @@ import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 
 /**
- * REST controller for managing {@link BaseMenu}.
+ * 类描述：
+ * 菜单资源控制器
+ * @author chenf
  */
 @Api(tags = "菜单管理")
 @RestController

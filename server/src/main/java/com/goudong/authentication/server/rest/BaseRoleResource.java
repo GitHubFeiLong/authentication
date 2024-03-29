@@ -21,13 +21,9 @@ import java.util.Arrays;
 
 
 /**
- * <pre>
- * 新增
- * 编辑
- * 删除
- * 分页
- * 下拉
- * </pre>
+ * 类描述：
+ * 角色资源控制器
+ * @author chenf
  */
 @Api(tags = "角色")
 @RestController

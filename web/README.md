@@ -1,5 +1,5 @@
-# Goudong Web Admin
-狗东后台管理系统
+# 认证服务 Web Admin
+认证服务后台管理系统，包含了应用管理、用户管理、角色管理、菜单管理功能。
 > 版本：node 16 npm使用淘宝镜像
 ## icon的使用
 
@@ -43,7 +43,7 @@
 ### 全局方法
 使用全局方法`permissionDisabled('permissionId')`,使用该方式，可以返回true，false，使其elementUI的某些禁用属性生效。
 
-```vue
+```html
  <el-table-column label="锁定">
   <template v-slot="scope">
   <!--permissionDisabled方法返回true 或 false-->

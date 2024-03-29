@@ -25,8 +25,9 @@ import java.util.Arrays;
 
 
 /**
- * REST controller for managing {@link BaseUser}.
- * @author cfl
+ * 类描述：
+ * 用户资源控制器
+ * @author chenf
  */
 @RestController
 @RequestMapping("/user")

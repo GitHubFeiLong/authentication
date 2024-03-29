@@ -1,10 +1,8 @@
 # authentication
-authentication分为服务端（server）和客户端（client）
-后台管理
-
+authentication分为服务端（server）和客户端（client） 后台web管理（web）三个子项目。
 ## 目录结构
 ### libs
-存放第三方jar包
+存放第三方jar包，server使用的其它jar依赖（从本人的代码库提取出来的依赖）。
 ### web(管理后台)
 + 登录
 + 用户管理
@@ -22,16 +20,15 @@ authentication分为服务端（server）和客户端（client）
 + 角色模块
 + 菜单模块
 + 应用模块
-
++ 权限模块
++ 导入导出模块
 ### client(客户端)
 作用：封装客户端需要用到接口，使用http请求访问server获取资源数据。
-
-
 
 ## 流程
 
 ## 待办
 + spring mvc 跳转/error 请求怎么获取正确的uri
 + 将login-success页面相关代码封装，并书写文档，方便第三方应用后台接入
-+ 菜单管理同步勾选下级
++ 异常管理：根据
 + 字典管理，字典类型、字典、字典配置
