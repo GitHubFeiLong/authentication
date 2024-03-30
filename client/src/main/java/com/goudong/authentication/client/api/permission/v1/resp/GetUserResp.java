@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.goudong.authentication.client.core.BaseRole;
 import com.goudong.authentication.client.core.RoleInterface;
 import com.goudong.authentication.client.core.UserInterface;
-import com.goudong.authentication.client.databind.RoleInterfaceCollectionDeserializer;
 import lombok.Data;
 
 import java.util.Collection;

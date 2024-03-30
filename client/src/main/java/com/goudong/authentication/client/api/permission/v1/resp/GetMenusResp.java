@@ -3,13 +3,10 @@ package com.goudong.authentication.client.api.permission.v1.resp;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.goudong.authentication.client.core.BaseMenu;
 import com.goudong.authentication.client.core.MenuInterface;
-import com.goudong.authentication.client.databind.MenuInterfaceCollectionDeserializer;
-import com.goudong.authentication.client.dto.BaseMenuDTO;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * 类描述：
