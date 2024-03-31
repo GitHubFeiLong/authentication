@@ -11,18 +11,18 @@ import javax.validation.constraints.Size;
 
 /**
  * 类描述：
- * 修改字典类型
+ * 修在字典
  * @author chenf
  */
 @Data
-public class BaseDictTypeUpdateReq {
+public class BaseDictUpdateReq {
     //~fields
     //==================================================================================================================
     /**
-     * 字典类型ID
+     * 字典ID
      */
-    @NotNull(message="[字典类型ID]不能为空")
-    @ApiModelProperty(value = "字典类型ID", required = true)
+    @NotNull(message="[字典ID]不能为空")
+    @ApiModelProperty(value = "字典ID", required = true)
     private Long id;
 
     /**
@@ -42,13 +42,6 @@ public class BaseDictTypeUpdateReq {
     @Length(max= 16,message="编码长度不能超过16")
     private String name;
 
-    /**
-     * 字典配置模板注释
-     */
-    @ApiModelProperty("字典配置模板注释")
-    @NotBlank(message="[字典配置模板注释]不能为空")
-    @Column(columnDefinition = "json" )
-    private String template;
 
     /**
      * 是否激活（true：已激活；false：未激活）

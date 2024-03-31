@@ -29,7 +29,7 @@ public interface BaseDictTypeService {
      * @param req   新增参数
      * @return      新增的结果
      */
-    BaseDictTypeDTO save(BaseDictTypeCreateReq req);
+    BaseDictType save(BaseDictType req);
 
     /**
      * 根据ID查询字典类型
@@ -42,7 +42,7 @@ public interface BaseDictTypeService {
      * @param req   修改参数
      * @return      修改后结果
      */
-    BaseDictTypeDTO update(BaseDictTypeUpdateReq req);
+    BaseDictType update(BaseDictTypeUpdateReq req);
 
     /**
      * 批量删除字典类型

@@ -79,16 +79,13 @@ public class BaseDictTypeServiceImpl implements BaseDictTypeService {
 
             //1.获取比较的属性
             if (CollectionUtil.isNotEmpty(req.getIds())) {
-                Expression<Long> exp = root.<Long>get("id");
-                andPredicateList.add(exp.in(req.getIds()));
+                andPredicateList.add(root.<Long>get("id").in(req.getIds()));
             }
             if (StringUtil.isNotBlank(req.getCode())) {
-                Path<Object> usernamePath = root.get("code");
-                andPredicateList.add(criteriaBuilder.like(usernamePath.as(String.class), "%" + req.getCode() + "%"));
+                andPredicateList.add(criteriaBuilder.like(root.get("code").as(String.class), "%" + req.getCode() + "%"));
             }
             if (StringUtil.isNotBlank(req.getName())) {
-                Path<Object> usernamePath = root.get("name");
-                andPredicateList.add(criteriaBuilder.like(usernamePath.as(String.class), "%" + req.getName() + "%"));
+                andPredicateList.add(criteriaBuilder.like(root.get("name").as(String.class), "%" + req.getName() + "%"));
             }
 
             return criteriaBuilder.and(andPredicateList.toArray(new Predicate[0]));
@@ -157,10 +154,9 @@ public class BaseDictTypeServiceImpl implements BaseDictTypeService {
      * @return 新增的结果
      */
     @Override
-    public BaseDictTypeDTO save(BaseDictTypeCreateReq req) {
+    public BaseDictType save(BaseDictType req) {
         log.info("保存字典类型");
-        BaseDictType baseDictType = BeanUtil.copyProperties(req, BaseDictType.class);
-        return baseDictTypeMapper.toDto(baseDictTypeRepository.save(baseDictType));
+        return baseDictTypeRepository.save(req);
     }
 
     /**
@@ -171,7 +167,7 @@ public class BaseDictTypeServiceImpl implements BaseDictTypeService {
      */
     @Override
     public BaseDictType findById(Long id) {
-        assert id!=null;
+        log.info("根据ID{}查询字典类型", id);
         MyAuthentication myAuthentication = SecurityContextUtil.get();
 
         Specification<BaseDictType> specification = (root, query, criteriaBuilder) -> {
@@ -180,7 +176,7 @@ public class BaseDictTypeServiceImpl implements BaseDictTypeService {
             andPredicateList.add(criteriaBuilder.equal(root.get("id"), id));
             return criteriaBuilder.and(andPredicateList.toArray(new Predicate[andPredicateList.size()]));
         };
-        return baseDictTypeRepository.findOne(specification).orElseThrow(() -> ClientException.client("字典类型不存在:" + id));
+        return baseDictTypeRepository.findOne(specification).orElseThrow(() -> ClientException.client("字典类型不存在"));
     }
 
     /**
@@ -190,12 +186,12 @@ public class BaseDictTypeServiceImpl implements BaseDictTypeService {
      * @return 修改后结果
      */
     @Override
-    public BaseDictTypeDTO update(BaseDictTypeUpdateReq req) {
+    public BaseDictType update(BaseDictTypeUpdateReq req) {
         log.info("修改字典类型");
         BaseDictType baseDictType = this.findById(req.getId());
         BeanUtil.copyProperties(req, baseDictType);
         baseDictTypeRepository.save(baseDictType);
-        return baseDictTypeMapper.toDto(baseDictType);
+        return baseDictType;
     }
 
     /**
@@ -209,7 +205,7 @@ public class BaseDictTypeServiceImpl implements BaseDictTypeService {
         MyAuthentication myAuthentication = SecurityContextUtil.get();
         Long realAppId = myAuthentication.getRealAppId();
         List<BaseDictType> allById = baseDictTypeRepository.findAllById(ids);
-        allById.forEach(p -> AssertUtil.isEquals(realAppId, p.getAppId(), () -> ClientException.clientByForbidden().serverMessage("不能删除其它应用下的字典类型")));
+        allById.forEach(p -> AssertUtil.isEquals(realAppId, p.getAppId(), () -> ClientException.clientByForbidden().clientMessage("权限不足，删除失败").serverMessage("不能删除其它应用下的字典类型")));
         baseDictTypeRepository.deleteAll(allById);
         return true;
     }

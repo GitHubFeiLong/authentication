@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @Data
 public class BasePage {
 
-    @ApiModelProperty(value = "是否开启分页")
+    @ApiModelProperty(value = "是否开启分页", hidden = true)
     @DbIgnore
     private Boolean openPage = true;
 
