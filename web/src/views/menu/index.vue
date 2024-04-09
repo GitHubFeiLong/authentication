@@ -188,16 +188,16 @@
         </template>
     </el-table-column>
       <el-table-column
-        label="创建时间"
-        width="150"
-        prop="createdDate"
-        show-overflow-tooltip
-      />
-      <el-table-column
         label="备注"
         width="100"
         prop="remark"
         show-overflow-tooltip
+      />
+      <el-table-column
+          label="创建时间"
+          width="150"
+          prop="createdDate"
+          show-overflow-tooltip
       />
       <el-table-column
         label="操作"

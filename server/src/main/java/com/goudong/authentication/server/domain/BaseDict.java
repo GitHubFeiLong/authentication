@@ -1,13 +1,15 @@
 package com.goudong.authentication.server.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import javax.validation.constraints.NotNull;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -39,7 +41,7 @@ public class BaseDict extends BasePO implements Serializable {
     */
     @NotNull(message="[字典类型主键]不能为空")
     @ApiModelProperty(value = "字典类型主键", required = true)
-    private String dictTypeId;
+    private Long dictTypeId;
 
     /**
     * 字典编码,同一应用下编码唯一
@@ -48,7 +50,7 @@ public class BaseDict extends BasePO implements Serializable {
     @Size(max= 16,message="编码长度不能超过16")
     @ApiModelProperty(value = "字典编码,同一应用下编码唯一", required = true)
     @Length(max= 16,message="编码长度不能超过16")
-    private Long code;
+    private String code;
     /**
     * 字典名
     */

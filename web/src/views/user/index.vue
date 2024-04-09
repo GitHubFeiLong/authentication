@@ -125,19 +125,7 @@
         show-overflow-tooltip
         sortable
       />
-      <el-table-column
-        label="创建时间"
-        width="170"
-        prop="createdDate"
-        show-overflow-tooltip
-        sortable
-      />
-      <el-table-column
-        label="备注"
-        min-width="180"
-        prop="remark"
-        show-overflow-tooltip
-      />
+
       <el-table-column
         label="激活"
         width="80"
@@ -172,6 +160,19 @@
           />
         </template>
       </el-table-column>
+      <el-table-column
+          label="备注"
+          min-width="180"
+          prop="remark"
+          show-overflow-tooltip
+      />
+      <el-table-column
+          label="创建时间"
+          width="170"
+          prop="createdDate"
+          show-overflow-tooltip
+          sortable
+      />
       <el-table-column
         label="操作"
         width="230"

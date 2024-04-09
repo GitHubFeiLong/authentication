@@ -1,5 +1,6 @@
 package com.goudong.authentication.server.service;
 import com.goudong.authentication.server.domain.BaseDict;
+import com.goudong.authentication.server.rest.req.BaseDictChangeEnabledReq;
 import com.goudong.authentication.server.rest.req.BaseDictPageReq;
 import com.goudong.authentication.server.rest.req.BaseDictUpdateReq;
 import com.goudong.authentication.server.rest.resp.BaseDictPageResp;
@@ -45,9 +46,19 @@ public interface BaseDictService {
     BaseDict update(BaseDictUpdateReq req);
 
     /**
+     * 修改字典的激活状态
+     *
+     * @param req 修改字典参数
+     * @return true：修改成功；false：修改失败
+     */
+    Boolean changeEnabled(BaseDictChangeEnabledReq req);
+
+    /**
      * 批量删除字典
      * @param ids   字典主键集合
      * @return      true：删除成功；false：删除失败
      */
     Boolean deleteByIds(List<Long> ids);
+
+
 }

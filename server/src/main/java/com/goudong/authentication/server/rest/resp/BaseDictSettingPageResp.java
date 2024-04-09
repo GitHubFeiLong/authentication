@@ -1,23 +1,22 @@
-package com.goudong.authentication.server.service.dto;
+package com.goudong.authentication.server.rest.resp;
 
-import com.goudong.authentication.server.domain.BaseDictSetting;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.util.Date;
 
 /**
  * 类描述：
- * A DTO for the {@link BaseDictSetting} entity.
+ * 字典配置分页结果
  * @author chenf
  */
 @Data
-public class BaseDictSettingDTO {
+public class BaseDictSettingPageResp {
     //~fields
     //==================================================================================================================
+    @ApiModelProperty(value = "序号")
+    private Long serialNumber;
+
     /**
      * 主键
      */
@@ -88,8 +87,6 @@ public class BaseDictSettingDTO {
      */
     @ApiModelProperty(value = "最后修改人")
     private String lastModifiedBy;
-
-
     //~methods
     //==================================================================================================================
 }

@@ -1,12 +1,15 @@
 package com.goudong.authentication.server.rest;
 
 import com.goudong.authentication.server.constant.SwaggerConst;
+import com.goudong.authentication.server.rest.req.BaseDictTypeDropDownReq;
+import com.goudong.authentication.server.rest.req.BaseDictTypeDropDownResp;
 import com.goudong.authentication.server.rest.req.search.BaseAppDropDownReq;
 import com.goudong.authentication.server.rest.req.search.BaseRoleDropDownReq;
 import com.goudong.authentication.server.rest.req.search.BaseUserDropDownReq;
 import com.goudong.authentication.server.rest.resp.BaseRoleDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseUserDropDownResp;
 import com.goudong.authentication.server.service.manager.BaseAppManagerService;
+import com.goudong.authentication.server.service.manager.BaseDictManagerService;
 import com.goudong.authentication.server.service.manager.BaseRoleManagerService;
 import com.goudong.authentication.server.service.manager.BaseUserManagerService;
 import com.goudong.core.lang.PageResult;
@@ -15,6 +18,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,6 +45,9 @@ public class DropDownResource {
     @Resource
     private BaseRoleManagerService baseRoleManagerService;
 
+    @Resource
+    private BaseDictManagerService baseDictManagerService;
+
     //~methods
     //==================================================================================================================
     @GetMapping("/base-app")
@@ -65,5 +72,11 @@ public class DropDownResource {
     @ApiOperation(value = "角色下拉(分页+条件限制)", notes = "需要登录，显示用户所在应用下（真实应用）的角色列表(分页查询)", tags = SwaggerConst.DROP_DOWN_GROUP_NAME)
     public Result<PageResult<BaseRoleDropDownResp>> roleDropDown(@Validated BaseRoleDropDownReq req) {
         return Result.ofSuccess(baseRoleManagerService.roleDropDown(req));
+    }
+
+    @GetMapping("/base-dict-type/page")
+    @ApiOperation(value = "字典类型下拉(分页+条件限制)", notes = "需要登录，显示用户所在应用下（真实应用）的字典类型列表(分页查询)", tags = SwaggerConst.DROP_DOWN_GROUP_NAME)
+    public Result<PageResult<BaseDictTypeDropDownResp>> baseDictTypeDropDown(@Validated BaseDictTypeDropDownReq req) {
+        return Result.ofSuccess(baseDictManagerService.baseDictTypeDropDown(req));
     }
 }

@@ -57,16 +57,13 @@ public class JacksonConfig {
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         // 请求接口对象没有成员时不报错
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-
+        //忽略value为null时key的输出
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         /*
             反序列化设置
          */
         // 关闭反序列化时Jackson发现无法找到对应的对象字段，便会抛出UnrecognizedPropertyException: Unrecognized field xxx异常；@JsonIgnoreProperties(ignoreUnknown = true)）
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-
-        //忽略value为null时key的输出
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         //设置日期格式
         objectMapper.setDateFormat(new SimpleDateFormat(DateConst.DATE_TIME_FORMATTER));
@@ -92,8 +89,6 @@ public class JacksonConfig {
     @Bean
     public MappingJackson2HttpMessageConverter getMappingJackson2HttpMessageConverter(ObjectMapper objectMapper) {
         MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
-
-
 
         mappingJackson2HttpMessageConverter.setObjectMapper(objectMapper);
         //设置中文编码格式

@@ -1,8 +1,6 @@
 package com.goudong.authentication.server.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import javax.validation.constraints.NotNull;
@@ -40,13 +38,23 @@ public class BaseDictSetting extends BasePO implements Serializable {
      */
     @NotNull(message="[字典类型主键]不能为空")
     @ApiModelProperty(value = "字典类型主键", required = true)
-    private String dictTypeId;
+    private Long dictTypeId;
+
     /**
     * 字典主键
     */
     @NotNull(message="[字典主键]不能为空")
     @ApiModelProperty(value = "字典主键", required = true)
+    @Column(name = "dict_id",insertable = false, updatable = false)
     private Long dictId;
+    /**
+     * 字典配置名称
+     */
+    @NotBlank(message="[配置名称]不能为空")
+    @ApiModelProperty(value = "配置名称", required = true)
+    @Size(max= 16,message="编码长度不能超过16")
+    @Length(max= 16,message="编码长度不能超过16")
+    private String name;
     /**
     * 配置模板注释
     */

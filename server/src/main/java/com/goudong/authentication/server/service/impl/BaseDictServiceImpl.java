@@ -5,6 +5,7 @@ import com.goudong.authentication.server.domain.BaseDict;
 import com.goudong.authentication.server.domain.BaseDictType;
 import com.goudong.authentication.server.repository.BaseDictRepository;
 import com.goudong.authentication.server.repository.resp.IdCountResp;
+import com.goudong.authentication.server.rest.req.BaseDictChangeEnabledReq;
 import com.goudong.authentication.server.rest.req.BaseDictPageReq;
 import com.goudong.authentication.server.rest.req.BaseDictUpdateReq;
 import com.goudong.authentication.server.rest.resp.BaseDictPageResp;
@@ -183,6 +184,23 @@ public class BaseDictServiceImpl implements BaseDictService {
         BeanUtil.copyProperties(req, baseDict);
         baseDictRepository.save(baseDict);
         return baseDict;
+    }
+
+    /**
+     * 修改字典的激活状态
+     *
+     * @param req 修改字典参数
+     * @return true：修改成功；false：修改失败
+     */
+    @Override
+    public Boolean changeEnabled(BaseDictChangeEnabledReq req) {
+        log.info("查询字典：{}", req.getId());
+        BaseDict dict = this.findById(req.getId());
+        log.info("修改字典激活状态：原enabled={},将要修改为{}", dict.getEnabled(), !dict.getEnabled());
+        dict.setEnabled(!dict.getEnabled());
+        baseDictRepository.save(dict);
+        log.info("修改字典激活状态成功");
+        return true;
     }
 
     /**

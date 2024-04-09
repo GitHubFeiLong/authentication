@@ -7,9 +7,7 @@ import com.goudong.authentication.server.domain.BaseMenu;
 import com.goudong.authentication.server.domain.BaseUser;
 import com.goudong.authentication.server.repository.BaseDictTypeRepository;
 import com.goudong.authentication.server.repository.resp.IdCountResp;
-import com.goudong.authentication.server.rest.req.BaseDictTypeCreateReq;
-import com.goudong.authentication.server.rest.req.BaseDictTypePageReq;
-import com.goudong.authentication.server.rest.req.BaseDictTypeUpdateReq;
+import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.resp.BaseDictTypePageResp;
 import com.goudong.authentication.server.rest.resp.BaseRoleDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseUserPageResp;
@@ -24,6 +22,7 @@ import com.goudong.core.util.AssertUtil;
 import com.goudong.core.util.CollectionUtil;
 import com.goudong.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.criterion.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -102,8 +101,7 @@ public class BaseDictTypeServiceImpl implements BaseDictTypeService {
 
             log.info("查询每个字典类型下的子字典数量");
             List<Long> ids = pageResult.getContent().stream().map(BaseDictType::getId).collect(Collectors.toList());
-            List<IdCountResp> idCounts = baseDictTypeRepository.queryCount(ids);
-            Map<Long, Integer> idCountMap = idCounts.stream().collect(Collectors.toMap(IdCountResp::getId, p -> p.getCount(), (k1, k2) -> k1));
+            Map<Long, Integer> idCountMap = baseDictTypeRepository.queryCount(ids).stream().collect(Collectors.toMap(p-> p.get("id").longValue(), p -> p.get("count").intValue(), (k1, k2) -> k1));
 
             log.info("设置序号和字典数量");
             List<BaseDictTypePageResp> contents = BeanUtil.copyToList(pageResult.getContent(), BaseDictTypePageResp.class);
@@ -128,8 +126,7 @@ public class BaseDictTypeServiceImpl implements BaseDictTypeService {
 
         log.info("查询每个字典类型下的子字典数量");
         List<Long> ids = dictTypes.stream().map(BaseDictType::getId).collect(Collectors.toList());
-        List<IdCountResp> idCounts = baseDictTypeRepository.queryCount(ids);
-        Map<Long, Integer> idCountMap = idCounts.stream().collect(Collectors.toMap(IdCountResp::getId, p -> p.getCount(), (k1, k2) -> k1));
+        Map<Long, Integer> idCountMap = baseDictTypeRepository.queryCount(ids).stream().collect(Collectors.toMap(p-> p.get("id").longValue(), p -> p.get("count").intValue(), (k1, k2) -> k1));
 
         log.info("设置序号和字典数量");
         List<BaseDictTypePageResp> contents = BeanUtil.copyToList(dictTypes, BaseDictTypePageResp.class);
@@ -195,6 +192,23 @@ public class BaseDictTypeServiceImpl implements BaseDictTypeService {
     }
 
     /**
+     * 修改字典类型的激活状态
+     *
+     * @param req 修改字典类型参数
+     * @return true：修改成功；false：修改失败
+     */
+    @Override
+    public Boolean changeEnabled(BaseDictTypeChangeEnabledReq req) {
+        log.info("查询字典类型：{}", req.getId());
+        BaseDictType dictType = this.findById(req.getId());
+        log.info("修改字典类型激活状态：原enabled={},将要修改为{}", dictType.getEnabled(), !dictType.getEnabled());
+        dictType.setEnabled(!dictType.getEnabled());
+        baseDictTypeRepository.save(dictType);
+        log.info("修改字典类型激活状态成功");
+        return true;
+    }
+
+    /**
      * 批量删除字典类型
      *
      * @param ids 被删除的字典类型id集合
@@ -208,5 +222,63 @@ public class BaseDictTypeServiceImpl implements BaseDictTypeService {
         allById.forEach(p -> AssertUtil.isEquals(realAppId, p.getAppId(), () -> ClientException.clientByForbidden().clientMessage("权限不足，删除失败").serverMessage("不能删除其它应用下的字典类型")));
         baseDictTypeRepository.deleteAll(allById);
         return true;
+    }
+
+    /**
+     * 条件分页查询字典类型下拉
+     *
+     * @param req 下拉分页参数
+     * @return 字典类型下拉分页结果
+     */
+    @Override
+    public PageResult<BaseDictTypeDropDownResp> baseDictTypeDropDown(BaseDictTypeDropDownReq req) {
+        MyAuthentication myAuthentication = SecurityContextUtil.get();
+        log.info("构造查询条件");
+        Specification<BaseDictType> specification = (root, query, criteriaBuilder) -> {
+            List<Predicate> andPredicateList = new ArrayList<>();
+            andPredicateList.add(criteriaBuilder.equal(root.get("appId"), myAuthentication.getRealAppId()));
+            if (StringUtil.isNotBlank(req.getCode())) {
+                andPredicateList.add(criteriaBuilder.like(root.get("code").as(String.class), "%" + req.getCode() + "%"));
+            }
+            return criteriaBuilder.and(andPredicateList.toArray(new Predicate[0]));
+        };
+
+        // 开启分页，就需要分页查询
+        if (req.getOpenPage()) {
+            log.info("使用分页查询");
+            Sort sort = Sort.by("id").ascending();
+            Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
+            Page<BaseDictType> pageResult = baseDictTypeRepository.findAll(specification, pageable);
+
+            List<BaseDictTypeDropDownResp> respList = new ArrayList<>(pageResult.getContent().size());
+            pageResult.getContent().forEach(p -> {
+                respList.add(new BaseDictTypeDropDownResp(p.getId(), p.getCode(), p.getName()));
+            });
+
+            return new PageResult<BaseDictTypeDropDownResp>(pageResult.getTotalElements(),
+                    (long)pageResult.getTotalPages(),
+                    pageResult.getPageable().getPageNumber() + 1L,
+                    (long)pageResult.getPageable().getPageSize(),
+                    respList
+            );
+        }
+
+        log.info("使用基本查询");
+        Sort sort = Sort.by("id").ascending();
+        List<BaseDictType> dictTypes = baseDictTypeRepository.findAll(specification, sort);
+
+        List<BaseDictTypeDropDownResp> respList = new ArrayList<>(dictTypes.size());
+        dictTypes.forEach(p -> {
+            respList.add(new BaseDictTypeDropDownResp(p.getId(), p.getCode(), p.getName()));
+        });
+
+        return new PageResult<BaseDictTypeDropDownResp>((long)respList.size(),
+                1L,
+                1L,
+                (long)respList.size(),
+                respList
+        );
+
+
     }
 }

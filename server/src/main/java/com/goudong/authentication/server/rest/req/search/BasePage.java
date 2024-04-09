@@ -14,6 +14,9 @@ import javax.validation.constraints.NotNull;
 @Data
 public class BasePage {
 
+    /**
+     * 导出时调用分页查询，有时不需要分页
+     */
     @ApiModelProperty(value = "是否开启分页", hidden = true)
     @DbIgnore
     private Boolean openPage = true;

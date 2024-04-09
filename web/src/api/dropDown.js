@@ -43,3 +43,17 @@ export function dropDownRoleApi(params) {
     params: params
   })
 }
+
+/**
+ * 字典类型下拉
+ * @param {object} params
+ * @param {String} params.code  字典类型编码
+ * @returns {*}
+ */
+export function dropDownDictTypeApi(params) {
+  return request({
+    url: `${API_PREFIX}/drop-down/base-dict-type/page`,
+    method: 'get',
+    params: params
+  })
+}

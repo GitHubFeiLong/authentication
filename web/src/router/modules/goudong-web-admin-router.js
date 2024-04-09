@@ -236,6 +236,22 @@ export const goudongWebAdminResource = [
         ]
       },
       {
+        name: '字典管理', // 使用name属性，才有面包屑
+        type: 1,
+        openModel: 0,
+        path: '/dict/index',
+        component: () => import('@/views/dict/index'),
+        componentPath: '@/views/dict/index',
+        permissionId: 'sys:dict',
+        meta: {
+          title: '字典管理',
+          icon: 'iconfont-zidianguanli',
+        },
+        children: [
+
+        ]
+      },
+      {
         name: '应用管理',
         type: 1,
         openModel: 0,
