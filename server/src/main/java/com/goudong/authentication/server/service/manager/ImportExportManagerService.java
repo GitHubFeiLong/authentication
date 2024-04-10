@@ -76,4 +76,20 @@ public interface ImportExportManagerService {
      * @param req       导出参数
      */
     void exportApp(HttpServletResponse response, BaseAppExportReq req);
+
+    /**
+     * 导入字典类型
+     * @param req   导入参数
+     * @return  true：导入成功
+     */
+    Boolean importDictType(BaseDictTypeImportReq req);
+
+    /**
+     * 导出字典类型
+     * @param response  响应对象
+     * @param req       导出参数
+     */
+    void exportDictType(HttpServletResponse response, BaseDictTypeExportReq req);
+
+
 }

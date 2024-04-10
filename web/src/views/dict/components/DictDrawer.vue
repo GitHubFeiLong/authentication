@@ -11,7 +11,7 @@
       <div class="filter-container">
         <div class="filter-item">
           <span class="filter-item-label">字典类型: </span>
-          <DictTypeSelect :value="dict.table.filter.dictTypeId" @changeDictType="changeDictType"/>
+          <DictTypeSelect :default-select-id="dict.table.filter.dictTypeId" @changeDictType="changeDictType"/>
         </div>
         <div class="filter-item">
           <span class="filter-item-label">字典编码: </span>
@@ -72,124 +72,128 @@
           </el-tooltip>
         </div>
       </div>
-      <!-- 表格  -->
-      <el-table
-          ref="table"
-          v-loading="dict.table.isLoading"
-          border
-          :data="dict.table.data"
-          row-key="id"
-          style="width: 100%"
-          :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
-          :header-row-class-name="dict.EL_TABLE.size"
-          :size="dict.EL_TABLE.size"
-          @selection-change="selectionChangeFunc"
-      >
-        <el-table-column
-            width="50"
-            type="selection"
-            header-align="center"
-            align="center"
-            class-name="selection"
-        />
-        <el-table-column
-            width="50"
-            label="序号"
-            prop="serialNumber"
-            align="center"
-        />
-        <el-table-column
-            label="字典编码"
-            min-width="50"
-            prop="code"
-            sortable
-        />
-        <el-table-column
-            label="字典名称"
-            prop="name"
-            min-width="50"
-            sortable
-            show-overflow-tooltip
-        />
-        <el-table-column
-            label="配置数量"
-            prop="dictNumber"
-            min-width="50"
-            sortable
-        />
 
-        <el-table-column
-            label="备注"
-            min-width="180"
-            prop="remark"
-            show-overflow-tooltip
-        />
-        <el-table-column
-            label="激活"
-            width="80"
-            prop="enabled"
-            align="center"
+      <div class="el-table__body__pagination">
+        <!-- 表格  -->
+        <el-table
+            ref="table"
+            v-loading="dict.table.isLoading"
+            border
+            :data="dict.table.data"
+            row-key="id"
+            style="width: 100%"
+            :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
+            :header-row-class-name="dict.EL_TABLE.size"
+            :size="dict.EL_TABLE.size"
+            @selection-change="selectionChangeFunc"
         >
-          <template v-slot="scope">
-            <el-switch
-                v-model="scope.row.enabled"
-                :disabled="permissionDisabled('sys:usr:enable')"
-                :active-value="true"
-                :inactive-value="false"
-                @change="changeDictTypeEnabled(scope.row)"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column
-            label="创建时间"
-            width="170"
-            prop="createdDate"
-            show-overflow-tooltip
-            sortable
+          <el-table-column
+              width="50"
+              type="selection"
+              header-align="center"
+              align="center"
+              class-name="selection"
+          />
+          <el-table-column
+              width="50"
+              label="序号"
+              prop="serialNumber"
+              align="center"
+          />
+          <el-table-column
+              label="字典编码"
+              min-width="50"
+              prop="code"
+              sortable
+          />
+          <el-table-column
+              label="字典名称"
+              prop="name"
+              min-width="50"
+              sortable
+              show-overflow-tooltip
+          />
+          <el-table-column
+              label="配置数量"
+              prop="dictNumber"
+              min-width="50"
+              sortable
+          />
+
+          <el-table-column
+              label="备注"
+              min-width="180"
+              prop="remark"
+              show-overflow-tooltip
+          />
+          <el-table-column
+              label="激活"
+              width="80"
+              prop="enabled"
+              align="center"
+          >
+            <template v-slot="scope">
+              <el-switch
+                  v-model="scope.row.enabled"
+                  :disabled="permissionDisabled('sys:usr:enable')"
+                  :active-value="true"
+                  :inactive-value="false"
+                  @change="changeDictTypeEnabled(scope.row)"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
+              label="创建时间"
+              width="170"
+              prop="createdDate"
+              show-overflow-tooltip
+              sortable
+          />
+          <el-table-column
+              label="操作"
+              width="230"
+              align="center"
+          >
+            <template v-slot="scope">
+              <div class="el-link-parent">
+                <el-link
+                    v-permission="'sys:user:edit'"
+                    icon="el-icon-info"
+                    :underline="false"
+                    type="primary"
+                    @click="drawerDictOpen(scope.row)"
+                >详情</el-link>
+                <el-link
+                    v-permission="'sys:user:edit'"
+                    icon="el-icon-edit"
+                    :underline="false"
+                    type="primary"
+                    @click="editDictType(scope.row)"
+                >编辑</el-link>
+                <el-link
+                    v-permission="'sys:user:delete'"
+                    icon="el-icon-delete"
+                    :underline="false"
+                    type="danger"
+                    @click="deleteDictType(scope.row)"
+                >删除</el-link>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+        <!-- 分页控件 -->
+        <el-pagination
+            :current-page="dict.table.page"
+            :pager-count="dict.table.pagerCount"
+            :page-size="dict.table.size"
+            :page-sizes="dict.table.pageSizes"
+            :total="dict.table.total"
+            layout="total, sizes, prev, pager, next, jumper"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
         />
-        <el-table-column
-            label="操作"
-            width="230"
-            align="center"
-        >
-          <template v-slot="scope">
-            <div class="el-link-parent">
-              <el-link
-                  v-permission="'sys:user:edit'"
-                  icon="el-icon-info"
-                  :underline="false"
-                  type="primary"
-                  @click="drawerDictOpen(scope.row)"
-              >详情</el-link>
-              <el-link
-                  v-permission="'sys:user:edit'"
-                  icon="el-icon-edit"
-                  :underline="false"
-                  type="primary"
-                  @click="editDictType(scope.row)"
-              >编辑</el-link>
-              <el-link
-                  v-permission="'sys:user:delete'"
-                  icon="el-icon-delete"
-                  :underline="false"
-                  type="danger"
-                  @click="deleteDictType(scope.row)"
-              >删除</el-link>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
-      <!-- 分页控件 -->
-      <el-pagination
-          :current-page="dict.table.page"
-          :pager-count="dict.table.pagerCount"
-          :page-size="dict.table.size"
-          :page-sizes="dict.table.pageSizes"
-          :total="dict.table.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-      />
+      </div>
+
       <!--            <el-button @click="innerDrawer = true">打开里面的!</el-button>-->
 <!--      <el-drawer
           title="我是里面的"
@@ -218,6 +222,7 @@ import {deleteDictApi, pageDictApi} from "@/api/dict";
 import {isNotEmpty} from "@/utils/assertUtil";
 import UploadSingleExcel from "@/components/UploadExcel/UploadSingleExcel.vue";
 import {API_PREFIX} from "@/constant/commons";
+import {exportDictTemplateApi} from "@/api/file";
 
 export default {
   name: 'DictDrawer',
@@ -325,6 +330,13 @@ export default {
       },
       deep: true // 深度监听父组件传过来对象变化
     },
+    dictDrawerVisible: {
+      handler(n, o) {
+        if (n) {
+          this.loadPageDict();
+        }
+      }
+    }
   },
   computed: {
     /**
@@ -332,9 +344,6 @@ export default {
      */
     dictDrawerVisible: {
       get() {
-        if (this.visible) {
-          this.loadPageDict();
-        }
         return this.visible
       },
       /**
@@ -461,7 +470,7 @@ export default {
      * 下载模板
      */
     downloadImportTemplate() {
-      // exportUserTemplateApi();
+      exportDictTemplateApi();
     },
 
     /**

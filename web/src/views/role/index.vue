@@ -57,109 +57,111 @@
         </el-tooltip>
       </div>
     </div>
-    <!-- 表格  -->
-    <el-table
-      ref="table"
-      v-loading="isLoading"
-      style="width: 100%"
-      :data="role.roles"
-      row-key="id"
-      border
-      :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
-      :header-row-class-name="EL_TABLE.size"
-      :size="EL_TABLE.size"
-      @selection-change="selectionChangeFunc"
-    >
-      <el-table-column
-        width="50"
-        type="selection"
-        header-align="center"
-        align="center"
-        class-name="selection"
-      />
-      <el-table-column
-        width="50"
-        fixed
-        label="序号"
-        prop="serialNumber"
-        align="center"
+    <div class="el-table__body__pagination">
+      <!-- 表格  -->
+      <el-table
+          ref="table"
+          v-loading="isLoading"
+          style="width: 100%"
+          :data="role.roles"
+          row-key="id"
+          border
+          :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
+          :header-row-class-name="EL_TABLE.size"
+          :size="EL_TABLE.size"
+          @selection-change="selectionChangeFunc"
       >
-      </el-table-column>
-      <el-table-column
-        label="角色名称"
-        prop="name"
-        sortable
+        <el-table-column
+            width="50"
+            type="selection"
+            header-align="center"
+            align="center"
+            class-name="selection"
+        />
+        <el-table-column
+            width="50"
+            fixed
+            label="序号"
+            prop="serialNumber"
+            align="center"
+        >
+        </el-table-column>
+        <el-table-column
+            label="角色名称"
+            prop="name"
+            sortable
+        />
+        <el-table-column
+            label="用户数量"
+            prop="userNumber"
+            sortable
+        >
+          <template v-slot="scope">
+            <el-link :underline="false"
+                     type="primary"
+                     @click="showUsers(scope.row)">{{scope.row.userNumber}}
+            </el-link>
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="备注"
+            prop="remark"
+            show-overflow-tooltip
+        />
+        <el-table-column
+            label="创建时间"
+            prop="createdDate"
+            sortable
+        />
+        <el-table-column
+            label="操作"
+            align="center"
+        >
+          <template v-slot="scope">
+            <div class="el-link-parent">
+              <el-link
+                  v-permission="'sys:role:edit'"
+                  icon="el-icon-edit"
+                  :underline="false"
+                  type="primary"
+                  @click="editRole(scope.row)"
+              >编辑</el-link>
+              <el-link
+                  v-permission="'sys:role:permission:query'"
+                  icon="el-icon-finished"
+                  :underline="false"
+                  type="primary"
+                  @click="editRoleMenu(scope.row)"
+              >权限</el-link>
+              <el-link
+                  v-permission="'sys:role:delete'"
+                  icon="el-icon-delete"
+                  :underline="false"
+                  type="danger"
+                  @click="deleteRole(scope.row.id)"
+              >删除</el-link>
+            </div>
+          </template>
+        </el-table-column>
+        <!--隐藏-->
+        <el-table-column
+            v-if="false"
+            label="用户集合"
+            width="300"
+            prop="users"
+        />
+      </el-table>
+      <!-- 分页控件 -->
+      <el-pagination
+          :current-page="role.page"
+          :page-size="role.size"
+          :page-sizes="role.pageSizes"
+          :total="role.total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
       />
-      <el-table-column
-        label="用户数量"
-        prop="userNumber"
-        sortable
-      >
-        <template v-slot="scope">
-          <el-link :underline="false"
-                   type="primary"
-                   @click="showUsers(scope.row)">{{scope.row.userNumber}}
-          </el-link>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="备注"
-        prop="remark"
-        show-overflow-tooltip
-      />
-      <el-table-column
-        label="创建时间"
-        prop="createdDate"
-        sortable
-      />
-      <el-table-column
-        label="操作"
-        align="center"
-      >
-        <template v-slot="scope">
-          <div class="el-link-parent">
-            <el-link
-              v-permission="'sys:role:edit'"
-              icon="el-icon-edit"
-              :underline="false"
-              type="primary"
-              @click="editRole(scope.row)"
-            >编辑</el-link>
-            <el-link
-              v-permission="'sys:role:permission:query'"
-              icon="el-icon-finished"
-              :underline="false"
-              type="primary"
-              @click="editRoleMenu(scope.row)"
-            >权限</el-link>
-            <el-link
-              v-permission="'sys:role:delete'"
-              icon="el-icon-delete"
-              :underline="false"
-              type="danger"
-              @click="deleteRole(scope.row.id)"
-            >删除</el-link>
-          </div>
-        </template>
-      </el-table-column>
-      <!--隐藏-->
-      <el-table-column
-        v-if="false"
-        label="用户集合"
-        width="300"
-        prop="users"
-      />
-    </el-table>
-    <!-- 分页控件 -->
-    <el-pagination
-      :current-page="role.page"
-      :page-size="role.size"
-      :page-sizes="role.pageSizes"
-      :total="role.total"
-      layout="total, sizes, prev, pager, next, jumper"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    />
+    </div>
     <!--  新增角色弹窗  -->
     <CreateRoleDialog :create-role-dialog.sync="createRoleDialog" />
     <!--编辑角色弹窗-->

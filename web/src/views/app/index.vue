@@ -89,139 +89,140 @@
         </el-tooltip>
       </div>
     </div>
-    <!-- 表格  -->
-    <el-table
-      ref="table"
-      v-loading="isLoading"
-      border
-      :data="app.apps"
-      row-key="id"
-      style="width: 100%"
-      :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
-      :header-row-class-name="EL_TABLE.size"
-      :size="EL_TABLE.size"
-      @selection-change="selectionChangeFunc"
-    >
-      <el-table-column
-        width="50"
-        type="selection"
-        header-align="center"
-        align="center"
-        class-name="selection"
-      />
-      <el-table-column
-        fixed
-        label="序号"
-        width="50"
-        align="center"
+    <div class="el-table__body__pagination">
+      <!-- 表格  -->
+      <el-table
+          ref="table"
+          v-loading="isLoading"
+          border
+          :data="app.apps"
+          row-key="id"
+          style="width: 100%"
+          :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
+          :header-row-class-name="EL_TABLE.size"
+          :size="EL_TABLE.size"
+          @selection-change="selectionChangeFunc"
       >
-        <template v-slot="scope">
-          {{ (app.page - 1) * app.size + (scope.$index + 1) }}
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="应用id"
-        prop="id"
-        width="180"
-        sortable
+        <el-table-column
+            width="50"
+            type="selection"
+            header-align="center"
+            align="center"
+            class-name="selection"
+        />
+        <el-table-column
+            fixed
+            label="序号"
+            width="50"
+            align="center"
+        >
+          <template v-slot="scope">
+            {{ (app.page - 1) * app.size + (scope.$index + 1) }}
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="应用id"
+            prop="id"
+            width="180"
+            sortable
+        />
+        <el-table-column
+            label="应用密钥"
+            prop="secret"
+            width="280"
+            sortable
+        />
+        <el-table-column
+            label="应用名称"
+            width="100"
+            prop="name"
+            sortable
+        />
+        <el-table-column
+            label="首页地址"
+            prop="homePage"
+            show-overflow-tooltip
+        />
+        <el-table-column
+            label="状态"
+            width="70"
+            prop="status"
+            align="center"
+            sortable
+        >
+          <template v-slot="scope">
+            <span v-if="scope.row.enabled == true">已激活</span>
+            <span v-else>未激活</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="备注"
+            prop="remark"
+            sortable
+            show-overflow-tooltip
+        />
+        <el-table-column
+            label="创建时间"
+            prop="createdDate"
+            width="160"
+            sortable
+        />
+        <!--操作-->
+        <el-table-column
+            label="操作"
+            align="center"
+            width="200"
+        >
+          <template v-slot="scope">
+            <div class="el-link-parent">
+              <el-link
+                  v-permission="'sys:app:cert:query'"
+                  icon="el-icon-edit"
+                  :underline="false"
+                  type="primary"
+                  @click="dialogCertOpen(scope.row)"
+              >证书
+              </el-link>
+              <el-link
+                  v-permission="'sys:app:edit'"
+                  icon="el-icon-edit"
+                  :underline="false"
+                  type="primary"
+                  :disabled="Number(scope.row.id) === 1"
+                  @click="update(scope.row)"
+              >修改
+              </el-link>
+              <el-link
+                  v-permission="'sys:app:delete'"
+                  icon="el-icon-delete"
+                  :underline="false"
+                  type="danger"
+                  :disabled="Number(scope.row.id) === 1"
+                  @click="deleteRow(scope.row)"
+              >删除
+              </el-link>
+            </div>
+          </template>
+        </el-table-column>
+        <!--隐藏-->
+        <el-table-column
+            v-if="false"
+            label="id"
+            prop="id"
+        />
+      </el-table>
+      <!-- 分页控件 -->
+      <el-pagination
+          :current-page="app.page"
+          :pager-count="app.pagerCount"
+          :page-size="app.size"
+          :page-sizes="app.pageSizes"
+          :total="app.total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
       />
-      <el-table-column
-        label="应用密钥"
-        prop="secret"
-        width="280"
-        sortable
-      />
-      <el-table-column
-        label="应用名称"
-        width="100"
-        prop="name"
-        sortable
-      />
-      <el-table-column
-        label="首页地址"
-        prop="homePage"
-        show-overflow-tooltip
-      />
-      <el-table-column
-        label="状态"
-        width="70"
-        prop="status"
-        align="center"
-        sortable
-      >
-        <template v-slot="scope">
-          <span v-if="scope.row.enabled == true">已激活</span>
-          <span v-else>未激活</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="备注"
-        prop="remark"
-        sortable
-        show-overflow-tooltip
-      />
-      <el-table-column
-        label="创建时间"
-        prop="createdDate"
-        width="160"
-        sortable
-      />
-      <!--操作-->
-      <el-table-column
-        label="操作"
-        align="center"
-        width="200"
-      >
-        <template v-slot="scope">
-          <div class="el-link-parent">
-            <el-link
-              v-permission="'sys:app:cert:query'"
-              icon="el-icon-edit"
-              :underline="false"
-              type="primary"
-              @click="dialogCertOpen(scope.row)"
-            >证书
-            </el-link>
-            <el-link
-              v-permission="'sys:app:edit'"
-              icon="el-icon-edit"
-              :underline="false"
-              type="primary"
-              :disabled="Number(scope.row.id) === 1"
-              @click="update(scope.row)"
-            >修改
-            </el-link>
-            <el-link
-              v-permission="'sys:app:delete'"
-              icon="el-icon-delete"
-              :underline="false"
-              type="danger"
-              :disabled="Number(scope.row.id) === 1"
-              @click="deleteRow(scope.row)"
-            >删除
-            </el-link>
-          </div>
-        </template>
-      </el-table-column>
-      <!--隐藏-->
-      <el-table-column
-        v-if="false"
-        label="id"
-        prop="id"
-      />
-    </el-table>
-    <!-- 分页控件 -->
-    <el-pagination
-      :current-page="app.page"
-      :pager-count="app.pagerCount"
-      :page-size="app.size"
-      :page-sizes="app.pageSizes"
-      :total="app.total"
-      layout="total, sizes, prev, pager, next, jumper"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    />
-
+    </div>
     <!--  新增应用弹窗  -->
     <el-dialog title="新增应用" width="600px" :visible.sync="dialog.create.open" @close="dialog.create.open = false">
       <el-form ref="createForm" :model="dialog.create.form.data" :rules="dialog.create.form.rules" label-width="80px">

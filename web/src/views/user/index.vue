@@ -72,150 +72,152 @@
         </el-tooltip>
       </div>
     </div>
-    <!-- 表格  -->
-    <el-table
-      ref="table"
-      v-loading="isLoading"
-      border
-      :data="user.users"
-      row-key="id"
-      style="width: 100%"
-      :row-class-name="tableRowClassName"
-      :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
-      :header-row-class-name="EL_TABLE.size"
-      :size="EL_TABLE.size"
-      @selection-change="selectionChangeFunc"
-    >
-      <el-table-column
-        width="50"
-        type="selection"
-        header-align="center"
-        align="center"
-        class-name="selection"
-      />
-      <el-table-column
-        width="50"
-        fixed
-        label="序号"
-        prop="serialNumber"
-        align="center"
-      />
-      <el-table-column
-        label="用户名"
-        min-width="50"
-        prop="username"
-        sortable
-      />
-      <el-table-column
-        label="角色"
-        min-width="100"
-        sortable
-        show-overflow-tooltip
+    <div class="el-table__body__pagination">
+      <!-- 表格  -->
+      <el-table
+          ref="table"
+          v-loading="isLoading"
+          border
+          :data="user.users"
+          row-key="id"
+          style="width: 100%"
+          :row-class-name="tableRowClassName"
+          :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
+          :header-row-class-name="EL_TABLE.size"
+          :size="EL_TABLE.size"
+          @selection-change="selectionChangeFunc"
       >
-        <template v-slot="scope">
+        <el-table-column
+            width="50"
+            type="selection"
+            header-align="center"
+            align="center"
+            class-name="selection"
+        />
+        <el-table-column
+            width="50"
+            fixed
+            label="序号"
+            prop="serialNumber"
+            align="center"
+        />
+        <el-table-column
+            label="用户名"
+            min-width="50"
+            prop="username"
+            sortable
+        />
+        <el-table-column
+            label="角色"
+            min-width="100"
+            sortable
+            show-overflow-tooltip
+        >
+          <template v-slot="scope">
           <span v-for="item in scope.row.roles" :key="item.id">
             <el-tag size="small">{{ item.name }}</el-tag> <br>
           </span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="账号有效期"
-        width="170"
-        prop="validTime"
-        show-overflow-tooltip
-        sortable
-      />
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="账号有效期"
+            width="170"
+            prop="validTime"
+            show-overflow-tooltip
+            sortable
+        />
 
-      <el-table-column
-        label="激活"
-        width="80"
-        prop="enabled"
-        align="center"
-      >
-        <template v-slot="scope">
-          <el-switch
-            v-model="scope.row.enabled"
-            :disabled="permissionDisabled('sys:user:enable')"
-            :active-value="true"
-            :inactive-value="false"
-            @change="changeEnabled(scope.row)"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="锁定"
-        width="80"
-        prop="locked"
-        align="center"
-      >
-        <template v-slot="scope">
-          <el-switch
-            v-model="scope.row.locked"
-            :disabled="permissionDisabled('sys:user:lock')"
-            :active-value="true"
-            :inactive-value="false"
-            active-color="#F56C6C"
-            inactive-color="#C0CCDA"
-            @change="changeLocked(scope.row)"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column
-          label="备注"
-          min-width="180"
-          prop="remark"
-          show-overflow-tooltip
+        <el-table-column
+            label="激活"
+            width="80"
+            prop="enabled"
+            align="center"
+        >
+          <template v-slot="scope">
+            <el-switch
+                v-model="scope.row.enabled"
+                :disabled="permissionDisabled('sys:user:enable')"
+                :active-value="true"
+                :inactive-value="false"
+                @change="changeEnabled(scope.row)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="锁定"
+            width="80"
+            prop="locked"
+            align="center"
+        >
+          <template v-slot="scope">
+            <el-switch
+                v-model="scope.row.locked"
+                :disabled="permissionDisabled('sys:user:lock')"
+                :active-value="true"
+                :inactive-value="false"
+                active-color="#F56C6C"
+                inactive-color="#C0CCDA"
+                @change="changeLocked(scope.row)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="备注"
+            min-width="180"
+            prop="remark"
+            show-overflow-tooltip
+        />
+        <el-table-column
+            label="创建时间"
+            width="170"
+            prop="createdDate"
+            show-overflow-tooltip
+            sortable
+        />
+        <el-table-column
+            label="操作"
+            width="230"
+            align="center"
+        >
+          <template v-slot="scope">
+            <div class="el-link-parent">
+              <el-link
+                  v-permission="'sys:user:edit'"
+                  icon="el-icon-edit"
+                  :underline="false"
+                  type="primary"
+                  @click="editUser(scope.row)"
+              >编辑</el-link>
+              <el-link
+                  v-permission="'sys:user:reset-password'"
+                  icon="el-icon-key"
+                  :underline="false"
+                  type="warning"
+                  @click="resetPassword(scope.row)"
+              >重置密码</el-link>
+              <el-link
+                  v-permission="'sys:user:delete'"
+                  icon="el-icon-delete"
+                  :underline="false"
+                  type="danger"
+                  @click="deleteUser(scope.row)"
+              >删除</el-link>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!-- 分页控件 -->
+      <el-pagination
+          :current-page="user.page"
+          :pager-count="user.pagerCount"
+          :page-size="user.size"
+          :page-sizes="user.pageSizes"
+          :total="user.total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
       />
-      <el-table-column
-          label="创建时间"
-          width="170"
-          prop="createdDate"
-          show-overflow-tooltip
-          sortable
-      />
-      <el-table-column
-        label="操作"
-        width="230"
-        align="center"
-      >
-        <template v-slot="scope">
-          <div class="el-link-parent">
-            <el-link
-              v-permission="'sys:user:edit'"
-              icon="el-icon-edit"
-              :underline="false"
-              type="primary"
-              @click="editUser(scope.row)"
-            >编辑</el-link>
-            <el-link
-              v-permission="'sys:user:reset-password'"
-              icon="el-icon-key"
-              :underline="false"
-              type="warning"
-              @click="resetPassword(scope.row)"
-            >重置密码</el-link>
-            <el-link
-              v-permission="'sys:user:delete'"
-              icon="el-icon-delete"
-              :underline="false"
-              type="danger"
-              @click="deleteUser(scope.row)"
-            >删除</el-link>
-          </div>
-        </template>
-      </el-table-column>
-    </el-table>
-    <!-- 分页控件 -->
-    <el-pagination
-      :current-page="user.page"
-      :pager-count="user.pagerCount"
-      :page-size="user.size"
-      :page-sizes="user.pageSizes"
-      :total="user.total"
-      layout="total, sizes, prev, pager, next, jumper"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    />
+    </div>
     <!-- 新增用户弹框 -->
     <CreateUserDialog :create-user-dialog.sync="createUserDialog" />
     <!-- 编辑用户弹框 -->

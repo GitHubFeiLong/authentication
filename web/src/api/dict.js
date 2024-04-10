@@ -38,7 +38,7 @@ export function createBaseDictTypeApi(data) {
 
 /**
  * 根据字典类型ID查询字典类型信息
- * @param {Number}   id       字典类型ID
+ * @param {Number | String}   id       字典类型ID
  */
 export function getBaseDictTypeByIdApi(id) {
   return request({

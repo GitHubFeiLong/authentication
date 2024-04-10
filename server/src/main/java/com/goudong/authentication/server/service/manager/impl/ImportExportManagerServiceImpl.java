@@ -10,10 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.goudong.authentication.common.util.JsonUtil;
 import com.goudong.authentication.server.constant.CommonConst;
 import com.goudong.authentication.server.domain.BaseMenu;
-import com.goudong.authentication.server.easyexcel.listener.BaseAppImportExcelListener;
-import com.goudong.authentication.server.easyexcel.listener.BaseMenuImportExcelListener;
-import com.goudong.authentication.server.easyexcel.listener.BaseRoleImportExcelListener;
-import com.goudong.authentication.server.easyexcel.listener.BaseUserImportExcelListener;
+import com.goudong.authentication.server.easyexcel.listener.*;
 import com.goudong.authentication.server.easyexcel.template.*;
 import com.goudong.authentication.server.enums.option.ActivateEnum;
 import com.goudong.authentication.server.enums.option.LockEnum;
@@ -21,16 +18,15 @@ import com.goudong.authentication.server.enums.option.MenuTypeEnum;
 import com.goudong.authentication.server.properties.AuthenticationServerProperties;
 import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.req.search.BaseAppPageReq;
-import com.goudong.authentication.server.rest.resp.BaseAppPageResp;
-import com.goudong.authentication.server.rest.resp.BaseRoleDropDownResp;
-import com.goudong.authentication.server.rest.resp.BaseRolePageResp;
-import com.goudong.authentication.server.rest.resp.BaseUserPageResp;
+import com.goudong.authentication.server.rest.resp.*;
+import com.goudong.authentication.server.service.BaseDictTypeService;
 import com.goudong.authentication.server.service.BaseMenuService;
 import com.goudong.authentication.server.service.BaseRoleService;
 import com.goudong.authentication.server.service.BaseUserService;
 import com.goudong.authentication.server.service.dto.BaseMenuDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseAppManagerService;
+import com.goudong.authentication.server.service.manager.BaseDictManagerService;
 import com.goudong.authentication.server.service.manager.ImportExportManagerService;
 import com.goudong.authentication.server.service.mapper.BaseMenuMapper;
 import com.goudong.authentication.server.util.SecurityContextUtil;
@@ -118,6 +114,18 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
      */
     @Resource
     private BaseAppManagerService baseAppManagerService;
+
+    /**
+     * 字典管理层服务
+     */
+    @Resource
+    private BaseDictManagerService baseDictManagerService;
+
+    /**
+     * 字典管理层服务
+     */
+    @Resource
+    private BaseDictTypeService baseDictTypeService;
 
     @Resource
     private ObjectMapper objectMapper;
@@ -541,6 +549,101 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
 
         } catch (IOException e) {
             throw new RuntimeException("导出应用失败：" + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 导入字典类型
+     *
+     * @param req 导入参数
+     * @return true：导入成功
+     */
+    @Override
+    public Boolean importDictType(BaseDictTypeImportReq req) {
+        try {
+            MyAuthentication myAuthentication = SecurityContextUtil.get();
+            EasyExcel.read(req.getFile().getInputStream(), BaseDictTypeImportExcelTemplate.class,
+                            new BaseDictTypeImportExcelListener(baseDictTypeService, transactionTemplate, myAuthentication))
+                    .sheet()
+                    // 第二行开始解析
+                    .headRowNumber(2)
+                    .doRead();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
+
+    /**
+     * 导出字典类型
+     *
+     * @param response 响应对象
+     * @param req      导出参数
+     */
+    @Override
+    public void exportDictType(HttpServletResponse response, BaseDictTypeExportReq req) {
+        log.info("开始执行字典类型导出");
+        String fileName = "导出字典类型" + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
+        // 这里注意 有同学反应使用swagger 会导致各种问题，请直接用浏览器或者用postman
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
+        try {
+            fileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        response.setHeader("Content-disposition", "attachment;filename*=" + fileName + ".xlsx");
+
+        // 这里 需要指定写用哪个class去写
+        try (ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream(), BaseDictTypeExportTemplate.class)
+                .registerConverter(new LongStringConverter())
+                .build()) {
+            // 这里注意 如果同一个sheet只要创建一次
+            WriteSheet writeSheet = EasyExcel.writerSheet("sheet01").build();
+            /*
+                分页写入excel，对内存友好
+             */
+            // 分页查询
+            BaseDictTypePageReq pageReq = req.getPageReq();
+            // 每次查询100条
+            pageReq.setSize(100);
+            pageReq.setIds(req.getIds());
+            // 初始分页设置0
+            int page = 0;
+            // 总店铺数量
+            long total = 0;
+            AtomicInteger sequenceNumber = new AtomicInteger(1);
+            do {
+                List<BaseDictTypeExportTemplate> result = new ArrayList<>();
+                // 页码加一
+                page += 1;
+                pageReq.setPage(page);
+                // 分页查询(展开的)
+                PageResult<BaseDictTypePageResp> pageResult = baseDictManagerService.pageBaseDictType(pageReq);
+                // 获取总数量
+                total = pageResult.getTotal();
+
+                // 将数据放入resule中
+                pageResult.getContent().forEach(p -> {
+                    BaseDictTypeExportTemplate resp = new BaseDictTypeExportTemplate();
+                    resp.setSequenceNumber(sequenceNumber.getAndIncrement());
+                    resp.setCode(p.getCode());
+                    resp.setName(p.getName());
+                    resp.setDictNumber(p.getDictNumber());
+                    resp.setTemplate(p.getTemplate());
+                    resp.setEnableStatus(ActivateEnum.ACTIVATED.getById(p.getEnabled()).getLabel());
+                    resp.setRemark(p.getRemark());
+                    resp.setCreatedDate(p.getCreatedDate());
+                    result.add(resp);
+                });
+
+                // 调用写入
+                excelWriter.write(result, writeSheet);
+            } while (((long) page * pageReq.getSize()) < total);
+
+        } catch (IOException e) {
+            throw new RuntimeException("导出字典类型失败：" + e.getMessage(), e);
         }
     }
 }

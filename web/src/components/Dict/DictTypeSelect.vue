@@ -1,7 +1,7 @@
 <!--字典类型编码模糊下拉分页-->
 <template>
   <el-select
-      v-model="code"
+      v-model="selectedValue"
       v-loadmore="loadMore"
       style="width: 230px;"
       :loading="loading"
@@ -24,13 +24,21 @@
 
 import {dropDownDictTypeApi} from '@/api/dropDown';
 import {loadmore} from '@/directive/select/index'
+import {getBaseDictTypeByIdApi} from "@/api/dict";
 export default {
   directives: { loadmore },
-  props: ['value'],
+  props: {
+    // 字典类型ID
+    defaultSelectId:{
+      required: false,
+      type: String,
+    },
+  },
   data() {
     return {
       code: undefined,
       loading: false,
+      selectedValue: undefined,
       data: [],
       page: 1,
       size: 10,
@@ -41,6 +49,32 @@ export default {
     // 优先加载表格数据
     this.load(this.code)
   },
+  watch:{
+    /**
+     * 变更时，需要选中指定下拉选项
+     */
+    defaultSelectId: {
+      handler(n, o){
+        if (n !== undefined && n !== null && n !== '') {
+          let item = this.data.find(item => item.id === n);
+          // 不存在，就查询出来
+          if (item === undefined || item === null) {
+            getBaseDictTypeByIdApi(n).then(dt => {
+              let op = {id: dt.id, code: dt.code, name: dt.name};
+              // 只有不存在时，才添加到数组中
+              if (this.data.find(item => item.id === op.id) === undefined) {
+                this.data.push(op)
+              }
+              this.selectedValue = n
+            })
+          } else { // 存在就默认选中
+            console.log("存在选中他")
+            this.selectedValue = n
+          }
+        }
+      }
+    }
+  },
   methods: {
     load() {
       this.loading = true
@@ -49,9 +83,34 @@ export default {
         console.log(data)
         this.totalPage = Number(data.totalPage)
         const content = data.content
+        // 添加到数组中
         content.forEach(item => {
-          this.data.push({ id: item.id, code: item.code, name: item.name })
+          // 只有不存在时，才添加到数组中
+          let op = {id: item.id, code: item.code, name: item.name};
+          if (this.data.find(item => item.id === op.id) === undefined) {
+            this.data.push(op)
+          }
         })
+
+        // 首次加载时，监视器watch不会执行，这里需要查询默认选项
+        if (this.defaultSelectId !== undefined && this.defaultSelectId !== null && this.defaultSelectId !== '') {
+          let findItem = this.data.find(item => item.id === this.defaultSelectId);
+          if (findItem === undefined || findItem === null) {
+            // 不存在，就查询出来
+            getBaseDictTypeByIdApi(this.defaultSelectId).then(dt => {
+              let op = {id: dt.id, code: dt.code, name: dt.name};
+              // 只有不存在时，才添加到数组中
+              if (this.data.find(item => item.id === op.id) === undefined) {
+                this.data.push(op)
+              }
+              this.selectedValue = this.defaultSelectId
+            })
+          } else { // 存在就默认选中
+            console.log("存在选中他")
+            this.selectedValue = this.defaultSelectId
+          }
+        }
+
       }).catch(err => {
         console.warn('err', err)
       }).finally(() => {

@@ -84,146 +84,150 @@
         </el-tooltip>
       </div>
     </div>
-    <!-- 表格  -->
-    <!--      @selection-change="selectionChangeFunc"-->
-    <el-table
-      ref="table"
-      v-loading="table.isLoading"
-      border
-      :data="table.data"
-      :key="dataKey"
-      :expand-row-keys="table.expandKeys"
-      row-key="id"
-      style="width: 100%"
-      :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
-      :header-row-class-name="table.EL_TABLE.size"
-      :size="table.EL_TABLE.size"
 
-      @select="select"
-      @select-all="selectAll"
-    >
-      <el-table-column
-          width="50"
-          type="selection"
-          header-align="center"
-          align="center"
-          class-name="selection"
-      />
-      <el-table-column
-        type="index"
-        label="排序"
-        width="50"
-        align="center"
-        :class-name="switchClassName"
+    <div class="el-table__body__pagination">
+      <!-- 表格  -->
+      <!--      @selection-change="selectionChangeFunc"-->
+      <el-table
+          ref="table"
+          v-loading="table.isLoading"
+          border
+          :data="table.data"
+          :key="dataKey"
+          :expand-row-keys="table.expandKeys"
+          row-key="id"
+          style="width: 100%"
+          :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
+          :header-row-class-name="table.EL_TABLE.size"
+          :size="table.EL_TABLE.size"
+
+          @select="select"
+          @select-all="selectAll"
       >
-        <i class="el-icon-s-promotion handle" />
-      </el-table-column>
-      <el-table-column
-        label="名称"
-        min-width="150"
-        prop="name"
-        show-overflow-tooltip
-      />
-      <el-table-column
-        label="权限标识"
-        min-width="150"
-        prop="permissionId"
-        show-overflow-tooltip
-      >
-        <template v-slot="scope">
+        <el-table-column
+            width="50"
+            type="selection"
+            header-align="center"
+            align="center"
+            class-name="selection"
+        />
+        <el-table-column
+            type="index"
+            label="排序"
+            width="50"
+            align="center"
+            :class-name="switchClassName"
+        >
+          <i class="el-icon-s-promotion handle" />
+        </el-table-column>
+        <el-table-column
+            label="名称"
+            min-width="150"
+            prop="name"
+            show-overflow-tooltip
+        />
+        <el-table-column
+            label="权限标识"
+            min-width="150"
+            prop="permissionId"
+            show-overflow-tooltip
+        >
+          <template v-slot="scope">
           <span class="copy_column_class el-icon-document-copy" @click="copyPermissionId(scope.row)">
             <span style="width: 5px; display: inline-block;"></span>{{scope.row.permissionId}}
           </span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="类型"
-        prop="type"
-        max-width="50"
-      >
-        <template v-slot="scope">
-          <span v-if="scope.row.type === 1">菜单</span>
-          <span v-else-if="scope.row.type === 2">按钮</span>
-          <span v-else-if="scope.row.type === 3">接口</span>
-          <span v-else>未知类型</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="资源路径"
-        width="170"
-        prop="path"
-        show-overflow-tooltip
-      >
-        <template v-slot="scope">
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="类型"
+            prop="type"
+            max-width="50"
+        >
+          <template v-slot="scope">
+            <span v-if="scope.row.type === 1">菜单</span>
+            <span v-else-if="scope.row.type === 2">按钮</span>
+            <span v-else-if="scope.row.type === 3">接口</span>
+            <span v-else>未知类型</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="资源路径"
+            width="170"
+            prop="path"
+            show-overflow-tooltip
+        >
+          <template v-slot="scope">
           <span class="copy_column_class el-icon-document-copy" @click="copyPath(scope.row)">
             <span style="width: 5px; display: inline-block;"></span>{{scope.row.path}}
           </span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="请求方式"
-        width="100"
-        prop="method"
-        align="left"
-        show-overflow-tooltip
-      >
-        <template v-slot="scope">
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="请求方式"
+            width="100"
+            prop="method"
+            align="left"
+            show-overflow-tooltip
+        >
+          <template v-slot="scope">
           <span v-for="item in getMethod(scope.row)" :key="item">
             <el-tag size="small" :class="item" class="http_method_tag">{{ item }}</el-tag> <br>
           </span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="排序"
-        width="50"
-        prop="sortNum"
-      />
-      <el-table-column
-        label="隐藏"
-        width="50"
-        prop="hide"
-      >
-        <template v-slot="scope">
-          <span>{{ scope.row.hide ? '隐藏' : '可见' }}</span>
-        </template>
-    </el-table-column>
-      <el-table-column
-        label="备注"
-        width="100"
-        prop="remark"
-        show-overflow-tooltip
-      />
-      <el-table-column
-          label="创建时间"
-          width="150"
-          prop="createdDate"
-          show-overflow-tooltip
-      />
-      <el-table-column
-        label="操作"
-        width="230"
-        align="center"
-      >
-        <template v-slot="scope">
-          <div class="el-link-parent">
-            <el-link
-              v-permission="'sys:menu:edit'"
-              icon="el-icon-edit"
-              :underline="false"
-              type="primary"
-              @click="updateMenu(scope.row)"
-            >编辑</el-link>
-            <el-link
-              v-permission="'sys:menu:delete'"
-              icon="el-icon-delete"
-              :underline="false"
-              type="danger"
-              @click="deleteMenu(scope.row)"
-            >删除</el-link>
-          </div>
-        </template>
-      </el-table-column>
-    </el-table>
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="排序"
+            width="50"
+            prop="sortNum"
+        />
+        <el-table-column
+            label="隐藏"
+            width="50"
+            prop="hide"
+        >
+          <template v-slot="scope">
+            <span>{{ scope.row.hide ? '隐藏' : '可见' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="备注"
+            width="100"
+            prop="remark"
+            show-overflow-tooltip
+        />
+        <el-table-column
+            label="创建时间"
+            width="150"
+            prop="createdDate"
+            show-overflow-tooltip
+        />
+        <el-table-column
+            label="操作"
+            width="230"
+            align="center"
+        >
+          <template v-slot="scope">
+            <div class="el-link-parent">
+              <el-link
+                  v-permission="'sys:menu:edit'"
+                  icon="el-icon-edit"
+                  :underline="false"
+                  type="primary"
+                  @click="updateMenu(scope.row)"
+              >编辑</el-link>
+              <el-link
+                  v-permission="'sys:menu:delete'"
+                  icon="el-icon-delete"
+                  :underline="false"
+                  type="danger"
+                  @click="deleteMenu(scope.row)"
+              >删除</el-link>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+
     <!--  新增菜单弹窗  -->
     <CreateMenuDialog :create-menu-dialog.sync="createMenuDialog" :refresh-menu="load" />
     <!--  修改菜单弹窗  -->

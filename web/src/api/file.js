@@ -119,6 +119,108 @@ export function exportMenuApi(data) {
   })
 }
 
+// ~ 字典类型
+// =====================================================================================================================
+/**
+ * 导出字典类型模板
+ */
+export function exportDictTypeTemplateApi() {
+  return request({
+    url: `${API_PREFIX}/import-export/export-dict-type-template`,
+    method: 'get',
+    responseType: 'blob',
+  }).then(response => {
+    exportExcel(response)
+  })
+}
+
+/**
+ * 导出字典类型
+ * @param {object} data                     导出参数
+ * @param {array} data.ids                  勾选的id
+ * @param {object} data.pageReq             查询参数
+ * @param {string} data.pageReq.code        字典类型编码
+ * @param {string} data.pageReq.name        字典类型名称
+ */
+export function exportDictTypeApi(data) {
+  return request({
+    url: `${API_PREFIX}/import-export/export-dict-type`,
+    method: 'post',
+    data,
+    responseType: 'blob',
+  }).then(response => {
+    exportExcel(response)
+  })
+}
+
+// ~ 字典明细
+// =====================================================================================================================
+/**
+ * 导出字典明细模板
+ */
+export function exportDictTemplateApi() {
+  return request({
+    url: `${API_PREFIX}/import-export/export-dict-template`,
+    method: 'get',
+    responseType: 'blob',
+  }).then(response => {
+    exportExcel(response)
+  })
+}
+
+/**
+ * 导出字典明细
+ * @param {object} data                     导出参数
+ * @param {array} data.ids                  勾选的id
+ * @param {object} data.pageReq             查询参数
+ * @param {string} data.pageReq.code        字典类型编码
+ * @param {string} data.pageReq.name        字典类型名称
+ */
+export function exportDictApi(data) {
+  return request({
+    url: `${API_PREFIX}/import-export/export-dict`,
+    method: 'post',
+    data,
+    responseType: 'blob',
+  }).then(response => {
+    exportExcel(response)
+  })
+}
+
+// ~ 字典配置
+// =====================================================================================================================
+/**
+ * 导出字典配置模板
+ */
+export function exportDictSettingTemplateApi() {
+  return request({
+    url: `${API_PREFIX}/import-export/export-dict-setting-template`,
+    method: 'get',
+    responseType: 'blob',
+  }).then(response => {
+    exportExcel(response)
+  })
+}
+
+/**
+ * 导出字典配置
+ * @param {object} data                     导出参数
+ * @param {array} data.ids                  勾选的id
+ * @param {object} data.pageReq             查询参数
+ * @param {string} data.pageReq.code        字典类型编码
+ * @param {string} data.pageReq.name        字典类型名称
+ */
+export function exportDictSettingApi(data) {
+  return request({
+    url: `${API_PREFIX}/import-export/export-dict-setting`,
+    method: 'post',
+    data,
+    responseType: 'blob',
+  }).then(response => {
+    exportExcel(response)
+  })
+}
+
 // ~ 应用管理
 // =====================================================================================================================
 /**

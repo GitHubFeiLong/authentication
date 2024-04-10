@@ -49,7 +49,7 @@ public class DataBaseAuditListener {
             aClass = object.getClass();
         }
         try {
-            // 填充创建用户Id
+            // 填充创建应用Id
             fillAppId(object, aClass, APP_ID);
             // 填充创建用户
             fillCreateUser(object, aClass, CREATED_BY);
@@ -117,13 +117,13 @@ public class DataBaseAuditListener {
             Field appId = aClass.getDeclaredField(propertyName);
             appId.setAccessible(true);
 
-            // 没有特意设置用户id，就需要设置用户id
+            // 没有特意设置应用id，就需要设置应用id
             Object appIdValue = appId.get(object);
             if (appIdValue == null) {
-                // 获取userId值
+                // 获取登录用户
                 MyAuthentication myAuthentication = (MyAuthentication)SecurityContextHolder.getContext().getAuthentication();
-                if (myAuthentication != null && myAuthentication.getAppId() != null) {
-                    appId.set(object, myAuthentication.getAppId());
+                if (myAuthentication != null && myAuthentication.getRealAppId() != null) {
+                    appId.set(object, myAuthentication.getRealAppId());
                 } else {
                     // 注意：反射时，不会自动装箱和拆箱
                     // 在此处使用当前用户id或默认用户id

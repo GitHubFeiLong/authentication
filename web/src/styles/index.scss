@@ -124,8 +124,15 @@ aside {
 //main-container全局样式
 .app-container {
   padding: 20px;
-  height: calc(100% - 30px) !important;
-  overflow: auto;
+  height: 100%;
+  //height: calc(100% - 30px) !important;
+  //overflow: auto;
+
+  .el-table__body__pagination{
+    max-height: calc(100% - 120px) !important;
+    padding-bottom: 20px;
+    overflow: auto;
+  }
 }
 
 .app-grayness-container {
