@@ -43,6 +43,12 @@ public class BaseDictCreateReq {
     private String name;
 
     /**
+     * 字典配置模板注释
+     */
+    @ApiModelProperty("字典配置模板注释")
+    private String template;
+
+    /**
      * 是否激活（true：已激活；false：未激活）
      */
     @NotNull(message="[是否激活（true：已激活；false：未激活）]不能为空")

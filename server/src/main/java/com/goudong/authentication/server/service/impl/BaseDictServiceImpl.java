@@ -148,6 +148,12 @@ public class BaseDictServiceImpl implements BaseDictService {
     @Override
     public BaseDict save(BaseDict baseDict) {
         log.info("保存字典");
+        if (baseDict.getEnabled() == null) {
+            baseDict.setEnabled(true);
+        }
+        if (StringUtil.isBlank(baseDict.getTemplate())) {
+            baseDict.setTemplate("{}");
+        }
         return baseDictRepository.save(baseDict);
     }
 
@@ -168,7 +174,8 @@ public class BaseDictServiceImpl implements BaseDictService {
             andPredicateList.add(criteriaBuilder.equal(root.get("id"), id));
             return criteriaBuilder.and(andPredicateList.toArray(new Predicate[andPredicateList.size()]));
         };
-        return baseDictRepository.findOne(specification).orElseThrow(() -> ClientException.client("字典不存在"));
+        BaseDict baseDict = baseDictRepository.findOne(specification).orElseThrow(() -> ClientException.client("字典不存在"));
+        return baseDict;
     }
 
     /**

@@ -59,6 +59,15 @@ public class BaseDict extends BasePO implements Serializable {
     @ApiModelProperty(value = "字典名", required = true)
     @Length(max= 16,message="编码长度不能超过16")
     private String name;
+
+    /**
+     * 字典配置模板注释
+     */
+    @Column(name = "template", columnDefinition = "json")
+    @ApiModelProperty(value = "字典模板注释",required = true)
+    @NotBlank(message="[字典模板注释]不能为空")
+    private String template;
+
     /**
     * 是否激活（true：已激活；false：未激活）
     */

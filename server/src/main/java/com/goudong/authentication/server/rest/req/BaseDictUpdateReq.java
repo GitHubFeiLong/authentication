@@ -42,6 +42,11 @@ public class BaseDictUpdateReq {
     @Length(max= 16,message="编码长度不能超过16")
     private String name;
 
+    /**
+     * 字典配置模板注释
+     */
+    @ApiModelProperty("字典配置模板注释")
+    private String template;
 
     /**
      * 是否激活（true：已激活；false：未激活）

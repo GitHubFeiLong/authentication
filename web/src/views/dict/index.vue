@@ -201,7 +201,6 @@
           <el-select
               v-model="dialog.dictType.create.data.enabled"
               placeholder="请选择激活状态"
-              clearable
           >
             <el-option
                 v-for="item in [{label : '已激活', value : true},{label : '未激活', value : false}]"
@@ -237,7 +236,6 @@
           <el-select
               v-model="dialog.dictType.edit.data.enabled"
               placeholder="请选择激活状态"
-              clearable
           >
             <el-option
                 v-for="item in [{label : '已激活', value : true},{label : '未激活', value : false}]"

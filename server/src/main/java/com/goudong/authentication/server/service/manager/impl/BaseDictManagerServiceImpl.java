@@ -24,7 +24,10 @@ import com.goudong.authentication.server.service.mapper.BaseDictTypeMapper;
 import com.goudong.authentication.server.util.BeanSearcherUtil;
 import com.goudong.authentication.server.util.PageResultUtil;
 import com.goudong.authentication.server.util.SecurityContextUtil;
+import com.goudong.boot.web.core.BasicException;
+import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.lang.PageResult;
+import com.goudong.core.util.AssertUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -183,11 +186,13 @@ public class BaseDictManagerServiceImpl implements BaseDictManagerService {
     @Override
     @Transactional
     public BaseDictDTO createBaseDict(BaseDictCreateReq req) {
+        // 参数校验
+        baseDictTypeService.findById(req.getDictTypeId());
+
         MyAuthentication myAuthentication = SecurityContextUtil.get();
         BaseDict baseDict = BeanUtil.copyProperties(req, BaseDict.class);
         baseDict.setAppId(myAuthentication.getRealAppId());
-        // 参数校验
-        baseDictTypeService.findById(req.getDictTypeId());
+
         return baseDictMapper.toDto(baseDictService.save(baseDict));
     }
 

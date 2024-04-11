@@ -1,18 +1,17 @@
-<!--字典明细抽屉-->
+<!--字典配置抽屉-->
 <template>
   <!--   抽屉 字典明细   -->
   <el-drawer custom-class="el-drawer__table"
              size="70%"
-             title="字典明细"
-             :visible.sync="dictDrawerVisible"
-             :append-to-body="false"
+             title="字典配置"
+             :visible.sync="dictSettingDrawerVisible"
   >
     <div>
       <!--  查询条件  -->
       <div class="filter-container">
         <div class="filter-item">
           <span class="filter-item-label">字典类型: </span>
-          <DictTypeSelect :default-select-id="dict.table.filter.dictTypeId" :clearable="false" @changeDictType="changeDictType"/>
+          <DictTypeSelect :default-select-id="dict.table.filter.dictTypeId" @changeDictType="changeDictType"/>
         </div>
         <div class="filter-item">
           <span class="filter-item-label">字典编码: </span>
@@ -204,84 +203,7 @@
       </el-drawer>-->
     </div>
 
-    <!--  新增字典  -->
-    <el-dialog title="新增字典" width="600px" :visible.sync="dict.dialog.create.enabled" @close="dialogCreateCancel" :append-to-body="true">
-      <el-form ref="dialogCreateForm" :model="dict.dialog.create.data" :rules="dict.dialog.rules" label-width="80px">
-        <el-form-item label="字典类型" prop="dictTypeId">
-          <DictTypeSelect :default-select-id="dict.dialog.create.data.dictTypeId" :clearable="false" @changeDictType="dialogChangeDictType"/>
-        </el-form-item>
-        <el-form-item label="字典编码" prop="code">
-          <el-input v-model="dict.dialog.create.data.code" placeholder="请输入字典编码" clearable/>
-        </el-form-item>
-        <el-form-item label="字典名称" prop="name">
-          <el-input v-model="dict.dialog.create.data.name" placeholder="请输入字典名称" clearable/>
-        </el-form-item>
-        <el-form-item label="字典模板" prop="template">
-          <el-input v-model="dict.dialog.create.data.template" type="textarea" :rows="4" placeholder="请输入字典基础配置JSON模板"/>
-          <el-button plain class="el-button--small" @click="useParentTemplate(dict.dialog.create.data.dictTypeId)">使用上级配置模板</el-button>
-        </el-form-item>
-        <el-form-item label="激活状态" prop="enabled">
-          <el-select
-              v-model="dict.dialog.create.data.enabled"
-              placeholder="请选择激活状态"
-          >
-            <el-option
-                v-for="item in [{label : '已激活', value : true},{label : '未激活', value : false}]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="dict.dialog.create.data.remark" placeholder="请输入字典备注" clearable/>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogCreateCancel">取 消</el-button>
-        <el-button type="primary" @click="dialogCreateSubmit()">确 定</el-button>
-      </div>
-    </el-dialog>
 
-    <!--  编辑字典  -->
-    <el-dialog title="编辑字典" width="600px" :visible.sync="dict.dialog.edit.enabled" @close="dialogEditCancel" :append-to-body="true">
-      <el-form ref="dialogEditForm" :model="dict.dialog.edit.data" :rules="dict.dialog.rules" label-width="80px">
-        <el-form-item label="字典类型" prop="dictTypeId">
-          <DictTypeSelect :default-select-id="dict.dialog.edit.data.dictTypeId" :clearable="false" :disabled="true" @changeDictType="editDialogChangeDictType"/>
-        </el-form-item>
-        <el-form-item label="字典编码" prop="code">
-          <el-input v-model="dict.dialog.edit.data.code" @input="inputChange($event)" placeholder="请输入字典编码" clearable/>
-        </el-form-item>
-        <el-form-item label="字典名称" prop="name">
-          <el-input v-model="dict.dialog.edit.data.name" @input="inputChange($event)" placeholder="请输入字典名称" clearable/>
-        </el-form-item>
-        <el-form-item label="字典模板" prop="template">
-          <el-input v-model="dict.dialog.edit.data.template" @input="inputChange($event)" type="textarea" :rows="4" placeholder="请输入字典基础配置JSON模板"/>
-          <el-button plain class="el-button--small" @click="useParentTemplate(dict.dialog.edit.data.dictTypeId)">使用上级配置模板</el-button>
-        </el-form-item>
-        <el-form-item label="激活状态" prop="enabled">
-          <el-select
-              v-model="dict.dialog.edit.data.enabled"
-              @input="inputChange($event)"
-              placeholder="请选择激活状态"
-          >
-            <el-option
-                v-for="item in [{label : '已激活', value : true},{label : '未激活', value : false}]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="dict.dialog.edit.data.remark" @input="inputChange($event)" placeholder="请输入字典备注" clearable/>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogEditCancel">取 消</el-button>
-        <el-button type="primary" @click="dialogEditSubmit()">确 定</el-button>
-      </div>
-    </el-dialog>
 
     <!--  导入字典类型  -->
     <UploadSingleExcel
@@ -298,24 +220,14 @@
 
 <script>
 import DictTypeSelect from "@/components/Dict/DictTypeSelect.vue";
-import {
-  createBaseDictApi,
-  createBaseDictTypeApi,
-  deleteDictApi,
-  getBaseDictByIdApi,
-  getBaseDictTypeByIdApi,
-  pageDictApi, updateBaseDictApi
-} from "@/api/dict";
+import {deleteDictApi, pageDictApi} from "@/api/dict";
 import {isNotEmpty} from "@/utils/assertUtil";
 import UploadSingleExcel from "@/components/UploadExcel/UploadSingleExcel.vue";
 import {API_PREFIX} from "@/constant/commons";
 import {exportDictTemplateApi} from "@/api/file";
-import {JsonText, SimpleCode} from "@/utils/ElementValidatorUtil";
-import {filterNullUndefined} from "@/utils/common";
-import {Message} from "element-ui";
 
 export default {
-  name: 'DictDrawer',
+  name: 'DictSettingDrawer',
   components: {UploadSingleExcel, DictTypeSelect},
   props: {
     // 字典类型ID
@@ -371,7 +283,6 @@ export default {
           create: {
             enabled: false,
             data: {
-              dictTypeId: null,
               code: null,
               name: null,
               template: null,
@@ -383,7 +294,6 @@ export default {
             enabled: false,
             data: {
               id: null,
-              dictTypeId: null,
               code: null,
               name: null,
               template: null,
@@ -391,21 +301,6 @@ export default {
               remark: null,
             },
           },
-          rules: { // 弹窗的规则
-            code: [
-              {required: true, max: 16, message: '请输入16位及以内的字典编码', trigger: 'blur'},
-              {required: true, validator: SimpleCode, trigger: 'blur'}
-            ],
-            name: [
-              {required: true, max: 16, message: '请输入16位及以内的字典名称', trigger: 'blur'},
-            ],
-            template: [
-              {required: false, validator: JsonText, trigger: 'blur'}
-            ],
-            remark: [
-              {max: 255, message: '长度在 0 到 255 个字符', trigger: 'blur'},
-            ],
-          }
         }
       },
 
@@ -425,8 +320,6 @@ export default {
     dictTypeId: {
       handler(n, o) {
         this.dict.table.filter.dictTypeId = n;
-        this.dict.dialog.create.data.dictTypeId = n;
-        this.dict.dialog.edit.data.dictTypeId = n;
       },
       deep: true // 深度监听父组件传过来对象变化
     },
@@ -451,7 +344,7 @@ export default {
     /**
      * 计算属性：字典抽屉显示隐藏变量
      */
-    dictDrawerVisible: {
+    dictSettingDrawerVisible: {
       get() {
         return this.visible
       },
@@ -464,8 +357,6 @@ export default {
     },
   },
   methods: {
-    //~ 搜索条件
-    //==================================================================================================================
     /**
      * 获取字典类型下拉选，选中的字典类型编码ID
      * @param dictType 字典类型ID
@@ -473,12 +364,8 @@ export default {
     changeDictType(dictType) {
       if (dictType) {
         this.dict.table.filter.dictTypeId = dictType.id;
-        this.dict.dialog.create.data.dictTypeId = dictType.id;
-        this.dict.dialog.edit.data.dictTypeId = dictType.id;
       } else {
         this.dict.table.filter.dictTypeId = undefined;
-        this.dict.dialog.create.data.dictTypeId = undefined;
-        this.dict.dialog.edit.data.dictTypeId = undefined;
       }
     },
     /**
@@ -540,7 +427,7 @@ export default {
     },
 
     /**
-     * 批量删除字典明细
+     * 批量删除字典类型
      */
     deleteDict() {
       const ids = this.dict.table.checkIds;
@@ -563,24 +450,6 @@ export default {
     },
 
     /**
-     * 编辑字典明细
-     */
-    editDictType(row) {
-      getBaseDictByIdApi(row.id).then(data => {
-        console.log("dd", data)
-        this.dict.dialog.edit.data = {}
-        this.dict.dialog.edit.data.id = row.id
-        this.dict.dialog.edit.data.dictTypeId = data.dictTypeId
-        this.dict.dialog.edit.data.code = data.code
-        this.dict.dialog.edit.data.name = data.name
-        this.dict.dialog.edit.data.template = data.template
-        this.dict.dialog.edit.data.enabled = data.enabled
-        this.dict.dialog.edit.data.remark = data.remark
-        this.dict.dialog.edit.enabled = true
-      })
-    },
-
-    /**
      * 关闭前的回调，会暂停 Drawer 的关闭
      * @param done 使用done()关闭抽屉
      */
@@ -594,109 +463,7 @@ export default {
 
     //~ 新增字典
     //==================================================================================================================
-    /**
-     * 组件嵌套太深，强制更新
-     */
-    inputChange() {
-      this.$forceUpdate()
-    },
 
-    dialogChangeDictType(dictType) {
-      if (dictType) {
-        this.dict.dialog.create.data.dictTypeId = dictType.id;
-      } else {
-        this.dict.dialog.create.data.dictTypeId = undefined;
-      }
-    },
-
-    /**
-     * 创建弹框点击取消
-     */
-    dialogCreateCancel() {
-      this.dict.dialog.create.enabled = false;
-      this.dict.dialog.create.data = {}
-      this.dict.dialog.create.data.dictTypeId = this.dict.table.filter.dictTypeId;
-      this.dict.dialog.create.data.enabled = true;
-      this.$refs.dialogCreateForm.resetFields();
-    },
-    /**
-     * 使用上级模板
-     * @param {Number | String} parentId 上级ID
-     */
-    useParentTemplate(parentId) {
-      getBaseDictTypeByIdApi(parentId).then(data => {
-        // 模板
-        let template = data.template;
-        // 弹框设置值
-        this.dict.dialog.create.data.template = undefined
-        this.dict.dialog.edit.data.template = undefined
-        // 重新赋值。
-        this.dict.dialog.create.data.template = template
-        this.dict.dialog.edit.data.template = template
-      })
-    },
-    /**
-     * 创建弹框点击提交
-     */
-    dialogCreateSubmit() {
-      this.$refs.dialogCreateForm.validate((valid) => {
-        if (valid) {
-          createBaseDictApi(this.dict.dialog.create.data).then(response => {
-            // 保存成功
-            Message({
-              message: '字典明细创建成功',
-              type: 'success',
-            })
-            this.dialogCreateCancel()
-            this.loadPageDict();
-          })
-        } else {
-          console.error("校验参数失败")
-          return false;
-        }
-      });
-    },
-
-    //~ 修改字典
-    //==================================================================================================================
-    editDialogChangeDictType(dictType) {
-      if (dictType) {
-        this.dict.dialog.create.data.dictTypeId = dictType.id;
-      } else {
-        this.dict.dialog.create.data.dictTypeId = undefined;
-      }
-    },
-
-    /**
-     * 修改字典明细弹窗关闭
-     */
-    dialogEditCancel() {
-      this.dict.dialog.edit.enabled = false;
-      this.dict.dialog.edit.data = {}
-      this.dict.dialog.edit.data.dictTypeId = this.dict.table.filter.dictTypeId;
-      this.$refs.dialogEditForm.resetFields();
-    },
-    /**
-     * 编辑弹框点击提交
-     */
-    dialogEditSubmit() {
-      this.$refs.dialogEditForm.validate((valid) => {
-        if (valid) {
-          updateBaseDictApi(this.dict.dialog.edit.data).then(response => {
-            // 保存成功
-            Message({
-              message: '字典明细修改成功',
-              type: 'success',
-            })
-            this.dialogEditCancel()
-            this.loadPageDict();
-          })
-        } else {
-          console.error("校验参数失败")
-          return false;
-        }
-      });
-    },
 
     //~ 导入/导出相关方法
     //==================================================================================================================

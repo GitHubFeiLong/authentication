@@ -40,6 +40,13 @@ public class BaseDictDTO {
      */
     @ApiModelProperty(value = "字典名")
     private String name;
+
+    /**
+     * 字典模板注释
+     */
+    @ApiModelProperty(value = "字典模板注释")
+    private String template;
+
     /**
      * 是否激活（true：已激活；false：未激活）
      */

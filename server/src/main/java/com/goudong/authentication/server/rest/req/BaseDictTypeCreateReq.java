@@ -1,8 +1,5 @@
 package com.goudong.authentication.server.rest.req;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
@@ -41,13 +38,13 @@ public class BaseDictTypeCreateReq {
      * 字典配置模板注释
      */
     @ApiModelProperty("字典配置模板注释")
-    private String template = "{}";
+    private String template;
 
     /**
      * 是否激活（true：已激活；false：未激活）
      */
     @ApiModelProperty(value = "是否激活（true：已激活；false：未激活）")
-    private Boolean enabled = false;
+    private Boolean enabled;
     /**
      * 备注
      */

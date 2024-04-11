@@ -5,7 +5,8 @@
       v-loadmore="loadMore"
       style="width: 230px;"
       :loading="loading"
-      clearable
+      :clearable="clearable"
+      :disabled="disabled"
       filterable
       placeholder="请输入字典类型编码"
       @change="change"
@@ -33,6 +34,21 @@ export default {
       required: false,
       type: String,
     },
+    // 字典类型ID
+    clearable:{
+      required: false,
+      type: Boolean,
+      default() {
+        return true
+      }
+    },
+    disabled:{
+      required: false,
+      type: Boolean,
+      default() {
+        return false
+      }
+    }
   },
   data() {
     return {

@@ -109,6 +109,52 @@ export function pageDictApi(data) {
   })
 }
 
+/**
+ * 根据字典明细ID查询字典明细信息
+ * @param {Number | String}   id       字典明细ID
+ */
+export function getBaseDictByIdApi(id) {
+  return request({
+    url: `${API_PREFIX}/dict/base-dict/${id}`,
+    method: 'get',
+  })
+}
+
+/**
+ * 新增字典明细
+ * @param {{template: null, code: null, dictTypeId: null, name: null, remark: null, enabled: boolean}} data                     新增字典明细参数
+ * @param {Number| String} data.dictTypeId  字典类型ID
+ * @param {string} data.code                字典明细编码
+ * @param {string} data.name                字典明细名称
+ * @param {string} data.template            字典明细配置模板JSON字符串
+ * @param {'true' | 'false'} data.enabled   字典明细激活状态：true 激活；false 未激活
+ * @param {string} data.remark              字典明细备注信息
+ */
+export function createBaseDictApi(data) {
+  return request({
+    url: `${API_PREFIX}/dict/base-dict`,
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 修改字典明细
+ * @param {Object} data                     修改字典明细参数
+ * @param {Number} data.id                  修改字典明细的ID
+ * @param {string} data.code                字典明细编码
+ * @param {string} data.name                字典明细名称
+ * @param {string} data.template            字典明细配置模板JSON字符串
+ * @param {'true' | 'false'} data.enabled   字典明细激活状态：true 激活；false 未激活
+ * @param {string} data.remark              字典明细备注信息
+ */
+export function updateBaseDictApi(data) {
+  return request({
+    url: `${API_PREFIX}/dict/base-dict`,
+    method: 'put',
+    data
+  })
+}
 
 /**
  * 删除字典

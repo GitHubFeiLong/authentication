@@ -80,10 +80,10 @@ public class BaseDictTypeServiceImpl implements BaseDictTypeService {
             if (CollectionUtil.isNotEmpty(req.getIds())) {
                 andPredicateList.add(root.<Long>get("id").in(req.getIds()));
             }
-            if (StringUtil.isNotBlank(req.getCode())) {
+            if (StringUtil.isNotEmpty(req.getCode())) {
                 andPredicateList.add(criteriaBuilder.like(root.get("code").as(String.class), "%" + req.getCode() + "%"));
             }
-            if (StringUtil.isNotBlank(req.getName())) {
+            if (StringUtil.isNotEmpty(req.getName())) {
                 andPredicateList.add(criteriaBuilder.like(root.get("name").as(String.class), "%" + req.getName() + "%"));
             }
 
@@ -153,6 +153,13 @@ public class BaseDictTypeServiceImpl implements BaseDictTypeService {
     @Override
     public BaseDictType save(BaseDictType req) {
         log.info("保存字典类型");
+        // 当请求没有传递参数时，设置默认值
+        if (req.getEnabled() == null) {
+            req.setEnabled(true);
+        }
+        if (StringUtil.isBlank(req.getTemplate())) {
+            req.setTemplate("{}");
+        }
         return baseDictTypeRepository.save(req);
     }
 
