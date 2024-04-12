@@ -9,11 +9,11 @@ import java.util.Date;
 
 /**
  * 类描述：
- * 字典类型导出
+ * 字典明细导出
  * @author chenf
  */
 @Data
-public class BaseDictTypeExportTemplate {
+public class BaseDictExportTemplate {
     //~fields
     //==================================================================================================================
     @ApiModelProperty("序号")
@@ -21,33 +21,33 @@ public class BaseDictTypeExportTemplate {
     @ColumnWidth(6)
     private Integer sequenceNumber;
 
-    @ApiModelProperty("类型编码")
-    @ExcelProperty("类型编码")
+    @ApiModelProperty("字典编码")
+    @ExcelProperty("字典编码")
     @ColumnWidth(20)
     private String code;
 
-    @ApiModelProperty("类型名称")
-    @ExcelProperty("类型名称")
+    @ApiModelProperty("字典名称")
+    @ExcelProperty("字典名称")
     @ColumnWidth(20)
     private String name;
 
-    @ApiModelProperty("字典数量")
-    @ExcelProperty("字典数量")
+    @ApiModelProperty("配置数量")
+    @ExcelProperty("配置数量")
     @ColumnWidth(20)
-    private Integer dictNumber;
+    private Integer dictSettingNumber;
 
-    @ApiModelProperty("类型模板")
-    @ExcelProperty("类型模板")
+    @ApiModelProperty("字典模板")
+    @ExcelProperty("字典模板")
     @ColumnWidth(20)
     private String template;
 
-    @ApiModelProperty("类型状态")
-    @ExcelProperty("类型状态")
+    @ApiModelProperty("字典状态")
+    @ExcelProperty("字典状态")
     @ColumnWidth(20)
     private String enableStatus;
 
-    @ApiModelProperty("类型备注")
-    @ExcelProperty("类型备注")
+    @ApiModelProperty("字典备注")
+    @ExcelProperty("字典备注")
     @ColumnWidth(40)
     private String remark;
 

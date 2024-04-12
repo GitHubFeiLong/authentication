@@ -5,56 +5,44 @@ import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.Date;
-
 /**
  * 类描述：
- * 字典类型导出
+ * excel导入字典明细
  * @author chenf
  */
 @Data
-public class BaseDictTypeExportTemplate {
+public class BaseDictImportExcelTemplate {
     //~fields
     //==================================================================================================================
-    @ApiModelProperty("序号")
-    @ExcelProperty("序号")
-    @ColumnWidth(6)
-    private Integer sequenceNumber;
-
     @ApiModelProperty("类型编码")
-    @ExcelProperty("类型编码")
+    @ExcelProperty("* 类型编码")
+    @ColumnWidth(20)
+    private String dictTypeCode;
+
+    @ApiModelProperty("字典编码")
+    @ExcelProperty("* 字典编码")
     @ColumnWidth(20)
     private String code;
 
-    @ApiModelProperty("类型名称")
-    @ExcelProperty("类型名称")
+    @ApiModelProperty("字典名称")
+    @ExcelProperty("* 字典名称")
     @ColumnWidth(20)
     private String name;
 
-    @ApiModelProperty("字典数量")
-    @ExcelProperty("字典数量")
-    @ColumnWidth(20)
-    private Integer dictNumber;
-
-    @ApiModelProperty("类型模板")
-    @ExcelProperty("类型模板")
+    @ApiModelProperty("配置模板")
+    @ExcelProperty("配置模板")
     @ColumnWidth(20)
     private String template;
 
     @ApiModelProperty("类型状态")
-    @ExcelProperty("类型状态")
+    @ExcelProperty("* 激活状态")
     @ColumnWidth(20)
-    private String enableStatus;
+    private String enabled;
 
-    @ApiModelProperty("类型备注")
-    @ExcelProperty("类型备注")
+    @ApiModelProperty("字典备注")
+    @ExcelProperty("字典备注")
     @ColumnWidth(40)
     private String remark;
-
-    @ApiModelProperty("创建时间")
-    @ExcelProperty("创建时间")
-    @ColumnWidth(20)
-    private Date createdDate;
     //~methods
     //==================================================================================================================
 }

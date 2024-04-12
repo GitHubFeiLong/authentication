@@ -43,7 +43,7 @@
           <el-button v-permission="'sys:user:add'" class="el-button--small" icon="el-icon-plus" type="primary" @click="dict.dialog.create.enabled=true">
             新增
           </el-button>
-          <el-button v-permission="'sys:user:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteDict">
+          <el-button v-permission="'sys:user:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteDict(dict.table.checkIds)">
             删除
           </el-button>
           <el-button v-permission="'sys:user:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
@@ -116,7 +116,7 @@
           />
           <el-table-column
               label="配置数量"
-              prop="dictNumber"
+              prop="dictSettingNumber"
               min-width="50"
               sortable
           />
@@ -176,7 +176,7 @@
                     icon="el-icon-delete"
                     :underline="false"
                     type="danger"
-                    @click="deleteDictType(scope.row)"
+                    @click="deleteDict([scope.row.id])"
                 >删除</el-link>
               </div>
             </template>
@@ -309,7 +309,7 @@ import {
 import {isNotEmpty} from "@/utils/assertUtil";
 import UploadSingleExcel from "@/components/UploadExcel/UploadSingleExcel.vue";
 import {API_PREFIX} from "@/constant/commons";
-import {exportDictTemplateApi} from "@/api/file";
+import {exportDictApi, exportDictTemplateApi} from "@/api/file";
 import {JsonText, SimpleCode} from "@/utils/ElementValidatorUtil";
 import {filterNullUndefined} from "@/utils/common";
 import {Message} from "element-ui";
@@ -414,7 +414,7 @@ export default {
       uploadSingleExcelAttr: {
         title: '导入字典类型',
         showImportDialog: false,
-        action: `${API_PREFIX}/import-export/import-user`
+        action: `${API_PREFIX}/import-export/import-dict`
       },
     };
   },
@@ -531,6 +531,40 @@ export default {
         this.dict.table.isLoading = false;
       })
     },
+    // 修改表格大小
+    changeElTableSizeCommand(val) {
+      const args = val.split(",");
+      const idx = Number(args[0]);
+      console.log(args)
+      this.elDropdownItemClass.map((value, index, array) => {
+        if (index === idx) {
+          array[index] = "el-dropdown-item--click";
+        } else {
+          array[index] = undefined;
+        }
+      })
+      console.log(this.elDropdownItemClass)
+      this.elDropdownItemClass[args[0]]
+      this.EL_TABLE.size = args[1];
+    },
+    /**
+     * 更改每页显示多少条
+     * @param {Number} val 每页显示多少记录数
+     */
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`)
+      this.table.size = val
+      this.loadPageDictType()
+    },
+    /**
+     * 修改当前页码
+     * @param {Number} val 分页的页码值
+     */
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`)
+      this.table.page = val
+      this.loadPageDictType()
+    },
     /**
      * 复选框选中
      * @param {Object} rows 选中的行数据
@@ -542,8 +576,7 @@ export default {
     /**
      * 批量删除字典明细
      */
-    deleteDict() {
-      const ids = this.dict.table.checkIds;
+    deleteDict(ids) {
       isNotEmpty(ids, () => this.$message.warning("请勾选需要删除的字典明细"))
           .then(() => {
             this.$confirm('此操作将永久删除所选明细, 是否继续?', '删除', {
@@ -601,6 +634,10 @@ export default {
       this.$forceUpdate()
     },
 
+    /**
+     * 查询条件得字典类型下拉变更
+     * @param dictType
+     */
     dialogChangeDictType(dictType) {
       if (dictType) {
         this.dict.dialog.create.data.dictTypeId = dictType.id;
@@ -704,7 +741,7 @@ export default {
      * 关闭弹窗
      */
     closeUploadSingleExcelHandler() {
-      this.dict.uploadSingleExcelAttr.showImportDialog = false
+      this.uploadSingleExcelAttr.showImportDialog = false
     },
     /**
      * 下载模板
@@ -718,52 +755,20 @@ export default {
      */
     exportExcel() {
       const pageParam = {
-        code: this.table.filter.code,
-        name: this.table.filter.name,
+        dictTypeId: this.dict.table.filter.dictTypeId,
+        code: this.dict.table.filter.code,
+        name: this.dict.table.filter.name,
       }
       // 如果勾选了就导出勾选的
       const data = {
-        ids: this.table.checkIds,
+        ids: this.dict.table.checkIds,
         pageReq: { // 查询条件
           ...pageParam
         },
       }
-      // exportUserApi(data);
+      exportDictApi(data);
     },
-    // 修改表格大小
-    changeElTableSizeCommand(val) {
-      const args = val.split(",");
-      const idx = Number(args[0]);
-      console.log(args)
-      this.elDropdownItemClass.map((value, index, array) => {
-        if (index === idx) {
-          array[index] = "el-dropdown-item--click";
-        } else {
-          array[index] = undefined;
-        }
-      })
-      console.log(this.elDropdownItemClass)
-      this.elDropdownItemClass[args[0]]
-      this.EL_TABLE.size = args[1];
-    },
-    /**
-     * 更改每页显示多少条
-     * @param {Number} val 每页显示多少记录数
-     */
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
-      this.table.size = val
-      this.loadPageDictType()
-    },
-    /**
-     * 修改当前页码
-     * @param {Number} val 分页的页码值
-     */
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
-      this.table.page = val
-      this.loadPageDictType()
-    },
+
   },
 }
 </script>

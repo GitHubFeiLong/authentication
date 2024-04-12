@@ -81,4 +81,10 @@ public class BaseDict extends BasePO implements Serializable {
     @ApiModelProperty("备注")
     @Length(max= 255,message="编码长度不能超过255")
     private String remark;
+
+    /**
+     * 字典类型编码
+     */
+    @Transient
+    private String dictTypeCode;
 }

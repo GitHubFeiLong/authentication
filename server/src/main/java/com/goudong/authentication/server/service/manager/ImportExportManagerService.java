@@ -91,5 +91,17 @@ public interface ImportExportManagerService {
      */
     void exportDictType(HttpServletResponse response, BaseDictTypeExportReq req);
 
+    /**
+     * 导入字典明细
+     * @param req   导入参数
+     * @return      true：导入成功
+     */
+    Boolean importDict(BaseDictImportReq req);
 
+    /**
+     * 导出自带你明细
+     * @param response  响应对象
+     * @param req       导出参数
+     */
+    void exportDict(HttpServletResponse response, BaseDictExportReq req);
 }

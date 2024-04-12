@@ -19,10 +19,7 @@ import com.goudong.authentication.server.properties.AuthenticationServerProperti
 import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.req.search.BaseAppPageReq;
 import com.goudong.authentication.server.rest.resp.*;
-import com.goudong.authentication.server.service.BaseDictTypeService;
-import com.goudong.authentication.server.service.BaseMenuService;
-import com.goudong.authentication.server.service.BaseRoleService;
-import com.goudong.authentication.server.service.BaseUserService;
+import com.goudong.authentication.server.service.*;
 import com.goudong.authentication.server.service.dto.BaseMenuDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseAppManagerService;
@@ -122,10 +119,16 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
     private BaseDictManagerService baseDictManagerService;
 
     /**
-     * 字典管理层服务
+     * 字典类型服务接口
      */
     @Resource
     private BaseDictTypeService baseDictTypeService;
+
+    /**
+     * 字典服务接口
+     */
+    @Resource
+    private BaseDictService baseDictService;
 
     @Resource
     private ObjectMapper objectMapper;
@@ -644,6 +647,101 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
 
         } catch (IOException e) {
             throw new RuntimeException("导出字典类型失败：" + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 导入字典明细
+     *
+     * @param req 导入参数
+     * @return true：导入成功
+     */
+    @Override
+    public Boolean importDict(BaseDictImportReq req) {
+        try {
+            MyAuthentication myAuthentication = SecurityContextUtil.get();
+            EasyExcel.read(req.getFile().getInputStream(), BaseDictImportExcelTemplate.class,
+                            new BaseDictImportExcelListener(baseDictTypeService, baseDictService, transactionTemplate, myAuthentication))
+                    .sheet()
+                    // 第二行开始解析
+                    .headRowNumber(2)
+                    .doRead();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
+
+    /**
+     * 导出自带你明细
+     *
+     * @param response 响应对象
+     * @param req      导出参数
+     */
+    @Override
+    public void exportDict(HttpServletResponse response, BaseDictExportReq req) {
+        log.info("开始执行字典明细导出");
+        String fileName = "导出字典明细" + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
+        // 这里注意 有同学反应使用swagger 会导致各种问题，请直接用浏览器或者用postman
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
+        try {
+            fileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        response.setHeader("Content-disposition", "attachment;filename*=" + fileName + ".xlsx");
+
+        // 这里 需要指定写用哪个class去写
+        try (ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream(), BaseDictExportTemplate.class)
+                .registerConverter(new LongStringConverter())
+                .build()) {
+            // 这里注意 如果同一个sheet只要创建一次
+            WriteSheet writeSheet = EasyExcel.writerSheet("sheet01").build();
+            /*
+                分页写入excel，对内存友好
+             */
+            // 分页查询
+            BaseDictPageReq pageReq = req.getPageReq();
+            // 每次查询100条
+            pageReq.setSize(100);
+            pageReq.setIds(req.getIds());
+            // 初始分页设置0
+            int page = 0;
+            // 总店铺数量
+            long total = 0;
+            AtomicInteger sequenceNumber = new AtomicInteger(1);
+            do {
+                List<BaseDictExportTemplate> result = new ArrayList<>();
+                // 页码加一
+                page += 1;
+                pageReq.setPage(page);
+                // 分页查询(展开的)
+                PageResult<BaseDictPageResp> pageResult = baseDictManagerService.pageBaseDict(pageReq);
+                // 获取总数量
+                total = pageResult.getTotal();
+
+                // 将数据放入resule中
+                pageResult.getContent().forEach(p -> {
+                    BaseDictExportTemplate resp = new BaseDictExportTemplate();
+                    resp.setSequenceNumber(sequenceNumber.getAndIncrement());
+                    resp.setCode(p.getCode());
+                    resp.setName(p.getName());
+                    resp.setDictSettingNumber(p.getDictSettingNumber());
+                    resp.setTemplate(p.getTemplate());
+                    resp.setEnableStatus(ActivateEnum.ACTIVATED.getById(p.getEnabled()).getLabel());
+                    resp.setRemark(p.getRemark());
+                    resp.setCreatedDate(p.getCreatedDate());
+                    result.add(resp);
+                });
+
+                // 调用写入
+                excelWriter.write(result, writeSheet);
+            } while (((long) page * pageReq.getSize()) < total);
+
+        } catch (IOException e) {
+            throw new RuntimeException("导出字典明细失败：" + e.getMessage(), e);
         }
     }
 }

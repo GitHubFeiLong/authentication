@@ -1,7 +1,7 @@
 <!--Excel上传及模板下载-->
 <template>
   <!--导入-->
-  <el-dialog :title="importDialogTitle" :visible.sync="showImportDialogSon" custom-class="el-dialog-import-table" @close="handleClose"
+  <el-dialog :title="importDialogTitle" :visible.sync="showImportDialogSon" custom-class="el-dialog-import-table" @close="handleClose" :append-to-body="true"
   >
     <el-upload
         class="el-dialog-import-table-upload"

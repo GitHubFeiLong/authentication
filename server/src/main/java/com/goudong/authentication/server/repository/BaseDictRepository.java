@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -23,5 +25,5 @@ public interface BaseDictRepository extends JpaRepository<BaseDict, Long>, JpaSp
      * @return          字典及字典配置的数量
      */
     @Query(value = "select dict_id as id, count(0) as count from base_dict_setting where dict_id in (:dictIds) group by dict_id", nativeQuery = true)
-    List<IdCountResp> queryCount(List<Long> dictIds);
+    List<Map<String, BigInteger>> queryCount(List<Long> dictIds);
 }

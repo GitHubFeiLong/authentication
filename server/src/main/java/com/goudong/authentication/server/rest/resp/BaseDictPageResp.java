@@ -39,6 +39,12 @@ public class BaseDictPageResp {
     private String name;
 
     /**
+     * 模板配置
+     */
+    @ApiModelProperty(value = "模板配置")
+    private String template;
+
+    /**
      * 是否激活（true：已激活；false：未激活）
      */
     @ApiModelProperty(value = "是否激活（true：已激活；false：未激活）")
@@ -68,6 +74,12 @@ public class BaseDictPageResp {
      */
     @ApiModelProperty(value = "最后修改人")
     private String lastModifiedBy;
+
+    /**
+     * 字典下得配置数量
+     */
+    @ApiModelProperty(value = "字典配置数量")
+    private Integer dictSettingNumber;
     //~methods
     //==================================================================================================================
 }

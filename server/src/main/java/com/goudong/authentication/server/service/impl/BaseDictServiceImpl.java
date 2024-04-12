@@ -104,12 +104,15 @@ public class BaseDictServiceImpl implements BaseDictService {
             Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), createdDateDesc);
             Page<BaseDict> pageResult = baseDictRepository.findAll(specification, pageable);
 
-            log.info("设置序号");
+            log.info("查询每个字典明细下的字典配置数量");
+            List<Long> ids = pageResult.getContent().stream().map(BaseDict::getId).collect(Collectors.toList());
+            Map<Long, Integer> idCountMap = baseDictRepository.queryCount(ids).stream().collect(Collectors.toMap(p-> p.get("id").longValue(), p -> p.get("count").intValue(), (k1, k2) -> k1));
+            log.info("设置序号和字典配置数量");
             List<BaseDictPageResp> contents = BeanUtil.copyToList(pageResult.getContent(), BaseDictPageResp.class);
             AtomicLong serialNumber = new AtomicLong(req.getStartSerialNumber());
-
             contents.forEach(p -> {
                 p.setSerialNumber(serialNumber.getAndIncrement());
+                p.setDictSettingNumber(idCountMap.containsKey(p.getId()) ? Optional.ofNullable(idCountMap.get(p.getId())).orElseGet(() -> 0) : 0);
             });
 
             return new PageResult<BaseDictPageResp>(pageResult.getTotalElements(),
@@ -124,11 +127,14 @@ public class BaseDictServiceImpl implements BaseDictService {
         // 没开启分页，就需要查询所有
         List<BaseDict> dictTypes = baseDictRepository.findAll(specification, createdDateDesc);
 
-        log.info("设置序号");
+        List<Long> ids = dictTypes.stream().map(BaseDict::getId).collect(Collectors.toList());
+        Map<Long, Integer> idCountMap = baseDictRepository.queryCount(ids).stream().collect(Collectors.toMap(p-> p.get("id").longValue(), p -> p.get("count").intValue(), (k1, k2) -> k1));
+        log.info("设置序号和字典配置数量");
         List<BaseDictPageResp> contents = BeanUtil.copyToList(dictTypes, BaseDictPageResp.class);
         AtomicLong serialNumber = new AtomicLong(req.getStartSerialNumber());
         contents.forEach(p -> {
             p.setSerialNumber(serialNumber.getAndIncrement());
+            p.setDictSettingNumber(idCountMap.containsKey(p.getId()) ? Optional.ofNullable(idCountMap.get(p.getId())).orElseGet(() -> 0) : 0);
         });
 
         return new PageResult<BaseDictPageResp>((long)dictTypes.size(),
