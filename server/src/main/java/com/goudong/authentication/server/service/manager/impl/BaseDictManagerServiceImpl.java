@@ -240,6 +240,17 @@ public class BaseDictManagerServiceImpl implements BaseDictManagerService {
         return baseDictService.deleteByIds(ids);
     }
 
+    /**
+     * 条件分页查询字典明细下拉
+     *
+     * @param req   下拉分页参数
+     * @return  字典明细下拉分页结果
+     */
+    @Override
+    public PageResult<BaseDictDropDownResp> baseDictDropDown(BaseDictDropDownReq req) {
+        return baseDictService.baseDictDropDown(req);
+    }
+
     //~BaseDictSetting
     //==================================================================================================================
     /**

@@ -80,7 +80,7 @@ let isRefreshing = false
 const cancelTokens = []
 
 service.interceptors.request.use(async config => {
-  console.log("cancelTokens = " + cancelTokens)
+  // console.log("cancelTokens = " + cancelTokens)
   /*
     判断当前时间 accessExpires refreshExpires 三个时间
     1. 当前时间小于accessExpires 正常请求
@@ -98,7 +98,7 @@ service.interceptors.request.use(async config => {
       // access token 有效
       if (now < new Date(token.accessExpires)) {
         // 有效不处理
-        console.log(1)
+        // console.log(1)
       } else if (now >= new Date(token.accessExpires) && now < new Date(token.refreshExpires)) { // access token 无效，refresh token 有效,调用刷新令牌接口
         console.log(2)
         // 当没有token时，发送了添加购物车的请求，此时取消本次请求
@@ -153,7 +153,7 @@ service.interceptors.request.use(async config => {
   appId = (appId === undefined || appId === null) ? commons.X_APP_ID : appId;
   config.headers[X_APP_ID] = appId;
 
-  console.log("请求拦截器", config)
+  // console.log("请求拦截器", config)
   return config
 }, error => {
   // do something with request error
@@ -162,7 +162,7 @@ service.interceptors.request.use(async config => {
 })
 
 service.interceptors.response.use(response => {
-  console.log('响应拦截:', response)
+  // console.log('响应拦截:', response)
   // 响应码
   const { status, config } = response
   const result = response.data

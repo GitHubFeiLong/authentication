@@ -11,15 +11,15 @@
       <!--  查询条件  -->
       <div class="filter-container">
         <div class="filter-item">
-          <span class="filter-item-label">字典类型: </span>
+          <span class="filter-item-label">类型编码: </span>
           <DictTypeSelect :default-select-id="dict.table.filter.dictTypeId" :clearable="false" @changeDictType="changeDictType"/>
         </div>
         <div class="filter-item">
-          <span class="filter-item-label">字典编码: </span>
+          <span class="filter-item-label">明细编码: </span>
           <el-input v-model="dict.table.filter.code" placeholder="请输入需要查询字典类型名称" clearable/>
         </div>
         <div class="filter-item">
-          <span class="filter-item-label">字典名称: </span>
+          <span class="filter-item-label">明细名称: </span>
           <el-input v-model="dict.table.filter.name" placeholder="请输入需要查询字典类型名称" clearable/>
         </div>
         <div class="filter-item">
@@ -102,13 +102,13 @@
               align="center"
           />
           <el-table-column
-              label="字典编码"
+              label="明细编码"
               min-width="50"
               prop="code"
               sortable
           />
           <el-table-column
-              label="字典名称"
+              label="明细名称"
               prop="name"
               min-width="50"
               sortable
@@ -194,14 +194,15 @@
             @current-change="handleCurrentChange"
         />
       </div>
-
-      <!--            <el-button @click="innerDrawer = true">打开里面的!</el-button>-->
-<!--      <el-drawer
-          title="我是里面的"
-          :append-to-body="true"
-          :visible.sync="drawer.dictSetting.enabled">
-        <p>_(:зゝ∠)_</p>
-      </el-drawer>-->
+      <!--  字典配置  -->
+      <DictSettingDrawer
+          :dict-type-id="dictSettingDrawer.dictTypeId"
+          :dict-id="dictSettingDrawer.dictId"
+          :dict-code="dictSettingDrawer.dictCode"
+          :dict-name="dictSettingDrawer.dictName"
+          :visible.sync="dictSettingDrawer.visible"
+          @close="changeDictSettingDrawerVisible"
+      />
     </div>
 
     <!--  新增字典  -->
@@ -293,6 +294,7 @@
         :download-template="downloadImportTemplate"
     />
 
+
   </el-drawer>
 </template>
 
@@ -300,23 +302,23 @@
 import DictTypeSelect from "@/components/Dict/DictTypeSelect.vue";
 import {
   createBaseDictApi,
-  createBaseDictTypeApi,
   deleteDictApi,
   getBaseDictByIdApi,
   getBaseDictTypeByIdApi,
-  pageDictApi, updateBaseDictApi
+  pageDictApi,
+  updateBaseDictApi
 } from "@/api/dict";
 import {isNotEmpty} from "@/utils/assertUtil";
 import UploadSingleExcel from "@/components/UploadExcel/UploadSingleExcel.vue";
 import {API_PREFIX} from "@/constant/commons";
 import {exportDictApi, exportDictTemplateApi} from "@/api/file";
 import {JsonText, SimpleCode} from "@/utils/ElementValidatorUtil";
-import {filterNullUndefined} from "@/utils/common";
 import {Message} from "element-ui";
+import DictSettingDrawer from "@/views/dict/components/DictSettingDrawer.vue";
 
 export default {
   name: 'DictDrawer',
-  components: {UploadSingleExcel, DictTypeSelect},
+  components: {UploadSingleExcel, DictTypeSelect, DictSettingDrawer},
   props: {
     // 字典类型ID
     dictTypeId:{
@@ -344,6 +346,13 @@ export default {
   data() {
     return {
       // 抽屉
+      dictSettingDrawer: {
+        dictTypeId: '',
+        dictId: '',
+        dictCode: '',
+        dictName: '',
+        visible: false,
+      },
       // 字典明细
       dict: {
         EL_TABLE: {
@@ -435,7 +444,7 @@ export default {
      */
     'dict.table.filter.dictTypeId': {
       handler(n, o) {
-        this.dict.table.filter.dictTypeId = n;
+        // this.dict.table.filter.dictTypeId = n;
       },
       deep: true // 深度监听父组件传过来对象变化
     },
@@ -769,6 +778,30 @@ export default {
       exportDictApi(data);
     },
 
+    /**
+     * 打开字典配置抽屉
+     * @param {Object} row 字典明细的行数据
+     */
+    drawerDictOpen(row) {
+      this.dictSettingDrawer.dictTypeId = row.dictTypeId
+      this.dictSettingDrawer.dictId = row.id
+      this.dictSettingDrawer.dictCode = row.code
+      this.dictSettingDrawer.dictName = row.name
+      this.dictSettingDrawer.visible = true
+    },
+    /**
+     * 修改字典配置抽屉显示变量
+     * @param {Boolean} visible true:显示抽屉；false：隐藏抽屉
+     */
+    changeDictSettingDrawerVisible(visible) {
+      this.dictSettingDrawer = {
+        dictTypeId: '',
+            dictId: '',
+          dictCode: '',
+          dictName: '',
+          visible: visible,
+      }
+    },
   },
 }
 </script>

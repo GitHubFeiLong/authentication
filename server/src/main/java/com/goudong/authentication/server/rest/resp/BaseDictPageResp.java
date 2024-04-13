@@ -80,6 +80,12 @@ public class BaseDictPageResp {
      */
     @ApiModelProperty(value = "字典配置数量")
     private Integer dictSettingNumber;
+
+    /**
+     * 字典类型ID
+     */
+    @ApiModelProperty(value = "字典类型ID")
+    private Long dictTypeId;
     //~methods
     //==================================================================================================================
 }

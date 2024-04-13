@@ -1,8 +1,6 @@
 package com.goudong.authentication.server.service;
 import com.goudong.authentication.server.domain.BaseDict;
-import com.goudong.authentication.server.rest.req.BaseDictChangeEnabledReq;
-import com.goudong.authentication.server.rest.req.BaseDictPageReq;
-import com.goudong.authentication.server.rest.req.BaseDictUpdateReq;
+import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.resp.BaseDictPageResp;
 import com.goudong.authentication.server.service.dto.BaseDictDTO;
 import com.goudong.core.lang.PageResult;
@@ -61,4 +59,11 @@ public interface BaseDictService {
     Boolean deleteByIds(List<Long> ids);
 
 
+    /**
+     * 条件分页查询字典明细下拉
+     *
+     * @param req   下拉分页参数
+     * @return  字典明细下拉分页结果
+     */
+    PageResult<BaseDictDropDownResp> baseDictDropDown(BaseDictDropDownReq req);
 }

@@ -57,3 +57,17 @@ export function dropDownDictTypeApi(params) {
     params: params
   })
 }
+
+/**
+ * 字典明细下拉
+ * @param {object} params
+ * @param {String} params.code  字典明细编码
+ * @returns {*}
+ */
+export function dropDownDictApi(params) {
+  return request({
+    url: `${API_PREFIX}/drop-down/base-dict/page`,
+    method: 'get',
+    params: params
+  })
+}

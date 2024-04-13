@@ -285,7 +285,5 @@ public class BaseDictTypeServiceImpl implements BaseDictTypeService {
                 (long)respList.size(),
                 respList
         );
-
-
     }
 }

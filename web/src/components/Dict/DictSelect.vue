@@ -1,4 +1,4 @@
-<!--字典类型编码模糊下拉分页-->
+<!--字典明细编码模糊下拉分页-->
 <template>
   <el-select
       v-model="selectedValue"
@@ -8,7 +8,7 @@
       :clearable="clearable"
       :disabled="disabled"
       filterable
-      placeholder="请输入字典类型编码"
+      placeholder="请输入字典明细编码"
       @change="change"
       @clear="clear"
   >
@@ -23,18 +23,26 @@
 
 <script>
 
-import {dropDownDictTypeApi} from '@/api/dropDown';
+import {dropDownDictApi, dropDownDictTypeApi} from '@/api/dropDown';
 import {loadmore} from '@/directive/select/index'
-import {getBaseDictTypeByIdApi} from "@/api/dict";
+import {getBaseDictByIdApi, getBaseDictTypeByIdApi} from "@/api/dict";
 export default {
   directives: { loadmore },
   props: {
-    // 字典类型ID
+    // 字典类型ID，如果传了字典类型ID，就需要查询指定字典类型下的字典
+    dictTypeId:{
+      required: false,
+      type: String,
+      default() {
+        return null;
+      }
+    },
+    // 字典ID
     defaultSelectId:{
       required: false,
       type: String,
     },
-    // 字典类型ID
+    // 清空按钮
     clearable:{
       required: false,
       type: Boolean,
@@ -42,6 +50,7 @@ export default {
         return true
       }
     },
+    // 可编辑
     disabled:{
       required: false,
       type: Boolean,
@@ -66,29 +75,32 @@ export default {
     this.load()
   },
   watch:{
+    dictTypeId:{
+      handler(n, o){
+        this.selectedValue = undefined
+        this.page = 1
+        this.data = []
+        this.load();
+      }
+    },
     /**
      * 变更时，需要选中指定下拉选项
      */
     defaultSelectId: {
       handler(n, o){
-        console.log("defaultSelectId指定了");
         if (n !== undefined && n !== null && n !== '') {
           let item = this.data.find(item => item.id === n);
           // 不存在，就查询出来
           if (item === undefined || item === null) {
-            console.log("不存在dictTypeId", n)
-            getBaseDictTypeByIdApi(n).then(dt => {
+            getBaseDictByIdApi(n).then(dt => {
               let op = {id: dt.id, code: dt.code, name: dt.name};
               // 只有不存在时，才添加到数组中
               if (this.data.find(item => item.id === op.id) === undefined) {
                 this.data.push(op)
               }
               this.selectedValue = n
-            }).catch(reason => {
-              console.log("reason", reason)
             })
           } else { // 存在就默认选中
-            console.log("存在选中他 type1")
             this.selectedValue = n
           }
         }
@@ -97,11 +109,9 @@ export default {
   },
   methods: {
     load() {
-      console.log("dictTypeSelect load执行了");
       this.loading = true
-      const page = { page: this.page, size: this.size, code: this.code }
-      dropDownDictTypeApi(page).then(data => {
-        // console.log(data)
+      const page = { page: this.page, size: this.size, dictTypeId: this.dictTypeId, code: this.code }
+      dropDownDictApi(page).then(data => {
         this.totalPage = Number(data.totalPage)
         const content = data.content
         // 添加到数组中
@@ -117,20 +127,16 @@ export default {
         if (this.defaultSelectId !== undefined && this.defaultSelectId !== null && this.defaultSelectId !== '') {
           let findItem = this.data.find(item => item.id === this.defaultSelectId);
           if (findItem === undefined || findItem === null) {
-            console.log("不存在dictTypeId this.defaultSelectId", this.defaultSelectId)
             // 不存在，就查询出来
-            getBaseDictTypeByIdApi(this.defaultSelectId).then(dt => {
+            getBaseDictByIdApi(this.defaultSelectId).then(dt => {
               let op = {id: dt.id, code: dt.code, name: dt.name};
               // 只有不存在时，才添加到数组中
               if (this.data.find(item => item.id === op.id) === undefined) {
                 this.data.push(op)
               }
               this.selectedValue = this.defaultSelectId
-            }).catch(reason => {
-              console.error("失败了")
             })
           } else { // 存在就默认选中
-            console.log("存在选中他 type")
             this.selectedValue = this.defaultSelectId
           }
         }
@@ -154,13 +160,13 @@ export default {
         item.code
         item.name
        */
-      this.$emit('changeDictType', item)
+      this.$emit('changeDict', item)
     },
     clear() {
       // 去掉框中的值
       this.code = undefined;
       // 给父组件传递值
-      this.$emit('changeDictType', undefined)
+      this.$emit('changeDict', undefined)
     },
     loadMore: function() {
       // 总页数大于当前页，请求下一页数据

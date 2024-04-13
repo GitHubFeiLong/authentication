@@ -5,9 +5,7 @@ import com.goudong.authentication.server.domain.BaseDict;
 import com.goudong.authentication.server.domain.BaseDictType;
 import com.goudong.authentication.server.repository.BaseDictRepository;
 import com.goudong.authentication.server.repository.resp.IdCountResp;
-import com.goudong.authentication.server.rest.req.BaseDictChangeEnabledReq;
-import com.goudong.authentication.server.rest.req.BaseDictPageReq;
-import com.goudong.authentication.server.rest.req.BaseDictUpdateReq;
+import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.resp.BaseDictPageResp;
 import com.goudong.authentication.server.rest.resp.BaseDictTypePageResp;
 import com.goudong.authentication.server.service.BaseDictService;
@@ -230,5 +228,64 @@ public class BaseDictServiceImpl implements BaseDictService {
         allById.forEach(p -> AssertUtil.isEquals(realAppId, p.getAppId(), () -> ClientException.clientByForbidden().clientMessage("权限不足，删除失败").serverMessage("不能删除其它应用下的字典")));
         baseDictRepository.deleteAll(allById);
         return true;
+    }
+
+    /**
+     * 条件分页查询字典明细下拉
+     *
+     * @param req 下拉分页参数
+     * @return 字典明细下拉分页结果
+     */
+    @Override
+    public PageResult<BaseDictDropDownResp> baseDictDropDown(BaseDictDropDownReq req) {
+        MyAuthentication myAuthentication = SecurityContextUtil.get();
+        log.info("构造查询条件");
+        Specification<BaseDict> specification = (root, query, criteriaBuilder) -> {
+            List<Predicate> andPredicateList = new ArrayList<>();
+            andPredicateList.add(criteriaBuilder.equal(root.get("appId"), myAuthentication.getRealAppId()));
+            if (req.getDictTypeId() != null) {
+                andPredicateList.add(criteriaBuilder.equal(root.get("dictTypeId"), req.getDictTypeId()));
+            }
+            if (StringUtil.isNotBlank(req.getCode())) {
+                andPredicateList.add(criteriaBuilder.like(root.get("code").as(String.class), "%" + req.getCode() + "%"));
+            }
+            return criteriaBuilder.and(andPredicateList.toArray(new Predicate[0]));
+        };
+
+        // 开启分页，就需要分页查询
+        if (req.getOpenPage()) {
+            log.info("使用分页查询");
+            Sort sort = Sort.by("id").ascending();
+            Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), sort);
+            Page<BaseDict> pageResult = baseDictRepository.findAll(specification, pageable);
+
+            List<BaseDictDropDownResp> respList = new ArrayList<>(pageResult.getContent().size());
+            pageResult.getContent().forEach(p -> {
+                respList.add(new BaseDictDropDownResp(p.getId(), p.getCode(), p.getName()));
+            });
+
+            return new PageResult<BaseDictDropDownResp>(pageResult.getTotalElements(),
+                    (long)pageResult.getTotalPages(),
+                    pageResult.getPageable().getPageNumber() + 1L,
+                    (long)pageResult.getPageable().getPageSize(),
+                    respList
+            );
+        }
+
+        log.info("使用基本查询");
+        Sort sort = Sort.by("id").ascending();
+        List<BaseDict> dictTypes = baseDictRepository.findAll(specification, sort);
+
+        List<BaseDictDropDownResp> respList = new ArrayList<>(dictTypes.size());
+        dictTypes.forEach(p -> {
+            respList.add(new BaseDictDropDownResp(p.getId(), p.getCode(), p.getName()));
+        });
+
+        return new PageResult<BaseDictDropDownResp>((long)respList.size(),
+                1L,
+                1L,
+                (long)respList.size(),
+                respList
+        );
     }
 }

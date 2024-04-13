@@ -1,6 +1,8 @@
 package com.goudong.authentication.server.rest;
 
 import com.goudong.authentication.server.constant.SwaggerConst;
+import com.goudong.authentication.server.rest.req.BaseDictDropDownReq;
+import com.goudong.authentication.server.rest.req.BaseDictDropDownResp;
 import com.goudong.authentication.server.rest.req.BaseDictTypeDropDownReq;
 import com.goudong.authentication.server.rest.req.BaseDictTypeDropDownResp;
 import com.goudong.authentication.server.rest.req.search.BaseAppDropDownReq;
@@ -78,5 +80,11 @@ public class DropDownResource {
     @ApiOperation(value = "字典类型下拉(分页+条件限制)", notes = "需要登录，显示用户所在应用下（真实应用）的字典类型列表(分页查询)", tags = SwaggerConst.DROP_DOWN_GROUP_NAME)
     public Result<PageResult<BaseDictTypeDropDownResp>> baseDictTypeDropDown(@Validated BaseDictTypeDropDownReq req) {
         return Result.ofSuccess(baseDictManagerService.baseDictTypeDropDown(req));
+    }
+
+    @GetMapping("/base-dict/page")
+    @ApiOperation(value = "字典明细下拉(分页+条件限制)", notes = "需要登录，显示用户所在应用下（真实应用）的字典明细列表(分页查询)", tags = SwaggerConst.DROP_DOWN_GROUP_NAME)
+    public Result<PageResult<BaseDictDropDownResp>> baseDictDropDown(@Validated BaseDictDropDownReq req) {
+        return Result.ofSuccess(baseDictManagerService.baseDictDropDown(req));
     }
 }

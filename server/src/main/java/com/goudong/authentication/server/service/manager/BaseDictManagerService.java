@@ -115,6 +115,16 @@ public interface BaseDictManagerService {
     Boolean deleteBaseDicts(List<Long> ids);
 
     /**
+     * 条件分页查询字典明细下拉
+     * @param req   下拉分页参数
+     * @return  字典明细下拉分页结果
+     */
+    PageResult<BaseDictDropDownResp> baseDictDropDown(BaseDictDropDownReq req);
+
+
+    //~BaseDictSetting
+    //==================================================================================================================
+    /**
      * 分页字典配置
      * @param req   分页字典配置参数
      * @return      分页字典配置结果
@@ -148,6 +158,7 @@ public interface BaseDictManagerService {
      * @return  true：删除成功
      */
     Boolean deleteBaseDictSettings(List<Long> ids);
+
 
 
 }

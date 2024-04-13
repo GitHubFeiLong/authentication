@@ -1,25 +1,26 @@
-<!--字典配置抽屉-->
+<!--字典明细抽屉-->
 <template>
   <!--   抽屉 字典明细   -->
   <el-drawer custom-class="el-drawer__table"
-             size="70%"
+             size="50%"
              title="字典配置"
              :visible.sync="dictSettingDrawerVisible"
+             :append-to-body="true"
   >
     <div>
       <!--  查询条件  -->
       <div class="filter-container">
         <div class="filter-item">
-          <span class="filter-item-label">字典类型: </span>
-          <DictTypeSelect :default-select-id="dict.table.filter.dictTypeId" @changeDictType="changeDictType"/>
+          <span class="filter-item-label">类型编码: </span>
+          <DictTypeSelect :default-select-id="dictSetting.table.filter.dictTypeId" :clearable="false" @changeDictType="changeDictType"/>
         </div>
         <div class="filter-item">
-          <span class="filter-item-label">字典编码: </span>
-          <el-input v-model="dict.table.filter.code" placeholder="请输入需要查询字典类型名称" clearable/>
+          <span class="filter-item-label">明细编码: </span>
+          <DictSelect :default-select-id="dictSetting.table.filter.dictId" :dict-type-id="dictSetting.table.filter.dictTypeId" :clearable="false" @changeDict="changeDict"/>
         </div>
         <div class="filter-item">
-          <span class="filter-item-label">字典名称: </span>
-          <el-input v-model="dict.table.filter.name" placeholder="请输入需要查询字典类型名称" clearable/>
+          <span class="filter-item-label">配置名称: </span>
+          <el-input v-model="dictSetting.table.filter.name" placeholder="请输入需要查询字典配置名称" clearable/>
         </div>
         <div class="filter-item">
           <el-button
@@ -39,10 +40,10 @@
       <!--顶部操作栏-->
       <div class="el-table-tool">
         <div class="left-tool">
-          <el-button v-permission="'sys:user:add'" class="el-button--small" icon="el-icon-plus" type="primary" @click="dict.dialog.create.enabled=true">
+          <el-button v-permission="'sys:user:add'" class="el-button--small" icon="el-icon-plus" type="primary" @click="dictSetting.dialog.create.enabled=true">
             新增
           </el-button>
-          <el-button v-permission="'sys:user:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteDict">
+          <el-button v-permission="'sys:user:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteDict(dictSetting.table.checkIds)">
             删除
           </el-button>
           <el-button v-permission="'sys:user:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
@@ -54,7 +55,7 @@
         </div>
         <div class="right-tool">
           <el-tooltip class="right-tool-btn-tooltip" effect="dark" content="刷新" placement="top">
-            <div class="right-tool-btn" @click="loadPageDict">
+            <div class="right-tool-btn" @click="loadPageDictSetting">
               <i class="el-icon-refresh-right" />
             </div>
           </el-tooltip>
@@ -77,14 +78,14 @@
         <!-- 表格  -->
         <el-table
             ref="table"
-            v-loading="dict.table.isLoading"
+            v-loading="dictSetting.table.isLoading"
             border
-            :data="dict.table.data"
+            :data="dictSetting.table.data"
             row-key="id"
             style="width: 100%"
             :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
-            :header-row-class-name="dict.EL_TABLE.size"
-            :size="dict.EL_TABLE.size"
+            :header-row-class-name="dictSetting.EL_TABLE.size"
+            :size="dictSetting.EL_TABLE.size"
             @selection-change="selectionChangeFunc"
         >
           <el-table-column
@@ -101,25 +102,12 @@
               align="center"
           />
           <el-table-column
-              label="字典编码"
-              min-width="50"
-              prop="code"
-              sortable
-          />
-          <el-table-column
-              label="字典名称"
+              label="配置名称"
               prop="name"
               min-width="50"
               sortable
               show-overflow-tooltip
           />
-          <el-table-column
-              label="配置数量"
-              prop="dictNumber"
-              min-width="50"
-              sortable
-          />
-
           <el-table-column
               label="备注"
               min-width="180"
@@ -143,6 +131,22 @@
             </template>
           </el-table-column>
           <el-table-column
+              label="默认"
+              width="80"
+              prop="defaulted"
+              align="center"
+          >
+            <template v-slot="scope">
+              <el-switch
+                  v-model="scope.row.defaulted"
+                  :disabled="permissionDisabled('sys:usr:enable')"
+                  :active-value="true"
+                  :inactive-value="false"
+                  @change="changeDictTypeEnabled(scope.row)"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
               label="创建时间"
               width="170"
               prop="createdDate"
@@ -158,13 +162,6 @@
               <div class="el-link-parent">
                 <el-link
                     v-permission="'sys:user:edit'"
-                    icon="el-icon-info"
-                    :underline="false"
-                    type="primary"
-                    @click="drawerDictOpen(scope.row)"
-                >详情</el-link>
-                <el-link
-                    v-permission="'sys:user:edit'"
                     icon="el-icon-edit"
                     :underline="false"
                     type="primary"
@@ -175,7 +172,7 @@
                     icon="el-icon-delete"
                     :underline="false"
                     type="danger"
-                    @click="deleteDictType(scope.row)"
+                    @click="deleteDict([scope.row.id])"
                 >删除</el-link>
               </div>
             </template>
@@ -183,65 +180,124 @@
         </el-table>
         <!-- 分页控件 -->
         <el-pagination
-            :current-page="dict.table.page"
-            :pager-count="dict.table.pagerCount"
-            :page-size="dict.table.size"
-            :page-sizes="dict.table.pageSizes"
-            :total="dict.table.total"
+            :current-page="dictSetting.table.page"
+            :pager-count="dictSetting.table.pagerCount"
+            :page-size="dictSetting.table.size"
+            :page-sizes="dictSetting.table.pageSizes"
+            :total="dictSetting.table.total"
             layout="total, sizes, prev, pager, next, jumper"
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
         />
       </div>
-
-      <!--            <el-button @click="innerDrawer = true">打开里面的!</el-button>-->
-<!--      <el-drawer
-          title="我是里面的"
-          :append-to-body="true"
-          :visible.sync="drawer.dictSetting.enabled">
-        <p>_(:зゝ∠)_</p>
-      </el-drawer>-->
     </div>
 
+    <!--  新增字典  -->
+<!--
+    <el-dialog title="新增字典配置" width="600px" :visible.sync="dictSetting.dialog.create.enabled" @close="dialogCreateCancel" :append-to-body="true">
+      <el-form ref="dialogCreateForm" :model="dictSetting.dialog.create.data" :rules="dictSetting.dialog.rules" label-width="80px">
+        <el-form-item label="字典明细" prop="dictId">
+          <DictTypeSelect :default-select-id="dictSetting.dialog.create.data.dictTypeId" :clearable="false" @changeDict="changeDict"/>
+        </el-form-item>
+        <el-form-item label="配置名称" prop="name">
+          <el-input v-model="dictSetting.dialog.create.data.name" placeholder="请输入字典配置名称" clearable/>
+        </el-form-item>
+        <el-form-item label="配置模板" prop="template">
+          <el-input v-model="dictSetting.dialog.create.data.template" type="textarea" :rows="4" placeholder="请输入字典配置明细的JSON注释"/>
+        </el-form-item>
+        <el-form-item label="配置明细" prop="template">
+          <el-input v-model="dictSetting.dialog.create.data.template" type="textarea" :rows="4" placeholder="请输入字典基础配置JSON模板"/>
+          <el-button plain class="el-button&#45;&#45;small" @click="useParentTemplate(dictSetting.dialog.create.data.dictTypeId)">使用上级配置模板</el-button>
+        </el-form-item>
+        <el-form-item label="激活状态" prop="enabled">
+          <el-select
+              v-model="dictSetting.dialog.create.data.enabled"
+              placeholder="请选择激活状态"
+          >
+            <el-option
+                v-for="item in [{label : '已激活', value : true},{label : '未激活', value : false}]"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="默认状态" prop="enabled">
+          <el-select
+              v-model="dictSetting.dialog.create.data.enabled"
+              placeholder="请选择激活状态"
+          >
+            <el-option
+                v-for="item in [{label : '已激活', value : true},{label : '未激活', value : false}]"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="dictSetting.dialog.create.data.remark" placeholder="请输入字典备注" clearable/>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogCreateCancel">取 消</el-button>
+        <el-button type="primary" @click="dialogCreateSubmit()">确 定</el-button>
+      </div>
+    </el-dialog>
 
+-->
 
     <!--  导入字典类型  -->
-    <UploadSingleExcel
+<!--    <UploadSingleExcel
         @close="closeUploadSingleExcelHandler"
         :import-dialog-title="uploadSingleExcelAttr.title"
         :show-import-dialog="uploadSingleExcelAttr.showImportDialog"
         :action="uploadSingleExcelAttr.action"
-        :on-success-callback="loadPageDict"
+        :on-success-callback="loadPageDictSetting"
         :download-template="downloadImportTemplate"
-    />
-
+    />-->
   </el-drawer>
 </template>
 
 <script>
 import DictTypeSelect from "@/components/Dict/DictTypeSelect.vue";
-import {deleteDictApi, pageDictApi} from "@/api/dict";
+import {
+  createBaseDictApi,
+  createBaseDictTypeApi,
+  deleteDictApi,
+  getBaseDictByIdApi,
+  getBaseDictTypeByIdApi,
+  pageDictApi, updateBaseDictApi
+} from "@/api/dict";
 import {isNotEmpty} from "@/utils/assertUtil";
 import UploadSingleExcel from "@/components/UploadExcel/UploadSingleExcel.vue";
 import {API_PREFIX} from "@/constant/commons";
-import {exportDictTemplateApi} from "@/api/file";
+import {exportDictApi, exportDictTemplateApi} from "@/api/file";
+import {JsonText, SimpleCode} from "@/utils/ElementValidatorUtil";
+import {Message} from "element-ui";
+import DictSelect from "@/components/Dict/DictSelect.vue";
 
 export default {
   name: 'DictSettingDrawer',
-  components: {UploadSingleExcel, DictTypeSelect},
+  components: {DictTypeSelect, DictSelect, UploadSingleExcel},
   props: {
     // 字典类型ID
     dictTypeId:{
       required: true,
       type: String,
     },
-    // 字典类型编码
-    dictTypeCode:{
+    // 字典ID
+    dictId:{
       required: true,
       type: String,
     },
-    // 字典类型名称
-    dictTypeName:{
+    // 字典编码
+    dictCode:{
+      required: true,
+      type: String,
+    },
+    // 字典名称
+    dictName:{
       required: true,
       type: String,
     },
@@ -257,7 +313,7 @@ export default {
     return {
       // 抽屉
       // 字典明细
-      dict: {
+      dictSetting: {
         EL_TABLE: {
           // 显示大小
           size: 'medium'
@@ -265,6 +321,7 @@ export default {
         table: {
           filter: {
             dictTypeId: undefined,
+            dictId: undefined,
             code: undefined,
             name: undefined,
           },
@@ -283,6 +340,7 @@ export default {
           create: {
             enabled: false,
             data: {
+              dictId: null,
               code: null,
               name: null,
               template: null,
@@ -294,6 +352,7 @@ export default {
             enabled: false,
             data: {
               id: null,
+              dictId: null,
               code: null,
               name: null,
               template: null,
@@ -301,48 +360,77 @@ export default {
               remark: null,
             },
           },
+          rules: { // 弹窗的规则
+            code: [
+              {required: true, max: 16, message: '请输入16位及以内的字典编码', trigger: 'blur'},
+              {required: true, validator: SimpleCode, trigger: 'blur'}
+            ],
+            name: [
+              {required: true, max: 16, message: '请输入16位及以内的字典名称', trigger: 'blur'},
+            ],
+            template: [
+              {required: false, validator: JsonText, trigger: 'blur'}
+            ],
+            remark: [
+              {max: 255, message: '长度在 0 到 255 个字符', trigger: 'blur'},
+            ],
+          }
         }
       },
 
       elDropdownItemClass: ['el-dropdown-item--click', undefined, undefined],
       // 导入组件所需相关参数
       uploadSingleExcelAttr: {
-        title: '导入字典类型',
+        title: '导入字典配置',
         showImportDialog: false,
-        action: `${API_PREFIX}/import-export/import-user`
+        action: `${API_PREFIX}/import-export/import-dict-setting`
       },
     };
   },
   watch: {
     /**
-     * 监听字典类型ID变化，重新查询数据
+     * 监听字典类型ID变化
      */
     dictTypeId: {
       handler(n, o) {
-        this.dict.table.filter.dictTypeId = n;
+        this.dictSetting.table.filter.dictTypeId = n;
+      },
+      deep: true // 深度监听父组件传过来对象变化
+    },
+    /**
+     * 监听字典ID变化，重新查询数据
+     */
+    dictId: {
+      handler(n, o) {
+        this.dictSetting.table.filter.dictId = n;
+        this.dictSetting.dialog.create.data.dictId = n;
+        this.dictSetting.dialog.edit.data.dictId = n;
       },
       deep: true // 深度监听父组件传过来对象变化
     },
     /**
      * 监听字典类型ID变化，重新查询数据
      */
-    'dict.table.filter.dictTypeId': {
+    'dictSetting.table.filter.dictId': {
       handler(n, o) {
-        this.dict.table.filter.dictTypeId = n;
+        this.dictSetting.table.filter.dictId = n;
       },
       deep: true // 深度监听父组件传过来对象变化
     },
-    dictDrawerVisible: {
+    dictSettingDrawerVisible: {
       handler(n, o) {
         if (n) {
-          this.loadPageDict();
+          this.loadPageDictSetting();
+        } else {
+          this.dictSetting.table.filter.dictTypeId = undefined
+          this.dictSetting.table.filter.dictId = undefined
         }
       }
     }
   },
   computed: {
     /**
-     * 计算属性：字典抽屉显示隐藏变量
+     * 计算属性：抽屉显示隐藏变量
      */
     dictSettingDrawerVisible: {
       get() {
@@ -357,15 +445,36 @@ export default {
     },
   },
   methods: {
+    //~ 搜索条件
+    //==================================================================================================================
     /**
      * 获取字典类型下拉选，选中的字典类型编码ID
      * @param dictType 字典类型ID
      */
     changeDictType(dictType) {
       if (dictType) {
-        this.dict.table.filter.dictTypeId = dictType.id;
+        this.dictSetting.table.filter.dictTypeId = dictType.id;
+        // 设置为空，不然子组件DictSelect选中值了
+        this.dictSetting.table.filter.dictId = undefined
+        // 重新查询字典明细下拉
       } else {
-        this.dict.table.filter.dictTypeId = undefined;
+        this.dictSetting.table.filter.dictTypeId = undefined;
+        this.dictSetting.table.filter.dictId = undefined
+      }
+    },
+    /**
+     * 获取字典类型下拉选，选中的字典类型编码ID
+     * @param dict 字典
+     */
+    changeDict(dict) {
+      if (dict) {
+        this.dictSetting.table.filter.dictId = dict.id;
+        this.dictSetting.dialog.create.data.dictId = dict.id;
+        this.dictSetting.dialog.edit.data.dictId = dict.id;
+      } else {
+        this.dictSetting.table.filter.dictId = undefined;
+        this.dictSetting.dialog.create.data.dictId = undefined;
+        this.dictSetting.dialog.edit.data.dictId = undefined;
       }
     },
     /**
@@ -373,129 +482,50 @@ export default {
      */
     resetSearchFilter() {
       // 赋默认值
-      this.dict.table.filter.code = undefined;
-      this.dict.table.filter.name = undefined;
+      this.dictSetting.table.filter.code = undefined;
+      this.dictSetting.table.filter.name = undefined;
     },
     /**
      * 点击查询按钮
      */
     searchFunc() {
-      this.dict.table.page = 1
-      this.loadPageDict()
+      this.dictSetting.table.page = 1
+      this.loadPageDictSetting()
     },
     /**
      * 分页查询字典明细表格数据
      */
-    loadPageDict() {
-      this.dict.table.isLoading = true;
+    loadPageDictSetting() {
+      this.dictSetting.table.isLoading = true;
       const pageParam = {
-        page: this.dict.table.page,
-        size: this.dict.table.size,
-        dictTypeId: this.dict.table.filter.dictTypeId,
-        code: this.dict.table.filter.code,
-        name: this.dict.table.filter.name,
+        page: this.dictSetting.table.page,
+        size: this.dictSetting.table.size,
+        dictTypeId: this.dictSetting.table.filter.dictTypeId,
+        code: this.dictSetting.table.filter.code,
+        name: this.dictSetting.table.filter.name,
       }
       pageDictApi(pageParam).then(data => {
         const content = data.content
 
         // 修改分页组件
-        this.dict.table.page = Number(data.page)
-        this.dict.table.size = Number(data.size)
-        this.dict.table.total = Number(data.total)
-        this.dict.table.totalPage = Number(data.totalPage)
+        this.dictSetting.table.page = Number(data.page)
+        this.dictSetting.table.size = Number(data.size)
+        this.dictSetting.table.total = Number(data.total)
+        this.dictSetting.table.totalPage = Number(data.totalPage)
 
         // 将原先的数据丢弃
-        this.dict.table.data = []
+        this.dictSetting.table.data = []
 
         // 添加到数据集合
         content.forEach((item, index, arr) => {
           const column = {
             ...item,
           }
-          this.dict.table.data.push(column)
+          this.dictSetting.table.data.push(column)
         })
       }).finally(() => {
-        this.dict.table.isLoading = false;
+        this.dictSetting.table.isLoading = false;
       })
-    },
-    /**
-     * 复选框选中
-     * @param {Object} rows 选中的行数据
-     */
-    selectionChangeFunc(rows) {
-      this.dict.table.checkIds = rows.map(m => m.id)
-    },
-
-    /**
-     * 批量删除字典类型
-     */
-    deleteDict() {
-      const ids = this.dict.table.checkIds;
-      isNotEmpty(ids, () => this.$message.warning("请勾选需要删除的字典明细"))
-          .then(() => {
-            this.$confirm('此操作将永久删除所选明细, 是否继续?', '删除', {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning'
-            }).then(() => {
-              deleteDictApi(ids).then(data => {
-                this.$message.success("删除成功")
-                this.loadPageDict()
-              })
-            }).catch(reason => {
-              console.error(reason)
-              this.$message.info("已取消删除");
-            })
-          }).catch(() => {});
-    },
-
-    /**
-     * 关闭前的回调，会暂停 Drawer 的关闭
-     * @param done 使用done()关闭抽屉
-     */
-    handleClose(done) {
-      // 给父组件传递值
-      this.$emit('close', false)
-      this.dict.table.filter = {}
-      this.dict.table.data = []
-      done();
-    },
-
-    //~ 新增字典
-    //==================================================================================================================
-
-
-    //~ 导入/导出相关方法
-    //==================================================================================================================
-    /**
-     * 关闭弹窗
-     */
-    closeUploadSingleExcelHandler() {
-      this.dict.uploadSingleExcelAttr.showImportDialog = false
-    },
-    /**
-     * 下载模板
-     */
-    downloadImportTemplate() {
-      exportDictTemplateApi();
-    },
-
-    /**
-     * 导出Excel
-     */
-    exportExcel() {
-      const pageParam = {
-        code: this.table.filter.code,
-        name: this.table.filter.name,
-      }
-      // 如果勾选了就导出勾选的
-      const data = {
-        ids: this.table.checkIds,
-        pageReq: { // 查询条件
-          ...pageParam
-        },
-      }
-      // exportUserApi(data);
     },
     // 修改表格大小
     changeElTableSizeCommand(val) {
@@ -531,6 +561,210 @@ export default {
       this.table.page = val
       this.loadPageDictType()
     },
+    /**
+     * 复选框选中
+     * @param {Object} rows 选中的行数据
+     */
+    selectionChangeFunc(rows) {
+      this.dictSetting.table.checkIds = rows.map(m => m.id)
+    },
+
+    /**
+     * 批量删除字典明细
+     */
+    deleteDict(ids) {
+      isNotEmpty(ids, () => this.$message.warning("请勾选需要删除的字典明细"))
+          .then(() => {
+            this.$confirm('此操作将永久删除所选明细, 是否继续?', '删除', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              deleteDictApi(ids).then(data => {
+                this.$message.success("删除成功")
+                this.loadPageDict()
+              })
+            }).catch(reason => {
+              console.error(reason)
+              this.$message.info("已取消删除");
+            })
+          }).catch(() => {});
+    },
+
+    /**
+     * 编辑字典明细
+     */
+    editDictType(row) {
+      getBaseDictByIdApi(row.id).then(data => {
+        console.log("dd", data)
+        this.dictSetting.dialog.edit.data = {}
+        this.dictSetting.dialog.edit.data.id = row.id
+        this.dictSetting.dialog.edit.data.dictTypeId = data.dictTypeId
+        this.dictSetting.dialog.edit.data.code = data.code
+        this.dictSetting.dialog.edit.data.name = data.name
+        this.dictSetting.dialog.edit.data.template = data.template
+        this.dictSetting.dialog.edit.data.enabled = data.enabled
+        this.dictSetting.dialog.edit.data.remark = data.remark
+        this.dictSetting.dialog.edit.enabled = true
+      })
+    },
+
+    /**
+     * 关闭前的回调，会暂停 Drawer 的关闭
+     * @param done 使用done()关闭抽屉
+     */
+    handleClose(done) {
+      // 给父组件传递值
+      this.$emit('close', false)
+      this.dictSetting.table.filter = {}
+      this.dictSetting.table.data = []
+      done();
+    },
+
+    //~ 新增字典
+    //==================================================================================================================
+    /**
+     * 组件嵌套太深，强制更新
+     */
+    inputChange() {
+      this.$forceUpdate()
+    },
+
+    /**
+     * 查询条件得字典类型下拉变更
+     * @param dictType
+     */
+    dialogChangeDictType(dictType) {
+      if (dictType) {
+        this.dictSetting.dialog.create.data.dictTypeId = dictType.id;
+      } else {
+        this.dictSetting.dialog.create.data.dictTypeId = undefined;
+      }
+    },
+
+    /**
+     * 创建弹框点击取消
+     */
+    dialogCreateCancel() {
+      this.dictSetting.dialog.create.enabled = false;
+      this.dictSetting.dialog.create.data = {}
+      this.dictSetting.dialog.create.data.dictTypeId = this.dictSetting.table.filter.dictTypeId;
+      this.dictSetting.dialog.create.data.enabled = true;
+      this.$refs.dialogCreateForm.resetFields();
+    },
+    /**
+     * 使用上级模板
+     * @param {Number | String} parentId 上级ID
+     */
+    useParentTemplate(parentId) {
+      getBaseDictTypeByIdApi(parentId).then(data => {
+        // 模板
+        let template = data.template;
+        // 弹框设置值
+        this.dictSetting.dialog.create.data.template = undefined
+        this.dictSetting.dialog.edit.data.template = undefined
+        // 重新赋值。
+        this.dictSetting.dialog.create.data.template = template
+        this.dictSetting.dialog.edit.data.template = template
+      })
+    },
+    /**
+     * 创建弹框点击提交
+     */
+    dialogCreateSubmit() {
+      this.$refs.dialogCreateForm.validate((valid) => {
+        if (valid) {
+          createBaseDictApi(this.dictSetting.dialog.create.data).then(response => {
+            // 保存成功
+            Message({
+              message: '字典明细创建成功',
+              type: 'success',
+            })
+            this.dialogCreateCancel()
+            this.loadPageDict();
+          })
+        } else {
+          console.error("校验参数失败")
+          return false;
+        }
+      });
+    },
+
+    //~ 修改字典
+    //==================================================================================================================
+    editDialogChangeDictType(dictType) {
+      if (dictType) {
+        this.dictSetting.dialog.create.data.dictTypeId = dictType.id;
+      } else {
+        this.dictSetting.dialog.create.data.dictTypeId = undefined;
+      }
+    },
+
+    /**
+     * 修改字典明细弹窗关闭
+     */
+    dialogEditCancel() {
+      this.dictSetting.dialog.edit.enabled = false;
+      this.dictSetting.dialog.edit.data = {}
+      this.dictSetting.dialog.edit.data.dictTypeId = this.dictSetting.table.filter.dictTypeId;
+      this.$refs.dialogEditForm.resetFields();
+    },
+    /**
+     * 编辑弹框点击提交
+     */
+    dialogEditSubmit() {
+      this.$refs.dialogEditForm.validate((valid) => {
+        if (valid) {
+          updateBaseDictApi(this.dictSetting.dialog.edit.data).then(response => {
+            // 保存成功
+            Message({
+              message: '字典明细修改成功',
+              type: 'success',
+            })
+            this.dialogEditCancel()
+            this.loadPageDictSetting();
+          })
+        } else {
+          console.error("校验参数失败")
+          return false;
+        }
+      });
+    },
+
+    //~ 导入/导出相关方法
+    //==================================================================================================================
+    /**
+     * 关闭弹窗
+     */
+    closeUploadSingleExcelHandler() {
+      this.uploadSingleExcelAttr.showImportDialog = false
+    },
+    /**
+     * 下载模板
+     */
+    downloadImportTemplate() {
+      exportDictTemplateApi();
+    },
+
+    /**
+     * 导出Excel
+     */
+    exportExcel() {
+      const pageParam = {
+        dictTypeId: this.dictSetting.table.filter.dictTypeId,
+        code: this.dictSetting.table.filter.code,
+        name: this.dictSetting.table.filter.name,
+      }
+      // 如果勾选了就导出勾选的
+      const data = {
+        ids: this.dictSetting.table.checkIds,
+        pageReq: { // 查询条件
+          ...pageParam
+        },
+      }
+      exportDictApi(data);
+    },
+
   },
 }
 </script>
