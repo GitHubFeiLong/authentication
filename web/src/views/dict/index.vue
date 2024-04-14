@@ -111,7 +111,7 @@
 
 
         <el-table-column
-            label="激活"
+            label="状态"
             width="80"
             prop="enabled"
             align="center"

@@ -36,18 +36,18 @@ public class BaseDictExportTemplate {
     @ColumnWidth(20)
     private Integer dictSettingNumber;
 
-    @ApiModelProperty("字典模板")
-    @ExcelProperty("字典模板")
+    @ApiModelProperty("配置模板")
+    @ExcelProperty("配置模板")
     @ColumnWidth(20)
     private String template;
 
     @ApiModelProperty("字典状态")
-    @ExcelProperty("字典状态")
+    @ExcelProperty("状态")
     @ColumnWidth(20)
     private String enableStatus;
 
-    @ApiModelProperty("字典备注")
-    @ExcelProperty("字典备注")
+    @ApiModelProperty("备注")
+    @ExcelProperty("备注")
     @ColumnWidth(40)
     private String remark;
 

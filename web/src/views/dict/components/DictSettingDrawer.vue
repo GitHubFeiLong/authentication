@@ -2,7 +2,7 @@
 <template>
   <!--   抽屉 字典明细   -->
   <el-drawer custom-class="el-drawer__table"
-             size="50%"
+             size="60%"
              title="字典配置"
              :visible.sync="dictSettingDrawerVisible"
              :append-to-body="true"
@@ -12,11 +12,11 @@
       <div class="filter-container">
         <div class="filter-item">
           <span class="filter-item-label">类型编码: </span>
-          <DictTypeSelect :default-select-id="dictSetting.table.filter.dictTypeId" :clearable="false" @changeDictType="changeDictType"/>
+          <DictTypeSelect :default-select-id="dictSetting.table.filter.dictTypeId" :clearable="false" :disabled="true" @changeDictType="changeDictType"/>
         </div>
         <div class="filter-item">
-          <span class="filter-item-label">明细编码: </span>
-          <DictSelect :default-select-id="dictSetting.table.filter.dictId" :dict-type-id="dictSetting.table.filter.dictTypeId" :clearable="false" @changeDict="changeDict"/>
+          <span class="filter-item-label">字典编码: </span>
+          <DictSelect key="one" :default-select-id="dictSetting.table.filter.dictId" :dict-type-id="dictSetting.table.filter.dictTypeId" :clearable="false" :disabled="true" @changeDict="changeDict"/>
         </div>
         <div class="filter-item">
           <span class="filter-item-label">配置名称: </span>
@@ -31,10 +31,6 @@
           >
             查询
           </el-button>
-        </div>
-        <div class="filter-item">
-          <!--不加icon会小一个像素的高度-->
-          <el-button icon="el-icon-setting" @click="resetSearchFilter">重置</el-button>
         </div>
       </div>
       <!--顶部操作栏-->
@@ -88,6 +84,15 @@
             :size="dictSetting.EL_TABLE.size"
             @selection-change="selectionChangeFunc"
         >
+          <el-table-column type="expand">
+            <template slot-scope="props">
+              <el-form label-position="left" inline class="demo-table-expand">
+                <el-form-item label="商品名称">
+                  <el-input v-model="props.row.template" type="textarea" :rows="4" placeholder="请输入字典基础配置JSON模板"/>
+                </el-form-item>
+              </el-form>
+            </template>
+          </el-table-column>
           <el-table-column
               width="50"
               type="selection"
@@ -110,7 +115,7 @@
           />
           <el-table-column
               label="备注"
-              min-width="180"
+              min-width="100"
               prop="remark"
               show-overflow-tooltip
           />
@@ -192,12 +197,23 @@
       </div>
     </div>
 
-    <!--  新增字典  -->
-<!--
+    <!--  新增字典配置  -->
     <el-dialog title="新增字典配置" width="600px" :visible.sync="dictSetting.dialog.create.enabled" @close="dialogCreateCancel" :append-to-body="true">
       <el-form ref="dialogCreateForm" :model="dictSetting.dialog.create.data" :rules="dictSetting.dialog.rules" label-width="80px">
+        <el-form-item label="字典类型" prop="dictId">
+          <DictTypeSelect :default-select-id="dictSetting.dialog.create.data.dictTypeId"
+                          :clearable="false"
+                          :disabled="true"
+                          @changeDictType="changeDictTypeByDialog"/>
+        </el-form-item>
         <el-form-item label="字典明细" prop="dictId">
-          <DictTypeSelect :default-select-id="dictSetting.dialog.create.data.dictTypeId" :clearable="false" @changeDict="changeDict"/>
+          <DictSelect ref="dialogDictSelectRef"
+              :default-select-id.sync="dictSetting.dialog.create.data.dictId"
+                      :dict-type-id.sync="dictSetting.dialog.create.data.dictTypeId"
+                      :clearable="false"
+                      :disabled="true"
+                      @changeDict="changeDictByDialog"
+          />
         </el-form-item>
         <el-form-item label="配置名称" prop="name">
           <el-input v-model="dictSetting.dialog.create.data.name" placeholder="请输入字典配置名称" clearable/>
@@ -207,7 +223,7 @@
         </el-form-item>
         <el-form-item label="配置明细" prop="template">
           <el-input v-model="dictSetting.dialog.create.data.template" type="textarea" :rows="4" placeholder="请输入字典基础配置JSON模板"/>
-          <el-button plain class="el-button&#45;&#45;small" @click="useParentTemplate(dictSetting.dialog.create.data.dictTypeId)">使用上级配置模板</el-button>
+          <el-button plain class="el-button--small" @click="useParentTemplate(dictSetting.dialog.create.data.dictTypeId)">使用上级配置模板</el-button>
         </el-form-item>
         <el-form-item label="激活状态" prop="enabled">
           <el-select
@@ -245,7 +261,6 @@
       </div>
     </el-dialog>
 
--->
 
     <!--  导入字典类型  -->
 <!--    <UploadSingleExcel
@@ -267,7 +282,7 @@ import {
   deleteDictApi,
   getBaseDictByIdApi,
   getBaseDictTypeByIdApi,
-  pageDictApi, updateBaseDictApi
+  pageDictApi, pageDictSettingApi, updateBaseDictApi
 } from "@/api/dict";
 import {isNotEmpty} from "@/utils/assertUtil";
 import UploadSingleExcel from "@/components/UploadExcel/UploadSingleExcel.vue";
@@ -340,6 +355,7 @@ export default {
           create: {
             enabled: false,
             data: {
+              dictTypeId: null,
               dictId: null,
               code: null,
               name: null,
@@ -394,6 +410,8 @@ export default {
     dictTypeId: {
       handler(n, o) {
         this.dictSetting.table.filter.dictTypeId = n;
+        this.dictSetting.dialog.create.data.dictTypeId = n;
+        this.dictSetting.dialog.edit.data.dictTypeId = n;
       },
       deep: true // 深度监听父组件传过来对象变化
     },
@@ -449,17 +467,31 @@ export default {
     //==================================================================================================================
     /**
      * 获取字典类型下拉选，选中的字典类型编码ID
-     * @param dictType 字典类型ID
+     * @param dictType 字典类型
      */
     changeDictType(dictType) {
       if (dictType) {
         this.dictSetting.table.filter.dictTypeId = dictType.id;
         // 设置为空，不然子组件DictSelect选中值了
         this.dictSetting.table.filter.dictId = undefined
+        // this.dictSetting.dialog.create.data.dictTypeId = undefined;
+        // this.dictSetting.dialog.create.data.dictTypeId = dictType.id;
+        // this.dictSetting.dialog.create.data.dictId = undefined;
         // 重新查询字典明细下拉
       } else {
         this.dictSetting.table.filter.dictTypeId = undefined;
         this.dictSetting.table.filter.dictId = undefined
+      }
+    },
+    /**
+     * 获取字典类型下拉选，选中的字典类型编码ID(弹窗中的下拉)
+     * @param dictType 字典类型
+     */
+    changeDictTypeByDialog(dictType) {
+      console.log("changeDictTypeByDialog", dictType)
+      if (dictType) {
+        this.dictSetting.dialog.create.data.dictId = undefined;
+        this.dictSetting.dialog.create.data.dictTypeId = dictType.id;
       }
     },
     /**
@@ -469,10 +501,23 @@ export default {
     changeDict(dict) {
       if (dict) {
         this.dictSetting.table.filter.dictId = dict.id;
+        // this.dictSetting.dialog.create.data.dictId = dict.id;
+        // this.dictSetting.dialog.edit.data.dictId = dict.id;
+      } else {
+        this.dictSetting.table.filter.dictId = undefined;
+        // this.dictSetting.dialog.create.data.dictId = undefined;
+        // this.dictSetting.dialog.edit.data.dictId = undefined;
+      }
+    },
+    /**
+     * 获取字典类型下拉选，选中的字典类型编码ID(弹窗中的下拉)
+     * @param dict 字典
+     */
+    changeDictByDialog(dict) {
+      if (dict) {
         this.dictSetting.dialog.create.data.dictId = dict.id;
         this.dictSetting.dialog.edit.data.dictId = dict.id;
       } else {
-        this.dictSetting.table.filter.dictId = undefined;
         this.dictSetting.dialog.create.data.dictId = undefined;
         this.dictSetting.dialog.edit.data.dictId = undefined;
       }
@@ -500,11 +545,11 @@ export default {
       const pageParam = {
         page: this.dictSetting.table.page,
         size: this.dictSetting.table.size,
-        dictTypeId: this.dictSetting.table.filter.dictTypeId,
+        dictId: this.dictSetting.table.filter.dictId,
         code: this.dictSetting.table.filter.code,
         name: this.dictSetting.table.filter.name,
       }
-      pageDictApi(pageParam).then(data => {
+      pageDictSettingApi(pageParam).then(data => {
         const content = data.content
 
         // 修改分页组件

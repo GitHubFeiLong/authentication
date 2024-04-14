@@ -169,3 +169,19 @@ export function deleteDictApi(ids) {
 }
 // ~ 字典配置
 //======================================================================================================================
+/**
+ * 分页查询字典配置
+ * @param {Object}   data             分页参数
+ * @param {Number}   data.page        页码
+ * @param {Number}   data.size        每页多少条数据
+ * @param {Number}   data.dictTypeId  字典类型ID
+ * @param {Number}   data.dictId      字典ID
+ * @param {string}   data.name        字典配置名称
+ */
+export function pageDictSettingApi(data) {
+  return request({
+    url: `${API_PREFIX}/dict/page/base-dict-setting`,
+    method: 'post',
+    data
+  })
+}

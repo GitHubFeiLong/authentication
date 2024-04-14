@@ -147,7 +147,6 @@ export default {
      */
     change(id) {
       let item = this.data.find(item => item.id === id);
-      console.log(item)
       // 给父组件传递值
       /*
         item.id

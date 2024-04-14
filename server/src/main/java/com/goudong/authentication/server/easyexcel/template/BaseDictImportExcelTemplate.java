@@ -39,8 +39,8 @@ public class BaseDictImportExcelTemplate {
     @ColumnWidth(20)
     private String enabled;
 
-    @ApiModelProperty("字典备注")
-    @ExcelProperty("字典备注")
+    @ApiModelProperty("备注")
+    @ExcelProperty("备注")
     @ColumnWidth(40)
     private String remark;
     //~methods

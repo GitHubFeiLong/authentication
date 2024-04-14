@@ -2,7 +2,7 @@
 <template>
   <!--   抽屉 字典明细   -->
   <el-drawer custom-class="el-drawer__table"
-             size="70%"
+             size="66%"
              title="字典明细"
              :visible.sync="dictDrawerVisible"
              :append-to-body="false"
@@ -15,12 +15,12 @@
           <DictTypeSelect :default-select-id="dict.table.filter.dictTypeId" :clearable="false" @changeDictType="changeDictType"/>
         </div>
         <div class="filter-item">
-          <span class="filter-item-label">明细编码: </span>
-          <el-input v-model="dict.table.filter.code" placeholder="请输入需要查询字典类型名称" clearable/>
+          <span class="filter-item-label">字典编码: </span>
+          <el-input v-model="dict.table.filter.code" placeholder="请输入需要查询字典编码" clearable/>
         </div>
         <div class="filter-item">
-          <span class="filter-item-label">明细名称: </span>
-          <el-input v-model="dict.table.filter.name" placeholder="请输入需要查询字典类型名称" clearable/>
+          <span class="filter-item-label">字典名称: </span>
+          <el-input v-model="dict.table.filter.name" placeholder="请输入需要查询字典名称" clearable/>
         </div>
         <div class="filter-item">
           <el-button
@@ -102,13 +102,13 @@
               align="center"
           />
           <el-table-column
-              label="明细编码"
+              label="字典编码"
               min-width="50"
               prop="code"
               sortable
           />
           <el-table-column
-              label="明细名称"
+              label="字典名称"
               prop="name"
               min-width="50"
               sortable
@@ -128,7 +128,7 @@
               show-overflow-tooltip
           />
           <el-table-column
-              label="激活"
+              label="状态"
               width="80"
               prop="enabled"
               align="center"

@@ -77,17 +77,20 @@ export default {
   watch:{
     dictTypeId:{
       handler(n, o){
+        console.log("handler")
         this.selectedValue = undefined
         this.page = 1
         this.data = []
         this.load();
-      }
+      },
+      deep: true
     },
     /**
      * 变更时，需要选中指定下拉选项
      */
     defaultSelectId: {
       handler(n, o){
+        console.log("defaultSelectId")
         if (n !== undefined && n !== null && n !== '') {
           let item = this.data.find(item => item.id === n);
           // 不存在，就查询出来
@@ -153,7 +156,6 @@ export default {
      */
     change(id) {
       let item = this.data.find(item => item.id === id);
-      console.log(item)
       // 给父组件传递值
       /*
         item.id

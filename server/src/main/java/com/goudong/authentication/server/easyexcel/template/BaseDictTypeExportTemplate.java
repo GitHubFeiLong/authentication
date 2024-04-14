@@ -41,13 +41,13 @@ public class BaseDictTypeExportTemplate {
     @ColumnWidth(20)
     private String template;
 
-    @ApiModelProperty("类型状态")
-    @ExcelProperty("类型状态")
+    @ApiModelProperty("状态")
+    @ExcelProperty("状态")
     @ColumnWidth(20)
     private String enableStatus;
 
-    @ApiModelProperty("类型备注")
-    @ExcelProperty("类型备注")
+    @ApiModelProperty("备注")
+    @ExcelProperty("备注")
     @ColumnWidth(40)
     private String remark;
 
