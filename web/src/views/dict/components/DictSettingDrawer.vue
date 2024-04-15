@@ -219,11 +219,11 @@
           <el-input v-model="dictSetting.dialog.create.data.name" placeholder="请输入字典配置名称" clearable/>
         </el-form-item>
         <el-form-item label="配置模板" prop="template">
-          <el-input v-model="dictSetting.dialog.create.data.template" type="textarea" :rows="4" placeholder="请输入字典配置明细的JSON注释"/>
+          <el-input v-model="dictSetting.dialog.create.data.template" type="textarea" :rows="4" placeholder="请输入JSON注释"/>
+          <el-button plain class="el-button--small" @click="useParentTemplate(dictSetting.dialog.create.data.dictTypeId)">使用上级配置模板</el-button>
         </el-form-item>
         <el-form-item label="配置明细" prop="template">
-          <el-input v-model="dictSetting.dialog.create.data.template" type="textarea" :rows="4" placeholder="请输入字典基础配置JSON模板"/>
-          <el-button plain class="el-button--small" @click="useParentTemplate(dictSetting.dialog.create.data.dictTypeId)">使用上级配置模板</el-button>
+          <el-input v-model="dictSetting.dialog.create.data.template" type="textarea" :rows="4" placeholder="请输入JSON配置"/>
         </el-form-item>
         <el-form-item label="激活状态" prop="enabled">
           <el-select
@@ -239,17 +239,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="默认状态" prop="enabled">
-          <el-select
-              v-model="dictSetting.dialog.create.data.enabled"
-              placeholder="请选择激活状态"
-          >
-            <el-option
-                v-for="item in [{label : '已激活', value : true},{label : '未激活', value : false}]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-            />
-          </el-select>
+          <el-switch
+            v-model="dictSetting.dialog.create.data.defaulted"
+            :active-value="true"
+            :inactive-value="false"
+            @change="changeDictTypeEnabled()"
+          />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="dictSetting.dialog.create.data.remark" placeholder="请输入字典备注" clearable/>
@@ -361,6 +356,7 @@ export default {
               name: null,
               template: null,
               enabled: true,
+              defaulted: true,
               remark: null,
             },
           },
