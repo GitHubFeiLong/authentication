@@ -28,6 +28,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
@@ -200,5 +202,27 @@ public class BaseDictSettingServiceImpl implements BaseDictSettingService {
         allById.forEach(p -> AssertUtil.isEquals(realAppId, p.getAppId(), () -> ClientException.clientByForbidden().clientMessage("权限不足，删除失败").serverMessage("不能删除其它应用下的字典配置")));
         baseDictSettingRepository.deleteAll(allById);
         return true;
+    }
+
+    /**
+     * 新增字典配置
+     *
+     * @param baseDictSetting 新增的字典配置参数
+     * @return 新增的字典配置
+     */
+    @Override
+    @Transactional
+    public synchronized BaseDictSetting save(BaseDictSetting baseDictSetting) {
+        log.info("保存字典配置");
+        if (baseDictSetting.getDefaulted()) {
+            // 修改
+            log.info("将字典{}的所有配置修改称非默认", baseDictSetting.getDictId());
+            baseDictSettingRepository.updateNonDefaultedByDictId(baseDictSetting.getDictId());
+
+            // 设置激活
+            baseDictSetting.setEnabled(true);
+        }
+
+        return baseDictSettingRepository.save(baseDictSetting);
     }
 }

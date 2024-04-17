@@ -39,7 +39,7 @@
           <el-button v-permission="'sys:user:add'" class="el-button--small" icon="el-icon-plus" type="primary" @click="dictSetting.dialog.create.enabled=true">
             新增
           </el-button>
-          <el-button v-permission="'sys:user:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteDict(dictSetting.table.checkIds)">
+          <el-button v-permission="'sys:user:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteDictSetting(dictSetting.table.checkIds)">
             删除
           </el-button>
           <el-button v-permission="'sys:user:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
@@ -170,14 +170,14 @@
                     icon="el-icon-edit"
                     :underline="false"
                     type="primary"
-                    @click="editDictType(scope.row)"
+                    @click="editDictSetting(scope.row)"
                 >编辑</el-link>
                 <el-link
                     v-permission="'sys:user:delete'"
                     icon="el-icon-delete"
                     :underline="false"
                     type="danger"
-                    @click="deleteDict([scope.row.id])"
+                    @click="deleteDictSetting([scope.row.id])"
                 >删除</el-link>
               </div>
             </template>
@@ -219,11 +219,11 @@
           <el-input v-model="dictSetting.dialog.create.data.name" placeholder="请输入字典配置名称" clearable/>
         </el-form-item>
         <el-form-item label="配置模板" prop="template">
-          <el-input v-model="dictSetting.dialog.create.data.template" type="textarea" :rows="4" placeholder="请输入JSON注释"/>
           <el-button plain class="el-button--small" @click="useParentTemplate(dictSetting.dialog.create.data.dictTypeId)">使用上级配置模板</el-button>
+          <el-input v-model="dictSetting.dialog.create.data.template" type="textarea" :rows="4" placeholder="请输入JSON注释"/>
         </el-form-item>
-        <el-form-item label="配置明细" prop="template">
-          <el-input v-model="dictSetting.dialog.create.data.template" type="textarea" :rows="4" placeholder="请输入JSON配置"/>
+        <el-form-item label="配置明细" prop="setting">
+          <el-input v-model="dictSetting.dialog.create.data.setting" type="textarea" :rows="4" placeholder="请输入JSON配置"/>
         </el-form-item>
         <el-form-item label="激活状态" prop="enabled">
           <el-select
@@ -238,21 +238,80 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="默认状态" prop="enabled">
+        <el-form-item label="是否默认" prop="enabled">
           <el-switch
             v-model="dictSetting.dialog.create.data.defaulted"
             :active-value="true"
             :inactive-value="false"
-            @change="changeDictTypeEnabled()"
+            :disabled="!dictSetting.dialog.create.data.enabled"
           />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="dictSetting.dialog.create.data.remark" placeholder="请输入字典备注" clearable/>
+          <el-input v-model="dictSetting.dialog.create.data.remark" placeholder="请输入配置备注" clearable/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogCreateCancel">取 消</el-button>
         <el-button type="primary" @click="dialogCreateSubmit()">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!--  修改字典配置  -->
+    <el-dialog title="新增字典配置" width="600px" :visible.sync="dictSetting.dialog.edit.enabled" @close="dialogEditCancel" :append-to-body="true">
+      <el-form ref="dialogEditForm" :model="dictSetting.dialog.edit.data" :rules="dictSetting.dialog.rules" label-width="80px">
+        <el-form-item label="字典类型" prop="dictId">
+          <DictTypeSelect :default-select-id="dictSetting.dialog.edit.data.dictTypeId"
+                          :clearable="false"
+                          :disabled="true"
+                          @changeDictType="changeDictTypeByDialog"/>
+        </el-form-item>
+        <el-form-item label="字典明细" prop="dictId">
+          <DictSelect
+                      :default-select-id.sync="dictSetting.dialog.edit.data.dictId"
+                      :dict-type-id.sync="dictSetting.dialog.edit.data.dictTypeId"
+                      :clearable="false"
+                      :disabled="true"
+                      @changeDict="changeDictByDialog"
+          />
+        </el-form-item>
+        <el-form-item label="配置名称" prop="name">
+          <el-input v-model="dictSetting.dialog.edit.data.name" placeholder="请输入字典配置名称" clearable/>
+        </el-form-item>
+        <el-form-item label="配置模板" prop="template">
+          <el-button plain class="el-button--small" @click="useParentTemplate(dictSetting.dialog.edit.data.dictTypeId)">使用上级配置模板</el-button>
+          <el-input v-model="dictSetting.dialog.edit.data.template" type="textarea" :rows="4" placeholder="请输入JSON注释"/>
+        </el-form-item>
+        <el-form-item label="配置明细" prop="setting">
+          <el-input v-model="dictSetting.dialog.edit.data.setting" type="textarea" :rows="4" placeholder="请输入JSON配置"/>
+        </el-form-item>
+        <el-form-item label="激活状态" prop="enabled">
+          <el-select
+              v-model="dictSetting.dialog.edit.data.enabled"
+              placeholder="请选择激活状态"
+          >
+            <el-option
+                v-for="item in [{label : '已激活', value : true},{label : '未激活', value : false}]"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="是否默认" prop="enabled">
+          <el-switch
+              v-model="dictSetting.dialog.edit.data.defaulted"
+              :active-value="true"
+              :inactive-value="false"
+              :disabled="!dictSetting.dialog.edit.data.enabled"
+          />
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="dictSetting.dialog.edit.data.remark" placeholder="请输入配置备注" clearable/>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogEditCancel">取 消</el-button>
+        <el-button type="primary" @click="dialogEditSubmit()">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -272,12 +331,12 @@
 <script>
 import DictTypeSelect from "@/components/Dict/DictTypeSelect.vue";
 import {
-  createBaseDictApi,
+  createBaseDictApi, createBaseDictSettingApi,
   createBaseDictTypeApi,
-  deleteDictApi,
-  getBaseDictByIdApi,
+  deleteDictApi, deleteDictSettingApi,
+  getBaseDictByIdApi, getBaseDictSettingByIdApi,
   getBaseDictTypeByIdApi,
-  pageDictApi, pageDictSettingApi, updateBaseDictApi
+  pageDictApi, pageDictSettingApi, updateBaseDictApi, updateBaseDictSettingApi
 } from "@/api/dict";
 import {isNotEmpty} from "@/utils/assertUtil";
 import UploadSingleExcel from "@/components/UploadExcel/UploadSingleExcel.vue";
@@ -352,11 +411,11 @@ export default {
             data: {
               dictTypeId: null,
               dictId: null,
-              code: null,
               name: null,
               template: null,
-              enabled: true,
-              defaulted: true,
+              setting: null,
+              enabled: false,
+              defaulted: false,
               remark: null,
             },
           },
@@ -364,11 +423,13 @@ export default {
             enabled: false,
             data: {
               id: null,
+              dictTypeId: null,
               dictId: null,
-              code: null,
               name: null,
               template: null,
-              enabled: true,
+              setting: null,
+              enabled: false,
+              defaulted: false,
               remark: null,
             },
           },
@@ -440,7 +501,27 @@ export default {
           this.dictSetting.table.filter.dictId = undefined
         }
       }
-    }
+    },
+    /**
+     * 监听新增字典类型弹窗中的激活状态
+     */
+    'dictSetting.dialog.create.data.enabled':{
+      handler(n, e){
+        if(!n) {
+          this.dictSetting.dialog.create.data.defaulted = false
+        }
+      },
+    },
+    /**
+     * 监听新增字典类型弹窗中的激活状态
+     */
+    'dictSetting.dialog.edit.data.enabled':{
+      handler(n, e){
+        if(!n) {
+          this.dictSetting.dialog.edit.data.defaulted = false
+        }
+      },
+    },
   },
   computed: {
     /**
@@ -582,7 +663,7 @@ export default {
       })
       console.log(this.elDropdownItemClass)
       this.elDropdownItemClass[args[0]]
-      this.EL_TABLE.size = args[1];
+      this.dictSetting.EL_TABLE.size = args[1];
     },
     /**
      * 更改每页显示多少条
@@ -590,8 +671,8 @@ export default {
      */
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`)
-      this.table.size = val
-      this.loadPageDictType()
+      this.dictSetting.table.size = val
+      this.loadPageDictSetting()
     },
     /**
      * 修改当前页码
@@ -599,8 +680,8 @@ export default {
      */
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`)
-      this.table.page = val
-      this.loadPageDictType()
+      this.dictSetting.table.page = val
+      this.loadPageDictSetting()
     },
     /**
      * 复选框选中
@@ -613,15 +694,15 @@ export default {
     /**
      * 批量删除字典明细
      */
-    deleteDict(ids) {
-      isNotEmpty(ids, () => this.$message.warning("请勾选需要删除的字典明细"))
+    deleteDictSetting(ids) {
+      isNotEmpty(ids, () => this.$message.warning("请勾选需要删除的字典配置"))
           .then(() => {
-            this.$confirm('此操作将永久删除所选明细, 是否继续?', '删除', {
+            this.$confirm('此操作将永久删除所选配置, 是否继续?', '删除', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',
               type: 'warning'
             }).then(() => {
-              deleteDictApi(ids).then(data => {
+              deleteDictSettingApi(ids).then(data => {
                 this.$message.success("删除成功")
                 this.loadPageDict()
               })
@@ -633,18 +714,18 @@ export default {
     },
 
     /**
-     * 编辑字典明细
+     * 编辑字典配置
      */
-    editDictType(row) {
-      getBaseDictByIdApi(row.id).then(data => {
-        console.log("dd", data)
-        this.dictSetting.dialog.edit.data = {}
+    editDictSetting(row) {
+      getBaseDictSettingByIdApi(row.id).then(data => {
         this.dictSetting.dialog.edit.data.id = row.id
         this.dictSetting.dialog.edit.data.dictTypeId = data.dictTypeId
-        this.dictSetting.dialog.edit.data.code = data.code
+        this.dictSetting.dialog.edit.data.dictId = data.dictId
         this.dictSetting.dialog.edit.data.name = data.name
         this.dictSetting.dialog.edit.data.template = data.template
+        this.dictSetting.dialog.edit.data.setting = data.setting
         this.dictSetting.dialog.edit.data.enabled = data.enabled
+        this.dictSetting.dialog.edit.data.defaulted = data.defaulted
         this.dictSetting.dialog.edit.data.remark = data.remark
         this.dictSetting.dialog.edit.enabled = true
       })
@@ -657,7 +738,10 @@ export default {
     handleClose(done) {
       // 给父组件传递值
       this.$emit('close', false)
-      this.dictSetting.table.filter = {}
+      this.dictSetting.table.filter.dictTypeId = undefined
+      this.dictSetting.table.filter.dictId = undefined
+      this.dictSetting.table.filter.code = undefined
+      this.dictSetting.table.filter.name = undefined
       this.dictSetting.table.data = []
       done();
     },
@@ -669,6 +753,13 @@ export default {
      */
     inputChange() {
       this.$forceUpdate()
+    },
+    /**
+     * 修改弹窗中的默认值
+     * @param type
+     */
+    changeDialogDefaultedByType(type){
+
     },
 
     /**
@@ -687,11 +778,16 @@ export default {
      * 创建弹框点击取消
      */
     dialogCreateCancel() {
-      this.dictSetting.dialog.create.enabled = false;
-      this.dictSetting.dialog.create.data = {}
-      this.dictSetting.dialog.create.data.dictTypeId = this.dictSetting.table.filter.dictTypeId;
-      this.dictSetting.dialog.create.data.enabled = true;
-      this.$refs.dialogCreateForm.resetFields();
+        // 关闭弹窗
+        this.dictSetting.dialog.create.enabled = false
+        // 清空数据
+        this.dictSetting.dialog.create.data.name = null
+        this.dictSetting.dialog.create.data.template = null
+        this.dictSetting.dialog.create.data.setting = null
+        this.dictSetting.dialog.create.data.enabled = false
+        this.dictSetting.dialog.create.data.defaulted = false
+        this.dictSetting.dialog.create.data.remark = null
+        this.$refs.dialogCreateForm.resetFields();
     },
     /**
      * 使用上级模板
@@ -703,10 +799,14 @@ export default {
         let template = data.template;
         // 弹框设置值
         this.dictSetting.dialog.create.data.template = undefined
+        this.dictSetting.dialog.create.data.setting = undefined
         this.dictSetting.dialog.edit.data.template = undefined
+        this.dictSetting.dialog.edit.data.setting = undefined
         // 重新赋值。
         this.dictSetting.dialog.create.data.template = template
+        this.dictSetting.dialog.create.data.setting = template
         this.dictSetting.dialog.edit.data.template = template
+        this.dictSetting.dialog.edit.data.setting = template
       })
     },
     /**
@@ -715,14 +815,14 @@ export default {
     dialogCreateSubmit() {
       this.$refs.dialogCreateForm.validate((valid) => {
         if (valid) {
-          createBaseDictApi(this.dictSetting.dialog.create.data).then(response => {
+          createBaseDictSettingApi(this.dictSetting.dialog.create.data).then(response => {
             // 保存成功
             Message({
-              message: '字典明细创建成功',
+              message: '字典配置创建成功',
               type: 'success',
             })
             this.dialogCreateCancel()
-            this.loadPageDict();
+            this.loadPageDictSetting();
           })
         } else {
           console.error("校验参数失败")
@@ -745,10 +845,17 @@ export default {
      * 修改字典明细弹窗关闭
      */
     dialogEditCancel() {
-      this.dictSetting.dialog.edit.enabled = false;
-      this.dictSetting.dialog.edit.data = {}
-      this.dictSetting.dialog.edit.data.dictTypeId = this.dictSetting.table.filter.dictTypeId;
+      // 关闭弹窗
+      this.dictSetting.dialog.edit.enabled = false
+      // 清空数据
+      this.dictSetting.dialog.edit.data.name = null
+      this.dictSetting.dialog.edit.data.template = null
+      this.dictSetting.dialog.edit.data.setting = null
+      this.dictSetting.dialog.edit.data.enabled = false
+      this.dictSetting.dialog.edit.data.defaulted = false
+      this.dictSetting.dialog.edit.data.remark = null
       this.$refs.dialogEditForm.resetFields();
+
     },
     /**
      * 编辑弹框点击提交
@@ -756,10 +863,10 @@ export default {
     dialogEditSubmit() {
       this.$refs.dialogEditForm.validate((valid) => {
         if (valid) {
-          updateBaseDictApi(this.dictSetting.dialog.edit.data).then(response => {
+          updateBaseDictSettingApi(this.dictSetting.dialog.edit.data).then(response => {
             // 保存成功
             Message({
-              message: '字典明细修改成功',
+              message: '字典配置修改成功',
               type: 'success',
             })
             this.dialogEditCancel()

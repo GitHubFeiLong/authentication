@@ -45,7 +45,6 @@ public class BaseDictSetting extends BasePO implements Serializable {
     */
     @NotNull(message="[字典主键]不能为空")
     @ApiModelProperty(value = "字典主键", required = true)
-    @Column(name = "dict_id",insertable = false, updatable = false)
     private Long dictId;
     /**
      * 字典配置名称

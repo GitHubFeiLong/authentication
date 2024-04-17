@@ -2,7 +2,7 @@
 <template>
   <!--   抽屉 字典明细   -->
   <el-drawer custom-class="el-drawer__table"
-             size="66%"
+             size="70%"
              title="字典明细"
              :visible.sync="dictDrawerVisible"
              :append-to-body="false"
@@ -554,7 +554,7 @@ export default {
       })
       console.log(this.elDropdownItemClass)
       this.elDropdownItemClass[args[0]]
-      this.EL_TABLE.size = args[1];
+      this.dict.EL_TABLE.size = args[1];
     },
     /**
      * 更改每页显示多少条
@@ -562,8 +562,8 @@ export default {
      */
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`)
-      this.table.size = val
-      this.loadPageDictType()
+      this.dict.table.size = val
+      this.loadPageDict()
     },
     /**
      * 修改当前页码
@@ -571,8 +571,8 @@ export default {
      */
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`)
-      this.table.page = val
-      this.loadPageDictType()
+      this.dict.table.page = val
+      this.loadPageDict()
     },
     /**
      * 复选框选中

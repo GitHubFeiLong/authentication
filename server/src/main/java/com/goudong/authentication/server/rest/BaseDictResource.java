@@ -134,6 +134,12 @@ public class BaseDictResource {
         return Result.ofSuccess(baseDictManagerService.createBaseDictSetting(req));
     }
 
+    @GetMapping("/base-dict-setting/{id}")
+    @ApiOperation(value = "【字典配置】查询")
+    public Result<BaseDictSettingDTO> getBaseDictSettingById(@PathVariable Long id) {
+        return Result.ofSuccess(baseDictManagerService.getBaseDictSettingById(id));
+    }
+
     @PutMapping("/base-dict-setting")
     @ApiOperation(value = "【字典配置】修改")
     public Result<BaseDictSettingDTO> updateBaseDictSetting(@RequestBody @Validated BaseDictSettingUpdateReq req) {

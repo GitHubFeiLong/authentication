@@ -1,5 +1,6 @@
 package com.goudong.authentication.server.service;
 
+import com.goudong.authentication.server.domain.BaseDict;
 import com.goudong.authentication.server.domain.BaseDictSetting;
 import com.goudong.authentication.server.rest.req.BaseDictSettingChangeEnabledReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingPageReq;
@@ -53,5 +54,10 @@ public interface BaseDictSettingService {
      */
     Boolean deleteByIds(List<Long> ids);
 
-
+    /**
+     * 新增字典配置
+     * @param baseDictSetting   新增的字典配置参数
+     * @return                  新增的字典配置
+     */
+    BaseDictSetting save(BaseDictSetting baseDictSetting);
 }

@@ -185,3 +185,64 @@ export function pageDictSettingApi(data) {
     data
   })
 }
+
+/**
+ * 根据字典配置ID查询字典配置信息
+ * @param {Number | String}   id       字典配置ID
+ */
+export function getBaseDictSettingByIdApi(id) {
+  return request({
+    url: `${API_PREFIX}/dict/base-dict-setting/${id}`,
+    method: 'get',
+  })
+}
+
+/**
+ * 新增字典配置
+ * @param {Object} data                     新增字典配置参数
+ * @param {Number| String} data.dictId      字典配置ID
+ * @param {string} data.name                字典配置名称
+ * @param {string} data.template            字典配置模板JSON字符串
+ * @param {string} data.setting             字典配置JSON字符串
+ * @param {'true' | 'false'} data.enabled   字典激活状态：true 激活；false 未激活
+ * @param {'true' | 'false'} data.defaulted 字典是否默认：true 默认；false 否认
+ * @param {string} data.remark              字典配置备注信息
+ */
+export function createBaseDictSettingApi(data) {
+  return request({
+    url: `${API_PREFIX}/dict/base-dict-setting`,
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 修改字典配置
+ * @param {Object} data                     修改字典配置参数
+ * @param {Number} data.id                  修改字典配置的ID
+ * @param {string} data.name                字典配置名称
+ * @param {string} data.template            字典配置配置模板JSON字符串
+ * @param {string} data.setting             字典配置配置JSON字符串
+ * @param {'true' | 'false'} data.enabled   字典激活状态：true 激活；false 未激活
+ * @param {'true' | 'false'} data.defaulted 字典是否默认：true 默认；false 否认
+ * @param {string} data.remark              字典配置备注信息
+ */
+export function updateBaseDictSettingApi(data) {
+  return request({
+    url: `${API_PREFIX}/dict/base-dict-setting`,
+    method: 'put',
+    data
+  })
+}
+
+/**
+ * 删除字典配置
+ * @param {Array} ids 批量删除字典配置ID集合
+ */
+export function deleteDictSettingApi(ids) {
+  return request({
+    url: `${API_PREFIX}/dict/base-dict-setting`,
+    method: 'delete',
+    data: ids,
+  })
+}

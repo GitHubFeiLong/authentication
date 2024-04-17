@@ -14,6 +14,7 @@ import java.beans.IntrospectionException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 类描述：
@@ -114,7 +115,16 @@ public class DataBaseAuditListener {
      */
     protected void fillAppId(Object object, Class<?> aClass, String propertyName) throws IllegalAccessException, IntrospectionException, InvocationTargetException, NoSuchMethodException {
         try {
-            Field appId = aClass.getDeclaredField(propertyName);
+            Field appId = null;
+            try {
+                appId = aClass.getDeclaredField(propertyName);
+            } catch (NoSuchFieldException e) {
+                if (Objects.equals(object.getClass(), aClass)) {
+                    throw e;
+                }
+                appId = object.getClass().getDeclaredField(propertyName);
+            }
+
             appId.setAccessible(true);
 
             // 没有特意设置应用id，就需要设置应用id

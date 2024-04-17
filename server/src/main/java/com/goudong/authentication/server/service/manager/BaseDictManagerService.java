@@ -139,6 +139,13 @@ public interface BaseDictManagerService {
     BaseDictSettingDTO createBaseDictSetting(BaseDictSettingCreateReq req);
 
     /**
+     * 根据字典配置ID查询字典配置
+     * @param id    字典配置ID
+     * @return      字典配置
+     */
+    BaseDictSettingDTO getBaseDictSettingById(Long id);
+
+    /**
      * 修改字典配置
      * @param req   修改参数
      * @return      修改后字典配置
@@ -158,7 +165,5 @@ public interface BaseDictManagerService {
      * @return  true：删除成功
      */
     Boolean deleteBaseDictSettings(List<Long> ids);
-
-
 
 }

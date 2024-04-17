@@ -3,6 +3,7 @@ package com.goudong.authentication.server.service.manager.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.zhxu.bs.SearchResult;
 import com.goudong.authentication.server.domain.BaseDict;
+import com.goudong.authentication.server.domain.BaseDictSetting;
 import com.goudong.authentication.server.domain.BaseDictType;
 import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.req.search.BaseRoleDropDownReq;
@@ -28,6 +29,7 @@ import com.goudong.boot.web.core.BasicException;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.lang.PageResult;
 import com.goudong.core.util.AssertUtil;
+import com.goudong.core.util.StringUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -273,9 +275,23 @@ public class BaseDictManagerServiceImpl implements BaseDictManagerService {
     @Override
     public BaseDictSettingDTO createBaseDictSetting(BaseDictSettingCreateReq req) {
         BaseDict dict = baseDictService.findById(req.getDictId());
+        req.attributeDefaultValue();
+        BaseDictSetting baseDictSetting = BeanUtil.copyProperties(req, BaseDictSetting.class);
+        baseDictSetting.setDictTypeId(dict.getDictTypeId());
+        // 保存
+        BaseDictSetting save = baseDictSettingService.save(baseDictSetting);
+        return baseDictSettingMapper.toDto(save);
+    }
 
-        // return baseDictSettingMapper.toDto(baseDictSettingService.sav);
-        return null;
+    /**
+     * 根据字典配置ID查询字典配置
+     *
+     * @param id 字典配置ID
+     * @return 字典配置
+     */
+    @Override
+    public BaseDictSettingDTO getBaseDictSettingById(Long id) {
+        return baseDictSettingMapper.toDto(baseDictSettingService.findById(id));
     }
 
     /**
