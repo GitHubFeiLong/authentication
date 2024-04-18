@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
@@ -236,6 +237,19 @@ public class BaseDictServiceImpl implements BaseDictService {
         List<BaseDict> allById = baseDictRepository.findAllById(ids);
         allById.forEach(p -> AssertUtil.isEquals(realAppId, p.getAppId(), () -> ClientException.clientByForbidden().clientMessage("权限不足，删除失败").serverMessage("不能删除其它应用下的字典")));
         baseDictRepository.deleteAll(allById);
+        return true;
+    }
+
+    /**
+     * 批量删除字典
+     *
+     * @param dictTypeIds 字典类型ID集合
+     * @return true：删除成功；false：删除失败
+     */
+    @Override
+    @Transactional
+    public Boolean deleteByDictTypeIds(List<Long> dictTypeIds) {
+        dictTypeIds.forEach(baseDictRepository::deleteByDictTypeId);
         return true;
     }
 

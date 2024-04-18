@@ -69,6 +69,13 @@ public interface BaseDictService {
     Boolean deleteByIds(List<Long> ids);
 
     /**
+     * 批量删除字典
+     * @param dictTypeIds   字典类型ID集合
+     * @return      true：删除成功；false：删除失败
+     */
+    Boolean deleteByDictTypeIds(List<Long> dictTypeIds);
+
+    /**
      * 条件分页查询字典明细下拉
      *
      * @param req   下拉分页参数

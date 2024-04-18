@@ -4,6 +4,7 @@ import com.goudong.authentication.server.domain.BaseDict;
 import com.goudong.authentication.server.repository.resp.IdCountResp;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -34,4 +35,13 @@ public interface BaseDictRepository extends JpaRepository<BaseDict, Long>, JpaSp
      * @return  应用对象
      */
     BaseDict findByAppIdAndCode(Long appId, String code);
+
+    /**
+     * 删除指定字典类型下的所有字典明细
+     * @param dictTypeId    字典类型ID
+     * @return  删除的数量
+     */
+    @Modifying
+    @Query(value = "delete from base_dict where dict_type_id = :dictTypeId", nativeQuery = true)
+    int deleteByDictTypeId(Long dictTypeId);
 }

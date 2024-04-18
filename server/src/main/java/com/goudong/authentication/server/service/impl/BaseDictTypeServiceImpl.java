@@ -222,6 +222,7 @@ public class BaseDictTypeServiceImpl implements BaseDictTypeService {
      * @return true删除成功；false删除失败
      */
     @Override
+    @Transactional
     public Boolean deleteByIds(List<Long> ids) {
         MyAuthentication myAuthentication = SecurityContextUtil.get();
         Long realAppId = myAuthentication.getRealAppId();

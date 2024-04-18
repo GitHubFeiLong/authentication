@@ -55,9 +55,24 @@ public interface BaseDictSettingService {
     Boolean deleteByIds(List<Long> ids);
 
     /**
+     * 批量删除字典配置
+     * @param dictTypeIds   字典类型ID集合
+     * @return  true：删除成功；false：删除失败
+     */
+    boolean deleteByDictTypeIds(List<Long> dictTypeIds);
+
+    /**
+     * 批量删除字典配置
+     * @param dictIds   字典明细ID集合
+     * @return  true：删除成功；false：删除失败
+     */
+    boolean deleteByDictIds(List<Long> dictIds);
+
+    /**
      * 新增字典配置
      * @param baseDictSetting   新增的字典配置参数
      * @return                  新增的字典配置
      */
     BaseDictSetting save(BaseDictSetting baseDictSetting);
+
 }

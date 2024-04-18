@@ -30,6 +30,7 @@ import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.lang.PageResult;
 import com.goudong.core.util.AssertUtil;
 import com.goudong.core.util.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +43,7 @@ import java.util.List;
  * @author chenf
  */
 @Service
+@Slf4j
 public class BaseDictManagerServiceImpl implements BaseDictManagerService {
 
     //~fields
@@ -151,8 +153,15 @@ public class BaseDictManagerServiceImpl implements BaseDictManagerService {
      * @return true：删除字典类型成功；false：删除字典类型成功
      */
     @Override
+    @Transactional
     public Boolean deleteBaseDictTypes(List<Long> ids) {
-        return baseDictTypeService.deleteByIds(ids);
+        log.info("删除字典类型：{}", ids);
+        baseDictTypeService.deleteByIds(ids);
+        log.info("删除字典明细");
+        baseDictService.deleteByDictTypeIds(ids);
+        log.info("删除字典配置");
+        baseDictSettingService.deleteByDictTypeIds(ids);
+        return true;
     }
 
     /**
@@ -239,7 +248,11 @@ public class BaseDictManagerServiceImpl implements BaseDictManagerService {
      */
     @Override
     public Boolean deleteBaseDicts(List<Long> ids) {
-        return baseDictService.deleteByIds(ids);
+        log.info("删除字典明细");
+        baseDictService.deleteByIds(ids);
+        log.info("删除字典配置");
+        baseDictSettingService.deleteByDictIds(ids);
+        return true;
     }
 
     /**

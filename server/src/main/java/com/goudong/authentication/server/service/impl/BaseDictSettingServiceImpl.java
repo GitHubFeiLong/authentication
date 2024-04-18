@@ -205,6 +205,32 @@ public class BaseDictSettingServiceImpl implements BaseDictSettingService {
     }
 
     /**
+     * 批量删除字典配置
+     *
+     * @param dictTypeIds 字典类型ID集合
+     * @return true：删除成功；false：删除失败
+     */
+    @Override
+    @Transactional
+    public boolean deleteByDictTypeIds(List<Long> dictTypeIds) {
+        dictTypeIds.forEach(baseDictSettingRepository::deleteByDictTypeId);
+        return true;
+    }
+
+    /**
+     * 批量删除字典配置
+     *
+     * @param dictIds 字典明细ID集合
+     * @return true：删除成功；false：删除失败
+     */
+    @Override
+    @Transactional
+    public boolean deleteByDictIds(List<Long> dictIds) {
+        dictIds.forEach(baseDictSettingRepository::deleteByDictId);
+        return true;
+    }
+
+    /**
      * 新增字典配置
      *
      * @param baseDictSetting 新增的字典配置参数
