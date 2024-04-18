@@ -87,9 +87,12 @@
           <el-table-column type="expand">
             <template slot-scope="props">
               <el-form label-position="left" inline class="demo-table-expand">
-                <el-form-item label="商品名称">
+                <el-form-item label="配置模板">
                   <el-input v-model="props.row.template" type="textarea" :rows="4" placeholder="请输入字典基础配置JSON模板"/>
                 </el-form-item>
+                  <el-form-item label="配置JSON">
+                      <el-input v-model="props.row.setting" type="textarea" :rows="4" placeholder="请输入字典基础配置JSON模板"/>
+                  </el-form-item>
               </el-form>
             </template>
           </el-table-column>
@@ -316,15 +319,15 @@
     </el-dialog>
 
 
-    <!--  导入字典类型  -->
-<!--    <UploadSingleExcel
+    <!--  导入字典配置  -->
+    <UploadSingleExcel
         @close="closeUploadSingleExcelHandler"
         :import-dialog-title="uploadSingleExcelAttr.title"
         :show-import-dialog="uploadSingleExcelAttr.showImportDialog"
         :action="uploadSingleExcelAttr.action"
         :on-success-callback="loadPageDictSetting"
         :download-template="downloadImportTemplate"
-    />-->
+    />
   </el-drawer>
 </template>
 
@@ -341,7 +344,7 @@ import {
 import {isNotEmpty} from "@/utils/assertUtil";
 import UploadSingleExcel from "@/components/UploadExcel/UploadSingleExcel.vue";
 import {API_PREFIX} from "@/constant/commons";
-import {exportDictApi, exportDictTemplateApi} from "@/api/file";
+import {exportDictApi, exportDictSettingApi, exportDictSettingTemplateApi, exportDictTemplateApi} from "@/api/file";
 import {JsonText, SimpleCode} from "@/utils/ElementValidatorUtil";
 import {Message} from "element-ui";
 import DictSelect from "@/components/Dict/DictSelect.vue";
@@ -391,7 +394,6 @@ export default {
           filter: {
             dictTypeId: undefined,
             dictId: undefined,
-            code: undefined,
             name: undefined,
           },
           isLoading: false,
@@ -704,7 +706,7 @@ export default {
             }).then(() => {
               deleteDictSettingApi(ids).then(data => {
                 this.$message.success("删除成功")
-                this.loadPageDict()
+                this.loadPageDictSetting()
               })
             }).catch(reason => {
               console.error(reason)
@@ -891,7 +893,7 @@ export default {
      * 下载模板
      */
     downloadImportTemplate() {
-      exportDictTemplateApi();
+      exportDictSettingTemplateApi();
     },
 
     /**
@@ -900,7 +902,7 @@ export default {
     exportExcel() {
       const pageParam = {
         dictTypeId: this.dictSetting.table.filter.dictTypeId,
-        code: this.dictSetting.table.filter.code,
+        dictId: this.dictSetting.table.filter.dictId,
         name: this.dictSetting.table.filter.name,
       }
       // 如果勾选了就导出勾选的
@@ -910,7 +912,7 @@ export default {
           ...pageParam
         },
       }
-      exportDictApi(data);
+      exportDictSettingApi(data);
     },
 
   },

@@ -144,4 +144,23 @@ public class ImportExportResource {
     public void exportDict(HttpServletResponse response, @RequestBody BaseDictExportReq req) {
         importExportManagerService.exportDict(response, req);
     }
+
+    @GetMapping("/export-dict-setting-template")
+    @ApiOperation("字典明细模板导出")
+    public void exportDictSettingTemplate(HttpServletResponse response) throws IOException {
+        importExportManagerService.exportTemplateHandler(response, "template-dict-setting.xlsx");
+    }
+
+    @PostMapping("/import-dict-setting")
+    @ApiOperation("字典明细导入")
+    @ResponseBody
+    public Result<Boolean> importDictSetting(@Validated BaseDictSettingImportReq req) {
+        return Result.ofSuccess(importExportManagerService.importDictSetting(req));
+    }
+
+    @PostMapping("/export-dict-setting")
+    @ApiOperation("字典配置导出")
+    public void exportDictSetting(HttpServletResponse response, @RequestBody BaseDictSettingExportReq req) {
+        importExportManagerService.exportDictSetting(response, req);
+    }
 }

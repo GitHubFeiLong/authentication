@@ -2,14 +2,11 @@ package com.goudong.authentication.server.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.goudong.authentication.server.domain.BaseDict;
-import com.goudong.authentication.server.domain.BaseDictType;
+import com.goudong.authentication.server.exception.DictNotFoundException;
 import com.goudong.authentication.server.repository.BaseDictRepository;
-import com.goudong.authentication.server.repository.resp.IdCountResp;
 import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.resp.BaseDictPageResp;
-import com.goudong.authentication.server.rest.resp.BaseDictTypePageResp;
 import com.goudong.authentication.server.service.BaseDictService;
-import com.goudong.authentication.server.service.dto.BaseDictDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.mapper.BaseDictMapper;
 import com.goudong.authentication.server.util.SecurityContextUtil;
@@ -27,8 +24,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
@@ -180,6 +175,20 @@ public class BaseDictServiceImpl implements BaseDictService {
         };
         BaseDict baseDict = baseDictRepository.findOne(specification).orElseThrow(() -> ClientException.client("字典不存在"));
         return baseDict;
+    }
+
+    /**
+     * 根据应用ID和字典编码查询字典信息
+     *
+     * @param appId 应用ID
+     * @param code  字典编码
+     * @return 字典对象
+     * @throws DictNotFoundException 字典不存在
+     */
+    @Override
+    public BaseDict findByAppIdAndCode(Long appId, String code) {
+        BaseDict baseDict = baseDictRepository.findByAppIdAndCode(appId, code);
+        return Optional.ofNullable(baseDict).orElseThrow(() -> new DictNotFoundException("字典不存在"));
     }
 
     /**

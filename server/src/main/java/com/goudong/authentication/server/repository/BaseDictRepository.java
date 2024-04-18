@@ -26,4 +26,12 @@ public interface BaseDictRepository extends JpaRepository<BaseDict, Long>, JpaSp
      */
     @Query(value = "select dict_id as id, count(0) as count from base_dict_setting where dict_id in (:dictIds) group by dict_id", nativeQuery = true)
     List<Map<String, BigInteger>> queryCount(List<Long> dictIds);
+
+    /**
+     * 根据应用ID和字典编码查询字典
+     * @param appId 应用ID
+     * @param code  字典编码
+     * @return  应用对象
+     */
+    BaseDict findByAppIdAndCode(Long appId, String code);
 }

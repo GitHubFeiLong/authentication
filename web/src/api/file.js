@@ -207,8 +207,9 @@ export function exportDictSettingTemplateApi() {
  * @param {object} data                     导出参数
  * @param {array} data.ids                  勾选的id
  * @param {object} data.pageReq             查询参数
- * @param {string} data.pageReq.code        字典类型编码
- * @param {string} data.pageReq.name        字典类型名称
+ * @param {string} data.pageReq.dictTypeId  字典类型ID
+ * @param {string} data.pageReq.dictId      字典明细ID
+ * @param {string} data.pageReq.name        字典配置名称
  */
 export function exportDictSettingApi(data) {
   return request({

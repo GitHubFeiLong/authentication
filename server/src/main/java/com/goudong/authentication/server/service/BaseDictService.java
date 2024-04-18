@@ -3,6 +3,7 @@ import com.goudong.authentication.server.domain.BaseDict;
 import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.resp.BaseDictPageResp;
 import com.goudong.authentication.server.service.dto.BaseDictDTO;
+import com.goudong.authentication.server.exception.DictNotFoundException;
 import com.goudong.core.lang.PageResult;
 
 import java.util.List;
@@ -37,6 +38,15 @@ public interface BaseDictService {
     BaseDict findById(Long id);
 
     /**
+     * 根据应用ID和字典编码查询字典信息
+     * @param appId 应用ID
+     * @param code  字典编码
+     * @return  字典对象
+     * @throws DictNotFoundException 字典不存在
+     */
+    BaseDict findByAppIdAndCode(Long appId, String code);
+
+    /**
      * 修改字典
      * @param req   修改字典参数
      * @return      修改后的字典
@@ -58,7 +68,6 @@ public interface BaseDictService {
      */
     Boolean deleteByIds(List<Long> ids);
 
-
     /**
      * 条件分页查询字典明细下拉
      *
@@ -66,4 +75,5 @@ public interface BaseDictService {
      * @return  字典明细下拉分页结果
      */
     PageResult<BaseDictDropDownResp> baseDictDropDown(BaseDictDropDownReq req);
+
 }

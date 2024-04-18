@@ -1,0 +1,55 @@
+package com.goudong.authentication.server.easyexcel.template;
+
+import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.util.Date;
+
+/**
+ * 类描述：
+ * 字典类型导出
+ * @author chenf
+ */
+@Data
+public class BaseDictSettingExportTemplate {
+    //~fields
+    //==================================================================================================================
+    @ApiModelProperty("序号")
+    @ExcelProperty("序号")
+    @ColumnWidth(6)
+    private Integer sequenceNumber;
+
+    @ApiModelProperty("配置名称")
+    @ExcelProperty("配置名称")
+    @ColumnWidth(20)
+    private String name;
+
+    @ApiModelProperty("类型模板")
+    @ExcelProperty("类型模板")
+    @ColumnWidth(20)
+    private String template;
+
+    @ApiModelProperty("配置信息")
+    @ExcelProperty("配置信息")
+    @ColumnWidth(20)
+    private String setting;
+
+    @ApiModelProperty("状态")
+    @ExcelProperty("状态")
+    @ColumnWidth(20)
+    private String enableStatus;
+
+    @ApiModelProperty("备注")
+    @ExcelProperty("备注")
+    @ColumnWidth(40)
+    private String remark;
+
+    @ApiModelProperty("创建时间")
+    @ExcelProperty("创建时间")
+    @ColumnWidth(20)
+    private Date createdDate;
+    //~methods
+    //==================================================================================================================
+}

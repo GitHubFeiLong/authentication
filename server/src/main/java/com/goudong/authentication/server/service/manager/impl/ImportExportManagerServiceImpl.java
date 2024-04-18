@@ -130,6 +130,12 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
     @Resource
     private BaseDictService baseDictService;
 
+    /**
+     * 字典配置接口
+     */
+    @Resource
+    private BaseDictSettingService baseDictSettingService;
+
     @Resource
     private ObjectMapper objectMapper;
 
@@ -742,6 +748,100 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
 
         } catch (IOException e) {
             throw new RuntimeException("导出字典明细失败：" + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 导入字典配置
+     *
+     * @param req 导入参数
+     * @return true：导入成功
+     */
+    @Override
+    public Boolean importDictSetting(BaseDictSettingImportReq req) {
+        try {
+            MyAuthentication myAuthentication = SecurityContextUtil.get();
+            EasyExcel.read(req.getFile().getInputStream(), BaseDictImportExcelTemplate.class,
+                            new BaseDictSettingImportExcelListener(baseDictSettingService, baseDictService, transactionTemplate, myAuthentication))
+                    .sheet()
+                    // 第二行开始解析
+                    .headRowNumber(2)
+                    .doRead();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
+
+    /**
+     * 导出字典配置
+     *
+     * @param response 响应对象
+     * @param req      导出参数
+     */
+    @Override
+    public void exportDictSetting(HttpServletResponse response, BaseDictSettingExportReq req) {
+        log.info("开始执行字典配置导出");
+        String fileName = "导出字典配置" + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
+        // 这里注意 有同学反应使用swagger 会导致各种问题，请直接用浏览器或者用postman
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
+        try {
+            fileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        response.setHeader("Content-disposition", "attachment;filename*=" + fileName + ".xlsx");
+
+        // 这里 需要指定写用哪个class去写
+        try (ExcelWriter excelWriter = EasyExcel.write(response.getOutputStream(), BaseDictSettingExportTemplate.class)
+                .registerConverter(new LongStringConverter())
+                .build()) {
+            // 这里注意 如果同一个sheet只要创建一次
+            WriteSheet writeSheet = EasyExcel.writerSheet("sheet01").build();
+            /*
+                分页写入excel，对内存友好
+             */
+            // 分页查询
+            BaseDictSettingPageReq pageReq = req.getPageReq();
+            // 每次查询100条
+            pageReq.setSize(100);
+            pageReq.setIds(req.getIds());
+            // 初始分页设置0
+            int page = 0;
+            // 总店铺数量
+            long total = 0;
+            AtomicInteger sequenceNumber = new AtomicInteger(1);
+            do {
+                List<BaseDictSettingExportTemplate> result = new ArrayList<>();
+                // 页码加一
+                page += 1;
+                pageReq.setPage(page);
+                // 分页查询(展开的)
+                PageResult<BaseDictSettingPageResp> pageResult = baseDictManagerService.pageBaseDictSetting(pageReq);
+                // 获取总数量
+                total = pageResult.getTotal();
+
+                // 将数据放入resule中
+                pageResult.getContent().forEach(p -> {
+                    BaseDictSettingExportTemplate resp = new BaseDictSettingExportTemplate();
+                    resp.setName(p.getName());
+                    resp.setTemplate(p.getTemplate());
+                    resp.setSetting(p.getSetting());
+                    resp.setEnableStatus(ActivateEnum.ACTIVATED.getById(p.getEnabled()).getLabel());
+                    resp.setRemark(p.getRemark());
+                    resp.setCreatedDate(p.getCreatedDate());
+                    resp.setSequenceNumber(sequenceNumber.getAndIncrement());
+                    result.add(resp);
+                });
+
+                // 调用写入
+                excelWriter.write(result, writeSheet);
+            } while (((long) page * pageReq.getSize()) < total);
+
+        } catch (IOException e) {
+            throw new RuntimeException("导出字典配置失败：" + e.getMessage(), e);
         }
     }
 }

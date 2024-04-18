@@ -99,9 +99,23 @@ public interface ImportExportManagerService {
     Boolean importDict(BaseDictImportReq req);
 
     /**
-     * 导出自带你明细
+     * 导出字典明细
      * @param response  响应对象
      * @param req       导出参数
      */
     void exportDict(HttpServletResponse response, BaseDictExportReq req);
+
+    /**
+     * 导入字典配置
+     * @param req   导入参数
+     * @return  true：导入成功
+     */
+    Boolean importDictSetting(BaseDictSettingImportReq req);
+
+    /**
+     * 导出字典配置
+     * @param response  响应对象
+     * @param req       导出参数
+     */
+    void exportDictSetting(HttpServletResponse response, BaseDictSettingExportReq req);
 }
