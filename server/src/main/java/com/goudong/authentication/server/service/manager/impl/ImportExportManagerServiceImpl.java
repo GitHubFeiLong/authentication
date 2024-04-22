@@ -761,7 +761,7 @@ public class ImportExportManagerServiceImpl implements ImportExportManagerServic
     public Boolean importDictSetting(BaseDictSettingImportReq req) {
         try {
             MyAuthentication myAuthentication = SecurityContextUtil.get();
-            EasyExcel.read(req.getFile().getInputStream(), BaseDictImportExcelTemplate.class,
+            EasyExcel.read(req.getFile().getInputStream(), BaseDictSettingImportExcelTemplate.class,
                             new BaseDictSettingImportExcelListener(baseDictSettingService, baseDictService, transactionTemplate, myAuthentication))
                     .sheet()
                     // 第二行开始解析

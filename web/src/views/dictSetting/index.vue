@@ -1,204 +1,197 @@
-<!--字典明细抽屉-->
+<!--字典管理-->
 <template>
-  <!--   抽屉 字典明细   -->
-  <el-drawer custom-class="el-drawer__table"
-             size="60%"
-             title="字典配置"
-             :visible.sync="dictSettingDrawerVisible"
-             :append-to-body="true"
-  >
-    <div>
-      <!--  查询条件  -->
-      <div class="filter-container">
-        <div class="filter-item">
-          <span class="filter-item-label">类型编码: </span>
-          <DictTypeSelect :default-select-id="dictSetting.table.filter.dictTypeId" :clearable="false" :disabled="true" @changeDictType="changeDictType"/>
-        </div>
-        <div class="filter-item">
-          <span class="filter-item-label">字典编码: </span>
-          <DictSelect key="one" :default-select-id="dictSetting.table.filter.dictId" :dict-type-id="dictSetting.table.filter.dictTypeId" :clearable="false" :disabled="true" @changeDict="changeDict"/>
-        </div>
-        <div class="filter-item">
-          <span class="filter-item-label">配置名称: </span>
-          <el-input v-model="dictSetting.table.filter.name" placeholder="请输入需要查询字典配置名称" clearable/>
-        </div>
-        <div class="filter-item">
-          <el-button
-              v-permission="'sys:user:query'"
-              icon="el-icon-search"
-              type="primary"
-              @click="searchFunc"
-          >
-            查询
-          </el-button>
-        </div>
+  <div class="app-container">
+    <!--  查询条件  -->
+    <div class="filter-container">
+      <div class="filter-item">
+        <span class="filter-item-label">类型编码: </span>
+        <DictTypeSelect :default-select-id="dictSetting.table.filter.dictTypeId" :clearable="false" :disabled="true" @changeDictType="changeDictType"/>
       </div>
-      <!--顶部操作栏-->
-      <div class="el-table-tool">
-        <div class="left-tool">
-          <el-button v-permission="'sys:user:add'" class="el-button--small" icon="el-icon-plus" type="primary" @click="dictSetting.dialog.create.enabled=true">
-            新增
-          </el-button>
-          <el-button v-permission="'sys:user:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteDictSetting(dictSetting.table.checkIds)">
-            删除
-          </el-button>
-          <el-button v-permission="'sys:user:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
-            导入
-          </el-button>
-          <el-button v-permission="'sys:user:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
-            导出
-          </el-button>
-        </div>
-        <div class="right-tool">
-          <el-tooltip class="right-tool-btn-tooltip" effect="dark" content="刷新" placement="top">
-            <div class="right-tool-btn" @click="loadPageDictSetting">
-              <i class="el-icon-refresh-right" />
-            </div>
-          </el-tooltip>
-          <el-tooltip class="right-tool-btn-tooltip" effect="dark" content="密度" placement="top">
-            <el-dropdown trigger="click" @command="changeElTableSizeCommand">
-              <div class="right-tool-btn">
-                <i class="el-icon-s-operation" />
-              </div>
-              <el-dropdown-menu slot="dropdown" size="small">
-                <el-dropdown-item :class="elDropdownItemClass[0]" command="0,medium">默认</el-dropdown-item>
-                <el-dropdown-item :class="elDropdownItemClass[1]" command="1,small">中等</el-dropdown-item>
-                <el-dropdown-item :class="elDropdownItemClass[2]" command="2,mini">紧凑</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </el-tooltip>
-        </div>
+      <div class="filter-item">
+        <span class="filter-item-label">字典编码: </span>
+        <DictSelect key="one" :default-select-id="dictSetting.table.filter.dictId" :dict-type-id="dictSetting.table.filter.dictTypeId" :clearable="false" :disabled="true" @changeDict="changeDict"/>
       </div>
-
-      <div class="el-table__body__pagination">
-        <!-- 表格  -->
-        <el-table
-            ref="table"
-            v-loading="dictSetting.table.isLoading"
-            border
-            :data="dictSetting.table.data"
-            row-key="id"
-            style="width: 100%"
-            :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
-            :header-row-class-name="dictSetting.EL_TABLE.size"
-            :size="dictSetting.EL_TABLE.size"
-            @selection-change="selectionChangeFunc"
+      <div class="filter-item">
+        <span class="filter-item-label">配置名称: </span>
+        <el-input v-model="dictSetting.table.filter.name" placeholder="请输入需要查询字典配置名称" clearable/>
+      </div>
+      <div class="filter-item">
+        <el-button
+            v-permission="'sys:user:query'"
+            icon="el-icon-search"
+            type="primary"
+            @click="searchFunc"
         >
-          <el-table-column type="expand">
-            <template slot-scope="props">
-              <el-form label-position="left" inline class="demo-table-expand">
-                <el-form-item label="配置模板">
-                  <el-input v-model="props.row.template" type="textarea" :rows="4" placeholder="请输入字典基础配置JSON模板"/>
-                </el-form-item>
-                  <el-form-item label="配置JSON">
-                      <el-input v-model="props.row.setting" type="textarea" :rows="4" placeholder="请输入字典基础配置JSON模板"/>
-                  </el-form-item>
-              </el-form>
-            </template>
-          </el-table-column>
-          <el-table-column
-              width="50"
-              type="selection"
-              header-align="center"
-              align="center"
-              class-name="selection"
-          />
-          <el-table-column
-              width="50"
-              label="序号"
-              prop="serialNumber"
-              align="center"
-          />
-          <el-table-column
-              label="配置名称"
-              prop="name"
-              min-width="50"
-              sortable
-              show-overflow-tooltip
-          />
-          <el-table-column
-              label="备注"
-              min-width="100"
-              prop="remark"
-              show-overflow-tooltip
-          />
-          <el-table-column
-              label="激活"
-              width="80"
-              prop="enabled"
-              align="center"
-          >
-            <template v-slot="scope">
-              <el-switch
-                  v-model="scope.row.enabled"
-                  :disabled="permissionDisabled('sys:usr:enable')"
-                  :active-value="true"
-                  :inactive-value="false"
-                  @change="changeDictTypeEnabled(scope.row)"
-              />
-            </template>
-          </el-table-column>
-          <el-table-column
-              label="默认"
-              width="80"
-              prop="defaulted"
-              align="center"
-          >
-            <template v-slot="scope">
-              <el-switch
-                  v-model="scope.row.defaulted"
-                  :disabled="permissionDisabled('sys:usr:enable')"
-                  :active-value="true"
-                  :inactive-value="false"
-                  @change="changeDictTypeEnabled(scope.row)"
-              />
-            </template>
-          </el-table-column>
-          <el-table-column
-              label="创建时间"
-              width="170"
-              prop="createdDate"
-              show-overflow-tooltip
-              sortable
-          />
-          <el-table-column
-              label="操作"
-              width="230"
-              align="center"
-          >
-            <template v-slot="scope">
-              <div class="el-link-parent">
-                <el-link
-                    v-permission="'sys:user:edit'"
-                    icon="el-icon-edit"
-                    :underline="false"
-                    type="primary"
-                    @click="editDictSetting(scope.row)"
-                >编辑</el-link>
-                <el-link
-                    v-permission="'sys:user:delete'"
-                    icon="el-icon-delete"
-                    :underline="false"
-                    type="danger"
-                    @click="deleteDictSetting([scope.row.id])"
-                >删除</el-link>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
-        <!-- 分页控件 -->
-        <el-pagination
-            :current-page="dictSetting.table.page"
-            :pager-count="dictSetting.table.pagerCount"
-            :page-size="dictSetting.table.size"
-            :page-sizes="dictSetting.table.pageSizes"
-            :total="dictSetting.table.total"
-            layout="total, sizes, prev, pager, next, jumper"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-        />
+          查询
+        </el-button>
       </div>
     </div>
+    <!--顶部操作栏-->
+    <div class="el-table-tool">
+      <div class="left-tool">
+        <el-button v-permission="'sys:user:add'" class="el-button--small" icon="el-icon-plus" type="primary" @click="dictSetting.dialog.create.enabled=true">
+          新增
+        </el-button>
+        <el-button v-permission="'sys:user:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteDictSetting(dictSetting.table.checkIds)">
+          删除
+        </el-button>
+        <el-button v-permission="'sys:user:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
+          导入
+        </el-button>
+        <el-button v-permission="'sys:user:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
+          导出
+        </el-button>
+      </div>
+      <div class="right-tool">
+        <el-tooltip class="right-tool-btn-tooltip" effect="dark" content="刷新" placement="top">
+          <div class="right-tool-btn" @click="loadPageDictSetting">
+            <i class="el-icon-refresh-right" />
+          </div>
+        </el-tooltip>
+        <el-tooltip class="right-tool-btn-tooltip" effect="dark" content="密度" placement="top">
+          <el-dropdown trigger="click" @command="changeElTableSizeCommand">
+            <div class="right-tool-btn">
+              <i class="el-icon-s-operation" />
+            </div>
+            <el-dropdown-menu slot="dropdown" size="small">
+              <el-dropdown-item :class="elDropdownItemClass[0]" command="0,medium">默认</el-dropdown-item>
+              <el-dropdown-item :class="elDropdownItemClass[1]" command="1,small">中等</el-dropdown-item>
+              <el-dropdown-item :class="elDropdownItemClass[2]" command="2,mini">紧凑</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </el-tooltip>
+      </div>
+    </div>
+
+    <div class="el-table__body__pagination">
+      <!-- 表格  -->
+      <el-table
+          ref="table"
+          v-loading="dictSetting.table.isLoading"
+          border
+          :data="dictSetting.table.data"
+          row-key="id"
+          style="width: 100%"
+          :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
+          :header-row-class-name="dictSetting.EL_TABLE.size"
+          :size="dictSetting.EL_TABLE.size"
+          @selection-change="selectionChangeFunc"
+      >
+        <el-table-column type="expand">
+          <template slot-scope="props">
+            <el-form label-position="left" inline class="demo-table-expand">
+              <el-form-item label="配置模板">
+                <el-input v-model="props.row.template" type="textarea" :rows="4" placeholder="请输入字典基础配置JSON模板"/>
+              </el-form-item>
+              <el-form-item label="配置JSON">
+                <el-input v-model="props.row.setting" type="textarea" :rows="4" placeholder="请输入字典基础配置JSON模板"/>
+              </el-form-item>
+            </el-form>
+          </template>
+        </el-table-column>
+        <el-table-column
+            width="50"
+            type="selection"
+            header-align="center"
+            align="center"
+            class-name="selection"
+        />
+        <el-table-column
+            width="50"
+            label="序号"
+            prop="serialNumber"
+            align="center"
+        />
+        <el-table-column
+            label="配置名称"
+            prop="name"
+            min-width="50"
+            sortable
+            show-overflow-tooltip
+        />
+        <el-table-column
+            label="备注"
+            min-width="100"
+            prop="remark"
+            show-overflow-tooltip
+        />
+        <el-table-column
+            label="激活"
+            width="80"
+            prop="enabled"
+            align="center"
+        >
+          <template v-slot="scope">
+            <el-switch
+                v-model="scope.row.enabled"
+                :disabled="permissionDisabled('sys:usr:enable')"
+                :active-value="true"
+                :inactive-value="false"
+                @change="changeDictTypeEnabled(scope.row)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="默认"
+            width="80"
+            prop="defaulted"
+            align="center"
+        >
+          <template v-slot="scope">
+            <el-switch
+                v-model="scope.row.defaulted"
+                :disabled="permissionDisabled('sys:usr:enable')"
+                :active-value="true"
+                :inactive-value="false"
+                @change="changeDictTypeEnabled(scope.row)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="创建时间"
+            width="170"
+            prop="createdDate"
+            show-overflow-tooltip
+            sortable
+        />
+        <el-table-column
+            label="操作"
+            width="230"
+            align="center"
+        >
+          <template v-slot="scope">
+            <div class="el-link-parent">
+              <el-link
+                  v-permission="'sys:user:edit'"
+                  icon="el-icon-edit"
+                  :underline="false"
+                  type="primary"
+                  @click="editDictSetting(scope.row)"
+              >编辑</el-link>
+              <el-link
+                  v-permission="'sys:user:delete'"
+                  icon="el-icon-delete"
+                  :underline="false"
+                  type="danger"
+                  @click="deleteDictSetting([scope.row.id])"
+              >删除</el-link>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!-- 分页控件 -->
+      <el-pagination
+          :current-page="dictSetting.table.page"
+          :pager-count="dictSetting.table.pagerCount"
+          :page-size="dictSetting.table.size"
+          :page-sizes="dictSetting.table.pageSizes"
+          :total="dictSetting.table.total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+      />
+    </div>
+
 
     <!--  新增字典配置  -->
     <el-dialog title="新增字典配置" width="600px" :visible.sync="dictSetting.dialog.create.enabled" @close="dialogCreateCancel" :append-to-body="true">
@@ -211,7 +204,7 @@
         </el-form-item>
         <el-form-item label="字典明细" prop="dictId">
           <DictSelect ref="dialogDictSelectRef"
-              :default-select-id.sync="dictSetting.dialog.create.data.dictId"
+                      :default-select-id.sync="dictSetting.dialog.create.data.dictId"
                       :dict-type-id.sync="dictSetting.dialog.create.data.dictTypeId"
                       :clearable="false"
                       :disabled="true"
@@ -243,10 +236,10 @@
         </el-form-item>
         <el-form-item label="是否默认" prop="enabled">
           <el-switch
-            v-model="dictSetting.dialog.create.data.defaulted"
-            :active-value="true"
-            :inactive-value="false"
-            :disabled="!dictSetting.dialog.create.data.enabled"
+              v-model="dictSetting.dialog.create.data.defaulted"
+              :active-value="true"
+              :inactive-value="false"
+              :disabled="!dictSetting.dialog.create.data.enabled"
           />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -270,11 +263,11 @@
         </el-form-item>
         <el-form-item label="字典明细" prop="dictId">
           <DictSelect
-                      :default-select-id.sync="dictSetting.dialog.edit.data.dictId"
-                      :dict-type-id.sync="dictSetting.dialog.edit.data.dictTypeId"
-                      :clearable="false"
-                      :disabled="true"
-                      @changeDict="changeDictByDialog"
+              :default-select-id.sync="dictSetting.dialog.edit.data.dictId"
+              :dict-type-id.sync="dictSetting.dialog.edit.data.dictTypeId"
+              :clearable="false"
+              :disabled="true"
+              @changeDict="changeDictByDialog"
           />
         </el-form-item>
         <el-form-item label="配置名称" prop="name">
@@ -328,59 +321,30 @@
         :on-success-callback="loadPageDictSetting"
         :download-template="downloadImportTemplate"
     />
-  </el-drawer>
+  </div>
 </template>
 
 <script>
 import DictTypeSelect from "@/components/Dict/DictTypeSelect.vue";
 import {
-  createBaseDictApi, createBaseDictSettingApi,
-  createBaseDictTypeApi,
-  deleteDictApi, deleteDictSettingApi,
-  getBaseDictByIdApi, getBaseDictSettingByIdApi,
+  createBaseDictSettingApi,
+  deleteDictSettingApi,
+  getBaseDictSettingByIdApi,
   getBaseDictTypeByIdApi,
-  pageDictApi, pageDictSettingApi, updateBaseDictApi, updateBaseDictSettingApi
+  pageDictSettingApi,
+  updateBaseDictSettingApi
 } from "@/api/dict";
 import {isNotEmpty} from "@/utils/assertUtil";
 import UploadSingleExcel from "@/components/UploadExcel/UploadSingleExcel.vue";
 import {API_PREFIX} from "@/constant/commons";
-import {exportDictApi, exportDictSettingApi, exportDictSettingTemplateApi, exportDictTemplateApi} from "@/api/file";
+import {exportDictSettingApi, exportDictSettingTemplateApi} from "@/api/file";
 import {JsonText, SimpleCode} from "@/utils/ElementValidatorUtil";
 import {Message} from "element-ui";
 import DictSelect from "@/components/Dict/DictSelect.vue";
 
 export default {
-  name: 'DictSettingDrawer',
+  name: 'DictSettingPage',
   components: {DictTypeSelect, DictSelect, UploadSingleExcel},
-  props: {
-    // 字典类型ID
-    dictTypeId:{
-      required: true,
-      type: String,
-    },
-    // 字典ID
-    dictId:{
-      required: true,
-      type: String,
-    },
-    // 字典编码
-    dictCode:{
-      required: true,
-      type: String,
-    },
-    // 字典名称
-    dictName:{
-      required: true,
-      type: String,
-    },
-    visible:{
-      required: true,
-      type: Boolean,
-      default: function() {
-        return false
-      },
-    },
-  },
   data() {
     return {
       // 抽屉
@@ -464,28 +428,6 @@ export default {
   },
   watch: {
     /**
-     * 监听字典类型ID变化
-     */
-    dictTypeId: {
-      handler(n, o) {
-        this.dictSetting.table.filter.dictTypeId = n;
-        this.dictSetting.dialog.create.data.dictTypeId = n;
-        this.dictSetting.dialog.edit.data.dictTypeId = n;
-      },
-      deep: true // 深度监听父组件传过来对象变化
-    },
-    /**
-     * 监听字典ID变化，重新查询数据
-     */
-    dictId: {
-      handler(n, o) {
-        this.dictSetting.table.filter.dictId = n;
-        this.dictSetting.dialog.create.data.dictId = n;
-        this.dictSetting.dialog.edit.data.dictId = n;
-      },
-      deep: true // 深度监听父组件传过来对象变化
-    },
-    /**
      * 监听字典类型ID变化，重新查询数据
      */
     'dictSetting.table.filter.dictId': {
@@ -493,16 +435,6 @@ export default {
         this.dictSetting.table.filter.dictId = n;
       },
       deep: true // 深度监听父组件传过来对象变化
-    },
-    dictSettingDrawerVisible: {
-      handler(n, o) {
-        if (n) {
-          this.loadPageDictSetting();
-        } else {
-          this.dictSetting.table.filter.dictTypeId = undefined
-          this.dictSetting.table.filter.dictId = undefined
-        }
-      }
     },
     /**
      * 监听新增字典类型弹窗中的激活状态
@@ -525,22 +457,6 @@ export default {
       },
     },
   },
-  computed: {
-    /**
-     * 计算属性：抽屉显示隐藏变量
-     */
-    dictSettingDrawerVisible: {
-      get() {
-        return this.visible
-      },
-      /**
-       * 设置变量值，修改父组件变量值
-       */
-      set() {
-        this.$emit('close', false)
-      }
-    },
-  },
   methods: {
     //~ 搜索条件
     //==================================================================================================================
@@ -553,9 +469,6 @@ export default {
         this.dictSetting.table.filter.dictTypeId = dictType.id;
         // 设置为空，不然子组件DictSelect选中值了
         this.dictSetting.table.filter.dictId = undefined
-        // this.dictSetting.dialog.create.data.dictTypeId = undefined;
-        // this.dictSetting.dialog.create.data.dictTypeId = dictType.id;
-        // this.dictSetting.dialog.create.data.dictId = undefined;
         // 重新查询字典明细下拉
       } else {
         this.dictSetting.table.filter.dictTypeId = undefined;
@@ -780,16 +693,16 @@ export default {
      * 创建弹框点击取消
      */
     dialogCreateCancel() {
-        // 关闭弹窗
-        this.dictSetting.dialog.create.enabled = false
-        // 清空数据
-        this.dictSetting.dialog.create.data.name = null
-        this.dictSetting.dialog.create.data.template = null
-        this.dictSetting.dialog.create.data.setting = null
-        this.dictSetting.dialog.create.data.enabled = false
-        this.dictSetting.dialog.create.data.defaulted = false
-        this.dictSetting.dialog.create.data.remark = null
-        this.$refs.dialogCreateForm.resetFields();
+      // 关闭弹窗
+      this.dictSetting.dialog.create.enabled = false
+      // 清空数据
+      this.dictSetting.dialog.create.data.name = null
+      this.dictSetting.dialog.create.data.template = null
+      this.dictSetting.dialog.create.data.setting = null
+      this.dictSetting.dialog.create.data.enabled = false
+      this.dictSetting.dialog.create.data.defaulted = false
+      this.dictSetting.dialog.create.data.remark = null
+      this.$refs.dialogCreateForm.resetFields();
     },
     /**
      * 使用上级模板
