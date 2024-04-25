@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>维也纳</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/element-plus/2.3.3/index.css" rel="stylesheet">
+    <!-- 引入vue3 -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- 引入element plus -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/element-plus/2.3.3/index.full.js"></script>
+  </head>
+  <body>
+    <div id="app">
+
+        <h1>{{title}}</h1>
+        <el-button type="primary" @click="handleClick">点我</el-button>
+        <p>记数{{count}}</p>
+    </div>
+    
+    <script type="text/javascript">
+        const App = {
+            data() {
+                return {
+                    title: 'Hello Vue',
+                    count: 0
+                }
+            },
+            methods: {
+                handleClick() {
+                    console.log(rooms);
+                    setItem('a', rooms);
+                    console.log(getItem('a'));
+                    this.count++;
+                }
+            },
+        }
+        Vue.createApp(App).use(ElementPlus).mount("#app");
+    </script>    
+ 
+    <!--数据相关-->
+    <script type="text/javascript">
+        // 酒店房间
+        const rooms = [
+            8601,8602
+        ]
+    </script>
+    <!--缓存相关-->
+    <script type="text/javascript">
+        const localStorage = window.localStorage;
+        function getItem(key) {
+            return window.localStorage.getItem(key);
+        }
+        function setItem(key, value) {
+            return window.localStorage.setItem(key, value);
+        }
+    </script>
+  </body>
+</html>
