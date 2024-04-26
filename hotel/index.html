@@ -12,11 +12,17 @@
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <!-- 3. 引入组件库 -->
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-
+    <!-- XLSX -->
+    <!-- use xlsx.mini.min.js from version 0.20.2 -->
+    <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.mini.min.js"></script>
     <style>
         body,
         head {
             font-size: 1em;
+        }
+        :root{
+            --checked-successful-color: #67C23A;
+            --checked-unsuccessful-color: #F56C6C;
         }
 
         #app {
@@ -50,14 +56,60 @@
         .el-dialog_full_screen {
             width: 90vw;
             height: 90vh;
-            position: relative;
             margin: 5vh auto;
         }
 
-        .el-dialog_full_screen>.el-dialog__body {
-            height: 70vh;
+        .el-dialog_full_screen>.el-dialog {
+            margin-top: unset !important;
+            width: 100%;
+        }
+
+        .el-dialog_full_screen>.el-dialog>.el-dialog__body {
+            max-height: 69vh;
             overflow: scroll;
         }
+
+        .el-dialog_full_screen>.el-dialog>.el-dialog__footer {
+            padding: 10px 10px 20px 10px;
+        }
+
+        .el-form-item__label {
+            display: block;
+            max-width: 300px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .roomChecked {
+            color: var(--checked-successful-color);
+        }
+
+        .roomNotChecked {
+            color: var(--checked-unsuccessful-color);
+        }
+
+        .el-dialog_overview > .el-dialog > .el-dialog__body{
+            display: flex;
+            justify-content: start;
+            flex-wrap: wrap;
+
+            .overview_item{
+                width: 24vw;
+                height: 10vh;
+                margin: 5px;
+                font-size: 2em;
+                text-align: center;
+                line-height: 10vh;
+            }
+            .overview_item_checked {
+                background-color: var(--checked-successful-color);
+            }
+            .overview_item_unchecked {
+                background-color: var(--checked-unsuccessful-color);
+            }
+        }
+        
     </style>
 </head>
 
@@ -65,239 +117,193 @@
     <div id="app">
         <div class="container">
             <div class="menu-div">
-                <el-button type="primary" class="el-button_menu">检查</el-button>
-                <el-button type="primary" class="el-button_menu">导出</el-button>
-                <el-button type="primary" class="el-button_menu">导出</el-button>
-                <el-button type="primary" class="el-button_menu">导出</el-button>
+                <el-button type="primary" class="el-button_menu" @click="openCheckRoom">检查</el-button>
+                <el-button type="primary" class="el-button_menu">总览</el-button>
+                <el-button type="primary" class="el-button_menu">详细</el-button>
+                <el-button type="primary" class="el-button_menu" @click="exportExcelByCheckRoom">下载</el-button>
+                <el-button type="danger" class="el-button_menu" @click="exportExcelByCheckRoom">重置</el-button>
             </div>
         </div>
 
-        <el-dialog v-model="dialog.checkRoom.enabled" title="检查房间" class="el-dialog_full_screen">
-            <el-form :model="dialog.checkRoom.form" class="form">
-                <el-form-item label="房号" :label-width="dialog.checkRoom.formLabelWidth">
+        <!-- 检查房间 TODO后续使用switch替换单选框，将其做成一页显示 -->
+        <el-dialog :visible.syn="dialog.checkRoom.enabled" :title="dialog.checkRoom.title" class="el-dialog_full_screen"
+            @close="closeDialogCheckRoom">
+            <el-form ref="checkRoomForm" :model="dialog.checkRoom.form" class="form" :rules="dialog.checkRoom.rules"
+                :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="房号" prop="roomNumber">
                     <el-select v-model="dialog.checkRoom.form.roomNumber" filterable placeholder="选择房间">
-                        <el-option v-for="item in rooms" :key="item" :label="item" :value="item" />
+                        <el-option v-for="item in rooms" :key="item.value" :label="item.value" :value="item.value">
+                            <span>{{ item.value }}</span>
+                            <span style="float: right; font-size: 13px"
+                                :class="item.checked ? 'roomChecked' : 'roomNotChecked'">{{item.checked ? '已检' :
+                                '未检'}}</span>
+                        </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="异味" :label-width="dialog.checkRoom.formLabelWidth">
-                    <el-input v-model="dialog.checkRoom.form.peculiarSmell"></el-input>
-                </el-form-item>
-                <el-form-item label="异味" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="异味" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.peculiarSmell" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="门牌号" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="门牌号" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.houseNumber" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
+                    <el-select v-if="dialog.checkRoom.form.houseNumber === 0"
+                        v-model="dialog.checkRoom.form.houseNumberSelectErrorMessages" multiple filterable allow-create
+                        default-first-option placeholder="请选择门牌号问题信息" @change="changeHouseNumberErrorMessage">
+                        <el-option v-for="item in houseNumberErrorMessageOptions" :key="item.value" :label="item.label"
+                            :value="item.value">
+                        </el-option>
+                    </el-select>
                 </el-form-item>
-                <el-form-item label="衣柜" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="衣柜" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.wardrobe" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="窗户" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="窗户" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.window" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="墙布" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="墙布" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.wallCloth" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="沙发" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="沙发" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.sofa" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="电视遥控器" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="电视遥控器" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.TVRemoteControl" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="电视" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="电视" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.TV" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="厕所门" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="厕所门" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.toiletDoor" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="洗手台胶" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="洗手台胶" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.washbasinGlue" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="马桶胶" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="马桶胶" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.toiletGlue" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="天花板" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="天花板" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.ceiling" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="脸盆" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="脸盆" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.washbasin" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="烧水壶" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="烧水壶" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.kettle" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="空调" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="空调" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.airConditioner" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="卫生间排风扇" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="卫生间排风扇" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.bathroomExhaustFan" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="地毯" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="地毯" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.carpet" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="airSwitch" :label-width="dialog.checkRoom.formLabelWidth">
-                    <el-radio-group v-model="dialog.checkRoom.form.空开" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                <el-form-item label="空开" v-show="showFormItem()">
+                    <el-radio-group v-model="dialog.checkRoom.form.airSwitch" class="ml-4">
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="转椅" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="转椅" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.swivelChair" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="水龙头" :label-width="dialog.checkRoom.formLabelWidth">
+                <el-form-item label="水龙头" v-show="showFormItem()">
                     <el-radio-group v-model="dialog.checkRoom.form.faucet" class="ml-4">
-                        <el-radio v-for="item in radios" :key="item.value" :label="item.label" :value="item.value" />
+                        <el-radio v-for="item in radios" :key="item.value"
+                            :label="item.label">{{item.option}}</el-radio>
                     </el-radio-group>
+                </el-form-item>
+                <el-form-item label="备注" v-show="showFormItem()">
+                    <el-input type="textarea" :rows="2" placeholder="请输入备注信息" v-model="dialog.checkRoom.form.remark">
+                    </el-input>
                 </el-form-item>
             </el-form>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button @click="dialog.checkRoom.enabled = false">取消</el-button>
-                    <el-button type="primary" @click="dialog.checkRoom.enabled = false">保存</el-button>
+                    <el-button @click="closeDialogCheckRoom">取消</el-button>
+                    <el-button type="primary" @click="savelDialogCheckRoom(0)">保存并关闭</el-button>
+                    <el-button type="success" @click="savelDialogCheckRoom(1)">保存并继续</el-button>
                 </div>
             </template>
         </el-dialog>
+
+        <!-- 总览 -->
+        <el-dialog :visible.syn="dialog.overview.enabled" :title="dialog.overview.title" class="el-dialog_full_screen el-dialog_overview">
+            <div v-for="item in rooms" class="overview_item" :class="item.checked ? 'overview_item_checked' : 'overview_item_unchecked'">
+                {{ item.value }}
+            </div>
+            <template #footer>
+                <div class="dialog-footer">
+                    <el-button @click="dialog.overview.enabled = false" style="width: 100%;">关闭</el-button>
+                </div>
+            </template>
+        </el-dialog>
+
     </div>
     <!--数据相关-->
     <script type="text/javascript">
         // 酒店房间
         const ROOMS = [
             8601, 8602
+            , 8603,8604, 8605, 8606,8607,8608,8609,8610,8601, 8602, 8603,8604, 8605, 8606,8607,8608,8609,8610,8601, 8602, 8603,8604, 8605, 8606,8607,8608,8609,8610
         ]
         // 房间缓存
         const ROOM_INFO_KEY = "roomInfoKey:${roomNumber}";
     </script>
-    <script type="text/javascript">
-        new Vue({
-            el: '#app',
-            data() {
-                return {
-                    // 房间
-                    rooms: [],
-                    // 单选框
-                    radios: [{ value: false, label: '错误' }, { value: true, label: '正确' }],
-                    // 弹窗
-                    dialog: {
-                        checkRoom: {
-                            enabled: true,
-                            formLabelWidth: 80,
-                            form: {
-                                roomNumber: undefined,      // 房号
-                                peculiarSmell: undefined,   // 异味
-                                houseNumber: undefined,     // 门牌号
-                                wardrobe: undefined,        // 衣柜
-                                window: undefined,          // 窗户
-                                wallCloth: undefined,       // 墙布
-                                sofa: undefined,            // 沙发
-                                TVRemoteControl: undefined, // 电视遥控器
-                                TV: undefined,              // 电视
-                                toiletDoor: undefined,      // 厕所门
-                                washbasinGlue: undefined,  // 洗手台胶
-                                toiletGlue: undefined,      // 马桶胶
-                                ceiling: undefined,         // 天花板
-                                washbasin: undefined,       // 脸盆
-                                kettle: undefined,          // 烧水壶
-                                airConditioner: undefined,  // 空调
-                                bathroomExhaustFan: undefined,    // 卫生间排风扇
-                                carpet: undefined,          // 地毯
-                                airSwitch: undefined,       // 空开
-                                swivelChair: undefined,     // 转椅
-                                faucet: undefined,          // 水龙头
-                            },
-                        }
-                    },
-                    title: 'Hello Vue',
-                    count: 0
-                }
-            },
-            methods: {
-                getRoomInfo(roomNumber) {
-                    let key = getKey(ROOM_INFO_KEY, roomNumber)
-                    let roomInfo = JSON.parse(getItem(key))
-                    console.log(roomNumber + "房间的信息：" + roomInfo);
-                    if (roomInfo === null || roomInfo === undefined) {
-                        console.log("123", this.dialog.checkRoom.form.faucet);
-                        this.dialog.checkRoom.form.peculiarSmell = 1;   // 异味
-                        this.dialog.checkRoom.form.houseNumber = 1;     // 门牌号
-                        this.dialog.checkRoom.form.wardrobe = 1;        // 衣柜
-                        this.dialog.checkRoom.form.window = 1;          // 窗户
-                        this.dialog.checkRoom.form.wallCloth = 1;       // 墙布
-                        this.dialog.checkRoom.form.sofa = 1;            // 沙发
-                        this.dialog.checkRoom.form.TVRemoteControl = 1; // 电视遥控器
-                        this.dialog.checkRoom.form.TV = 1;              // 电视
-                        this.dialog.checkRoom.form.toiletDoor = 1;      // 厕所门
-                        this.dialog.checkRoom.form.washbasinGlue = 1;  // 洗手台胶
-                        this.dialog.checkRoom.form.toiletGlue = 1;      // 马桶胶
-                        this.dialog.checkRoom.form.ceiling = 1;         // 天花板
-                        this.dialog.checkRoom.form.washbasin = 1;       // 脸盆
-                        this.dialog.checkRoom.form.kettle = 1;          // 烧水壶
-                        this.dialog.checkRoom.form.airConditioner = 1;  // 空调
-                        this.dialog.checkRoom.form.bathroomExhaustFan = 1;    // 卫生间排风扇
-                        this.dialog.checkRoom.form.carpet = 1;          // 地毯
-                        this.dialog.checkRoom.form.airSwitch = 1;       // 空开
-                        this.dialog.checkRoom.form.swivelChair = 1;     // 转椅
-                        this.dialog.checkRoom.form.faucet = 1;          // 水龙头  
-                        this.$forceUpdate()
-                        console.log("123", this.dialog.checkRoom.form.faucet);
-                    }
-                },
-                handleClick() {
-                    console.log(rooms);
-                    setItem('a', rooms);
-                    console.log(getItem('a'));
-                    this.count++;
-                }
-            },
-            mounted() {
-                this.rooms = ROOMS
-                this.dialog.checkRoom.form.peculiarSmell = 1;
-                console.log(this.dialog.checkRoom.enabled);
-            },
-            watch: {
-                'dialog.checkRoom.form.roomNumber': {
-                    handler(n, o) {
-                        console.log(n);
-                        this.getRoomInfo(n)
-                    }
-                }
-            },
-        })
-    </script>
-
-
     <!--缓存相关-->
     <script type="text/javascript">
         const localStorage = window.localStorage;
@@ -312,6 +318,9 @@
     </script>
     <!--工具相关-->
     <script type="text/javascript">
+        /**
+         * 获取key 
+         */
         function getKey(template, ...values) {
             let result;
             for (const value of values) {
@@ -320,6 +329,327 @@
             return result
         }
     </script>
+
+    <script type="text/javascript">
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                // 房间 {value: 房间号, checked: 是否检查}
+                rooms: [],
+                // 单选框
+                radios: [{ label: 1, option: '正确' }, { label: 0, option: '错误' }],
+                houseNumberErrorMessageOptions: [
+                    { value: '门铃不响', label: '门铃不响' }, { value: '请勿打扰和立即清理不亮', label: '请勿打扰和立即清理不亮' }],
+                // 弹窗
+                dialog: {
+                    // 查房
+                    checkRoom: {
+                        enabled: false,
+                        formLabelWidth: '90px',
+                        title: '检查房间',
+                        form: {
+                            roomNumber: undefined,      // 房号
+                            peculiarSmell: undefined,   // 异味
+                            houseNumber: undefined,     // 门牌号
+                            houseNumberSelectErrorMessages: undefined,     // 门牌号异常信息
+                            houseNumberErrorMessages: undefined,     // 门牌号异常信息
+                            wardrobe: undefined,        // 衣柜
+                            window: undefined,          // 窗户
+                            wallCloth: undefined,       // 墙布
+                            sofa: undefined,            // 沙发
+                            TVRemoteControl: undefined, // 电视遥控器
+                            TV: undefined,              // 电视
+                            toiletDoor: undefined,      // 厕所门
+                            washbasinGlue: undefined,  // 洗手台胶
+                            toiletGlue: undefined,      // 马桶胶
+                            ceiling: undefined,         // 天花板
+                            washbasin: undefined,       // 脸盆
+                            kettle: undefined,          // 烧水壶
+                            airConditioner: undefined,  // 空调
+                            bathroomExhaustFan: undefined,    // 卫生间排风扇
+                            carpet: undefined,          // 地毯
+                            airSwitch: undefined,       // 空开
+                            swivelChair: undefined,     // 转椅
+                            faucet: undefined,          // 水龙头
+                            remark: undefined,          // 备注
+                        },
+                        rules: { // 
+                            roomNumber: [{ required: true, message: '请选择房间', trigger: 'blur' }],
+                        }
+                    },
+                    // 总览
+                    overview:{
+                        enabled: true,
+                        formLabelWidth: '90px',
+                        title: '检查房间',
+                        form: {
+                            roomNumber: undefined,      // 房号
+                            peculiarSmell: undefined,   // 异味
+                            houseNumber: undefined,     // 门牌号
+                            houseNumberSelectErrorMessages: undefined,     // 门牌号异常信息
+                            houseNumberErrorMessages: undefined,     // 门牌号异常信息
+                            wardrobe: undefined,        // 衣柜
+                            window: undefined,          // 窗户
+                            wallCloth: undefined,       // 墙布
+                            sofa: undefined,            // 沙发
+                            TVRemoteControl: undefined, // 电视遥控器
+                            TV: undefined,              // 电视
+                            toiletDoor: undefined,      // 厕所门
+                            washbasinGlue: undefined,  // 洗手台胶
+                            toiletGlue: undefined,      // 马桶胶
+                            ceiling: undefined,         // 天花板
+                            washbasin: undefined,       // 脸盆
+                            kettle: undefined,          // 烧水壶
+                            airConditioner: undefined,  // 空调
+                            bathroomExhaustFan: undefined,    // 卫生间排风扇
+                            carpet: undefined,          // 地毯
+                            airSwitch: undefined,       // 空开
+                            swivelChair: undefined,     // 转椅
+                            faucet: undefined,          // 水龙头
+                            remark: undefined,          // 备注
+                        },            
+                    },
+                },
+                title: 'Hello Vue',
+                count: 0
+            },
+            methods: {
+                /**
+                 * 打开检查房间 
+                 */
+                openCheckRoom() {
+                    this.dialog.checkRoom.enabled = true;
+                    this.initCheckRoomForm(null);
+                },
+                /**
+                 * 初始化房间
+                 */
+                initCheckRoomForm(roomNumber) {
+                    this.dialog.checkRoom.form.roomNumber = roomNumber;   // 房号
+                    this.dialog.checkRoom.form.peculiarSmell = 1;   // 异味
+                    this.dialog.checkRoom.form.houseNumber = 1;     // 门牌号
+                    this.dialog.checkRoom.form.houseNumberSelectErrorMessages = null,     // 门牌号异常信息
+                        this.dialog.checkRoom.form.houseNumberErrorMessages = null,     // 门牌号异常信息
+                        this.dialog.checkRoom.form.wardrobe = 1;        // 衣柜
+                    this.dialog.checkRoom.form.window = 1;          // 窗户
+                    this.dialog.checkRoom.form.wallCloth = 1;       // 墙布
+                    this.dialog.checkRoom.form.sofa = 1;            // 沙发
+                    this.dialog.checkRoom.form.TVRemoteControl = 1; // 电视遥控器
+                    this.dialog.checkRoom.form.TV = 1;              // 电视
+                    this.dialog.checkRoom.form.toiletDoor = 1;      // 厕所门
+                    this.dialog.checkRoom.form.washbasinGlue = 1;  // 洗手台胶
+                    this.dialog.checkRoom.form.toiletGlue = 1;      // 马桶胶
+                    this.dialog.checkRoom.form.ceiling = 1;         // 天花板
+                    this.dialog.checkRoom.form.washbasin = 1;       // 脸盆
+                    this.dialog.checkRoom.form.kettle = 1;          // 烧水壶
+                    this.dialog.checkRoom.form.airConditioner = 1;  // 空调
+                    this.dialog.checkRoom.form.bathroomExhaustFan = 1;    // 卫生间排风扇
+                    this.dialog.checkRoom.form.carpet = 1;          // 地毯
+                    this.dialog.checkRoom.form.airSwitch = null;    // 空开
+                    this.dialog.checkRoom.form.swivelChair = 1;     // 转椅
+                    this.dialog.checkRoom.form.faucet = 1;          // 水龙头  
+                    this.dialog.checkRoom.form.remark = undefined;  // 备注  
+                },
+                /**
+                 * 是否显示item 
+                 */
+                showFormItem() {
+                    return this.dialog.checkRoom.form.roomNumber !== null && this.dialog.checkRoom.form.roomNumber !== undefined
+                },
+                /**
+                 * 获取房间的缓存信息，如果缓存不存在就用默认值 
+                 * @param
+                 */
+                getRoomInfo(roomNumber) {
+                    let key = getKey(ROOM_INFO_KEY, roomNumber)
+                    let roomInfo = JSON.parse(getItem(key))
+                    console.log(roomNumber + "房间的信息：" + roomInfo);
+                    if (roomInfo === null || roomInfo === undefined) {
+                        this.initCheckRoomForm(roomNumber);
+                        return this.dialog.checkRoom.form
+                    } else {
+                        this.dialog.checkRoom.form = { ...roomInfo }
+                    }
+
+                    return roomInfo;
+                },
+                /**
+                 * 判断房间号是否已经检查
+                 * @param {Number} roomNumber 房间号
+                 */
+                roomNumberIsChecked(roomNumber) {
+                    let key = getKey(ROOM_INFO_KEY, roomNumber)
+                    let roomInfoString = getItem(key)
+                    return roomInfoString !== null && roomInfoString !== undefined;
+                },
+                /**
+                 * 修改房间检查状态
+                 * @param {Number} roomNumber 房间号
+                 * @param {boolean} checked true修改成已检查；false：修改成未检查
+                 */
+                changeRoomCheckedStatus(roomNumber, checked) {
+                    const room = this.rooms.find(f => f.value === roomNumber && (f.checked = checked))
+                },
+
+                /**
+                 * 选择房牌号的错误信息 
+                 */
+                changeHouseNumberErrorMessage(e) {
+                    console.log(e)
+                    this.dialog.checkRoom.form.houseNumberErrorMessages = e.join(',')
+                    console.log(this.dialog.checkRoom.form.houseNumberErrorMessages);
+                },
+                /**
+                 * 关闭/取消检查房间弹窗 
+                 */
+                closeDialogCheckRoom() {
+                    this.initCheckRoomForm(null)
+                    this.dialog.checkRoom.enabled = false
+                },
+                /**
+                 * 保存
+                 * @param {Number} model 模式，0保存并关闭；1：保存并继续
+                 */
+                savelDialogCheckRoom(model) {
+                    this.$refs.checkRoomForm.validate((valid) => {
+                        if (valid) {
+                            // 当前操作的房间号
+                            let roomNumber = this.dialog.checkRoom.form.roomNumber
+                            this.changeRoomCheckedStatus(roomNumber, true)
+                            console.log("roomNumber", roomNumber);
+                            // 保存
+                            let key = getKey(ROOM_INFO_KEY, roomNumber)
+                            let roomInfo = JSON.stringify(this.dialog.checkRoom.form);
+                            setItem(key, roomInfo)
+
+                            // 关闭
+                            if (model === 0) {
+                                this.dialog.checkRoom.enabled = false
+                            }
+
+                            this.initCheckRoomForm(null)
+                            this.$message({
+                                message: `房间${roomNumber}检查完成`,
+                                type: 'success',
+                                center: true
+                            });
+                        }
+                    });
+                },
+
+                /**
+                 * 导出excel 
+                 */
+                exportExcelByCheckRoom() {
+                    let exportData = [];
+                    let serialNumber = 1;
+                    for (const roomNumber of ROOMS) {
+                        // 获取缓存
+                        let key = getKey(ROOM_INFO_KEY, roomNumber)
+                        let roomInfo = JSON.parse(getItem(key));
+                        if (roomInfo === undefined || roomInfo === null) {
+                            roomInfo = {roomNumber:roomNumber}
+                        }
+                        console.log(roomInfo);
+                        // 使用中文key
+                        exportData.push({ 
+                            '序号': serialNumber++,
+                            '房号': this.convert(roomInfo.roomNumber), 
+                            '异味' : this.convert(roomInfo.peculiarSmell),   // 异味
+                            '门牌号' : this.convert(roomInfo.houseNumber) + ' ' + this.convert(roomInfo.houseNumberSelectErrorMessages),     // 门牌号
+                            '衣柜' : this.convert(roomInfo.wardrobe),        // 衣柜
+                            '窗户' : this.convert(roomInfo.window),          // 窗户
+                            '墙布' : this.convert(roomInfo.wallCloth),       // 墙布
+                            '沙发' : this.convert(roomInfo.sofa),            // 沙发
+                            '电视遥控器' : this.convert(roomInfo.TVRemoteControl), // 电视遥控器
+                            '电视' : this.convert(roomInfo.TV),              // 电视
+                            '厕所门' : this.convert(roomInfo.toiletDoor),      // 厕所门
+                            '洗手台胶' : this.convert(roomInfo.washbasinGlue),  // 洗手台胶
+                            '马桶胶' : this.convert(roomInfo.toiletGlue),      // 马桶胶
+                            '天花板' : this.convert(roomInfo.ceiling),         // 天花板
+                            '脸盆' : this.convert(roomInfo.washbasin),       // 脸盆
+                            '烧水壶' : this.convert(roomInfo.kettle),          // 烧水壶
+                            '空调' : this.convert(roomInfo.airConditioner),  // 空调
+                            '卫生间排风扇' : this.convert(roomInfo.bathroomExhaustFan),    // 卫生间排风扇
+                            '地毯' : this.convert(roomInfo.carpet),          // 地毯
+                            '空开' : this.convert(roomInfo.airSwitch),       // 空开
+                            '转椅' : this.convert(roomInfo.swivelChair),     // 转椅
+                            '水龙头' : this.convert(roomInfo.faucet),          // 水龙头
+                            '备注' : this.convert(roomInfo.remark),          // 备注
+                        })
+                    }
+                    
+                    // 将数据转换为 worksheet 对象
+                    console.log(exportData);
+                    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+                    // 将 worksheet 对象添加到 workbook 中
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+                    // 导出 Excel 文件
+                    XLSX.writeFile(workbook, 'data111.xlsx');
+                },
+                /**
+                 * 转换 
+                 */
+                convert(value){
+                    if (value !== undefined && value !== null) {
+                        if (value === 0) {
+                            return '×'            
+                        }
+
+                        if (value === 1) {
+                            return '✓'
+                        }
+                        return value;
+                    }
+
+                    return ''
+                },
+            },
+            mounted() {
+                this.rooms = []
+                for (const roomNumber of ROOMS) {
+                    this.rooms.push({ value: roomNumber, checked: this.roomNumberIsChecked(roomNumber) })
+                }
+                this.dialog.overview.enabled = true
+                
+                console.log(this.rooms);
+                console.log(this.dialog.checkRoom.enabled);
+            },
+            watch: {
+                /**
+                 * 房间号下拉 
+                 */
+                'dialog.checkRoom.form.roomNumber': {
+                    handler(n, o) {
+                        if (n !== null && n !== undefined) {
+                            console.log(n);
+                            this.getRoomInfo(n)
+                            this.dialog.checkRoom.title = `检查 ${n} 房间`;
+                        } else {
+                            this.dialog.checkRoom.title = '检查房间'
+                        }
+                    }
+                },
+                /**
+                 * 门牌号 
+                 */
+                'dialog.checkRoom.form.houseNumber': {
+                    handler(n, o) {
+                        if (n === 1) {
+                            this.dialog.checkRoom.form.houseNumberSelectErrorMessages = [];
+                            this.dialog.checkRoom.form.houseNumberErrorMessages = null;
+                        }
+                    }
+                },
+            },
+        })
+    </script>
+
+
+
 </body>
 
 </html>
