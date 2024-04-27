@@ -20,24 +20,21 @@
         head {
             font-size: 1em;
         }
-        :root{
+
+        :root {
             --checked-successful-color: #67C23A;
+            --checked-unchecked-color: #E6A23C;
             --checked-unsuccessful-color: #F56C6C;
+            --checked-successful-font-color: #fff;
+            --checked-unsuccessful-font-color: #fff;
         }
 
         #app {
             width: 100%;
-            height: 100vh;
-        }
-
-        .container {
-            height: 100vh;
-            border: 1px solid red;
-            position: relative;
         }
 
         .menu-div {
-            top: 25vh;
+            top: 100px;
             position: relative;
             display: flex;
             flex-wrap: wrap;
@@ -48,15 +45,20 @@
         .el-button_menu {
             font-size: 2em;
             width: 34vw;
-            height: 10vh;
+            height: 60px;
             margin: 10px;
+        }
+    </style>
+    <style>
+         .el-message-box__wrapper > .el-message-box {
+            width: 80vw;
         }
     </style>
     <style>
         .el-dialog_full_screen {
             width: 90vw;
-            height: 90vh;
-            margin: 5vh auto;
+            height: 80vh;
+            margin: 50px auto;
         }
 
         .el-dialog_full_screen>.el-dialog {
@@ -65,8 +67,9 @@
         }
 
         .el-dialog_full_screen>.el-dialog>.el-dialog__body {
-            max-height: 69vh;
+            max-height: 50vh;
             overflow: scroll;
+            padding: 10px 20px 20px 20px;
         }
 
         .el-dialog_full_screen>.el-dialog>.el-dialog__footer {
@@ -86,30 +89,65 @@
         }
 
         .roomNotChecked {
+            color: var(--checked-unchecked-color);
+        }
+
+        .roomIsError {
             color: var(--checked-unsuccessful-color);
         }
 
-        .el-dialog_overview > .el-dialog > .el-dialog__body{
+        .el-dialog_overview>.el-dialog>.el-dialog__body {
+            max-height: unset !important;
+        }
+
+        .overview_div > .overview_head {
+            padding-bottom: 2vh;
+        }
+        .overview_div > .overview_body {
+            max-height: 48vh;
+            overflow: scroll;
             display: flex;
+            display: -webkit-flex;
             justify-content: start;
             flex-wrap: wrap;
-
-            .overview_item{
-                width: 24vw;
-                height: 10vh;
-                margin: 5px;
-                font-size: 2em;
-                text-align: center;
-                line-height: 10vh;
-            }
-            .overview_item_checked {
-                background-color: var(--checked-successful-color);
-            }
-            .overview_item_unchecked {
-                background-color: var(--checked-unsuccessful-color);
-            }
         }
-        
+        .overview_div > .overview_body> .overview_item {
+            width: 24vw;
+            height: 10vh;
+            margin: 5px;
+            font-size: 2em;
+            text-align: center;
+            line-height: 10vh;
+            border-radius: 5px;
+            box-shadow: -2px 5px 10px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        .overview_item_checked {
+            background-color: var(--checked-successful-color);
+            color: var(--checked-successful-font-color);
+            box-shadow: -2px 5px 10px 0px rgb(103 194 58 / 50%);
+        }
+
+        .overview_item_unchecked {
+            background-color: var(--checked-unchecked-color);
+            color: var(--checked-unsuccessful-font-color);
+            box-shadow: -2px 5px 10px 0px rgb(230 162 60 / 50%);
+        }
+
+        .overview_item_checked_error {
+            background-color: var(--checked-unsuccessful-color);
+            color: var(--checked-unsuccessful-font-color);
+            box-shadow: -2px 5px 10px 0px rgb(245 108 108 / 50%);
+        }
+
+        .el-dialog_overview>.el-dialog>.el-dialog__footer {
+            padding: 10px 20px !important;
+        }
+
+        .el-dialog_overview>.el-dialog>.el-dialog__footer>.dialog-footer {
+            display: flex;
+            justify-content: space-around;
+        }
     </style>
 </head>
 
@@ -118,16 +156,15 @@
         <div class="container">
             <div class="menu-div">
                 <el-button type="primary" class="el-button_menu" @click="openCheckRoom">检查</el-button>
-                <el-button type="primary" class="el-button_menu">总览</el-button>
-                <el-button type="primary" class="el-button_menu">详细</el-button>
+                <el-button type="primary" class="el-button_menu" @click="openOverview">总览</el-button>
                 <el-button type="primary" class="el-button_menu" @click="exportExcelByCheckRoom">下载</el-button>
-                <el-button type="danger" class="el-button_menu" @click="exportExcelByCheckRoom">重置</el-button>
+                <el-button type="danger" class="el-button_menu" @click="reset">重置</el-button>
             </div>
         </div>
 
         <!-- 检查房间 TODO后续使用switch替换单选框，将其做成一页显示 -->
-        <el-dialog :visible.syn="dialog.checkRoom.enabled" :title="dialog.checkRoom.title" class="el-dialog_full_screen"
-            @close="closeDialogCheckRoom">
+        <el-dialog :visible.syn="dialog.checkRoom.enabled" :title="dialog.checkRoom.title" :close-on-click-modal="false"
+            class="el-dialog_full_screen" @close="closeDialogCheckRoom">
             <el-form ref="checkRoomForm" :model="dialog.checkRoom.form" class="form" :rules="dialog.checkRoom.rules"
                 :label-width="dialog.checkRoom.formLabelWidth">
                 <el-form-item label="房号" prop="roomNumber">
@@ -135,8 +172,9 @@
                         <el-option v-for="item in rooms" :key="item.value" :label="item.value" :value="item.value">
                             <span>{{ item.value }}</span>
                             <span style="float: right; font-size: 13px"
-                                :class="item.checked ? 'roomChecked' : 'roomNotChecked'">{{item.checked ? '已检' :
-                                '未检'}}</span>
+                                :class="item.checked ? (item.isError ? 'roomIsError' : 'roomChecked' ) : 'roomNotChecked'">
+                                {{item.checked ? (item.isError ? '已检-有问题' : '已检-没问题' ) : '未检'}}
+                            </span>
                         </el-option>
                     </el-select>
                 </el-form-item>
@@ -282,13 +320,65 @@
         </el-dialog>
 
         <!-- 总览 -->
-        <el-dialog :visible.syn="dialog.overview.enabled" :title="dialog.overview.title" class="el-dialog_full_screen el-dialog_overview">
-            <div v-for="item in rooms" class="overview_item" :class="item.checked ? 'overview_item_checked' : 'overview_item_unchecked'">
-                {{ item.value }}
+        <el-dialog :visible.syn="dialog.overview.enabled" :title="dialog.overview.title" :close-on-click-modal="false"
+            @close="closeDialogOverview" class="el-dialog_full_screen el-dialog_overview">
+            <div class="overview_div">
+                <div class="overview_head">
+                    <el-row :gutter="20">
+                        <el-col :span="6">
+                            <div>
+                                <el-statistic title="总房数">
+                                    <template slot="prefix">
+                                        <i class="el-icon-s-flag" style="color: red"></i>
+                                        <span>{{dialog.overview.head.totalRoomNumber}}</span>
+                                    </template>
+                                </el-statistic>
+                            </div>
+                        </el-col>
+                        <el-col :span="6">
+                            <div>
+                                <el-statistic title="未检数">
+                                    <template slot="prefix">
+                                        <i class="el-icon-warning" style="color: var(--checked-unchecked-color)"></i>
+                                        <span>{{dialog.overview.head.uncheckedRoomNumber}}</span>
+                                    </template>
+                                </el-statistic>
+                            </div>
+                        </el-col>
+                        <el-col :span="6">
+                            <div>
+                                <el-statistic title="已检数">
+                                    <template slot="prefix">
+                                        <i class="el-icon-success" style="color: var(--checked-successful-color)"></i>
+                                        <span>{{dialog.overview.head.checkedRoomNumber}}</span>
+                                    </template>
+                                </el-statistic>
+                            </div>
+                        </el-col>
+                        <el-col :span="6">
+                            <div>
+                                <el-statistic title="问题数">
+                                    <template slot="prefix">
+                                        <i class="el-icon-error" style="color: var(--checked-unsuccessful-color)"></i>
+                                        <span>{{dialog.overview.head.errorRoomNumber}}</span>
+                                    </template>
+                                </el-statistic>
+                            </div>
+                        </el-col>
+                    </el-row>
+                </div>
+                <div class="overview_body">
+                    <div v-for="item in rooms" class="overview_item"
+                        :class="item.checked ? (item.isError ? 'overview_item_checked_error' : 'overview_item_checked') : 'overview_item_unchecked'">
+                        {{ item.value }}
+                    </div>
+                </div>
             </div>
+
             <template #footer>
-                <div class="dialog-footer">
-                    <el-button @click="dialog.overview.enabled = false" style="width: 100%;">关闭</el-button>
+                <div class="dialog-footer footer_two_button">
+                    <el-button @click="closeDialogOverview" style="width: 48%;">取消</el-button>
+                    <el-button type="primary" @click="exportExcelByCheckRoom" style="width: 48%;">下载</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -298,9 +388,11 @@
     <script type="text/javascript">
         // 酒店房间
         const ROOMS = [
-            8601, 8602
-            , 8603,8604, 8605, 8606,8607,8608,8609,8610,8601, 8602, 8603,8604, 8605, 8606,8607,8608,8609,8610,8601, 8602, 8603,8604, 8605, 8606,8607,8608,8609,8610
+            // 8601, 8602, 8603, 8604, 8605, 8606, 8607, 8608, 8609, 8610, 8601, 8602, 8603, 8604, 8605, 8606, 8607, 8608, 8609, 8610, 8601, 8602, 8603, 8604, 8605, 8606, 8607, 8608, 8609, 8610
         ]
+        for (let i = 0; i < 129; i++) {
+            ROOMS.push(8000 + i)
+        }
         // 房间缓存
         const ROOM_INFO_KEY = "roomInfoKey:${roomNumber}";
     </script>
@@ -309,17 +401,21 @@
         const localStorage = window.localStorage;
 
         function getItem(key) {
-            return window.localStorage.getItem(key);
+            return localStorage.getItem(key);
         }
 
         function setItem(key, value) {
-            return window.localStorage.setItem(key, value);
+            return localStorage.setItem(key, value);
+        }
+
+        function clear() {
+            return localStorage.clear();
         }
     </script>
     <!--工具相关-->
     <script type="text/javascript">
         /**
-         * 获取key 
+         * 获取key
          */
         function getKey(template, ...values) {
             let result;
@@ -329,7 +425,7 @@
             return result
         }
     </script>
-
+    <!--VUE-->
     <script type="text/javascript">
         const vm = new Vue({
             el: '#app',
@@ -351,8 +447,7 @@
                             roomNumber: undefined,      // 房号
                             peculiarSmell: undefined,   // 异味
                             houseNumber: undefined,     // 门牌号
-                            houseNumberSelectErrorMessages: undefined,     // 门牌号异常信息
-                            houseNumberErrorMessages: undefined,     // 门牌号异常信息
+
                             wardrobe: undefined,        // 衣柜
                             window: undefined,          // 窗户
                             wallCloth: undefined,       // 墙布
@@ -372,42 +467,26 @@
                             swivelChair: undefined,     // 转椅
                             faucet: undefined,          // 水龙头
                             remark: undefined,          // 备注
+                            isError: undefined,         /// 是否有问题
+                            checkedTime: undefined,     /// 检查时间
+                            houseNumberSelectErrorMessages: undefined,     /// 门牌号异常信息
+                            houseNumberErrorMessages: undefined,     /// 门牌号异常信息
                         },
-                        rules: { // 
+                        rules: { //
                             roomNumber: [{ required: true, message: '请选择房间', trigger: 'blur' }],
                         }
                     },
                     // 总览
-                    overview:{
-                        enabled: true,
+                    overview: {
+                        enabled: false,
                         formLabelWidth: '90px',
-                        title: '检查房间',
-                        form: {
-                            roomNumber: undefined,      // 房号
-                            peculiarSmell: undefined,   // 异味
-                            houseNumber: undefined,     // 门牌号
-                            houseNumberSelectErrorMessages: undefined,     // 门牌号异常信息
-                            houseNumberErrorMessages: undefined,     // 门牌号异常信息
-                            wardrobe: undefined,        // 衣柜
-                            window: undefined,          // 窗户
-                            wallCloth: undefined,       // 墙布
-                            sofa: undefined,            // 沙发
-                            TVRemoteControl: undefined, // 电视遥控器
-                            TV: undefined,              // 电视
-                            toiletDoor: undefined,      // 厕所门
-                            washbasinGlue: undefined,  // 洗手台胶
-                            toiletGlue: undefined,      // 马桶胶
-                            ceiling: undefined,         // 天花板
-                            washbasin: undefined,       // 脸盆
-                            kettle: undefined,          // 烧水壶
-                            airConditioner: undefined,  // 空调
-                            bathroomExhaustFan: undefined,    // 卫生间排风扇
-                            carpet: undefined,          // 地毯
-                            airSwitch: undefined,       // 空开
-                            swivelChair: undefined,     // 转椅
-                            faucet: undefined,          // 水龙头
-                            remark: undefined,          // 备注
-                        },            
+                        title: '总览',
+                        head: {
+                            totalRoomNumber: 0,
+                            checkedRoomNumber: 0,
+                            uncheckedRoomNumber: 0,
+                            errorRoomNumber: 0,
+                        }
                     },
                 },
                 title: 'Hello Vue',
@@ -415,11 +494,20 @@
             },
             methods: {
                 /**
-                 * 打开检查房间 
+                 * 打开检查房间
                  */
                 openCheckRoom() {
                     this.dialog.checkRoom.enabled = true;
                     this.initCheckRoomForm(null);
+                },
+                openOverview() {
+                    this.dialog.overview.enabled = true;
+                },
+                /**
+                 * 关闭总览
+                 */
+                closeDialogOverview() {
+                    this.dialog.overview.enabled = false;
                 },
                 /**
                  * 初始化房间
@@ -447,17 +535,19 @@
                     this.dialog.checkRoom.form.carpet = 1;          // 地毯
                     this.dialog.checkRoom.form.airSwitch = null;    // 空开
                     this.dialog.checkRoom.form.swivelChair = 1;     // 转椅
-                    this.dialog.checkRoom.form.faucet = 1;          // 水龙头  
-                    this.dialog.checkRoom.form.remark = undefined;  // 备注  
+                    this.dialog.checkRoom.form.faucet = 1;          // 水龙头
+                    this.dialog.checkRoom.form.remark = undefined;  // 备注
+                    this.dialog.checkRoom.form.isError = undefined;
+                    this.dialog.checkRoom.form.checkedTime = undefined;
                 },
                 /**
-                 * 是否显示item 
+                 * 是否显示item
                  */
                 showFormItem() {
                     return this.dialog.checkRoom.form.roomNumber !== null && this.dialog.checkRoom.form.roomNumber !== undefined
                 },
                 /**
-                 * 获取房间的缓存信息，如果缓存不存在就用默认值 
+                 * 获取房间的缓存信息，如果缓存不存在就用默认值
                  * @param
                  */
                 getRoomInfo(roomNumber) {
@@ -488,11 +578,58 @@
                  * @param {boolean} checked true修改成已检查；false：修改成未检查
                  */
                 changeRoomCheckedStatus(roomNumber, checked) {
-                    const room = this.rooms.find(f => f.value === roomNumber && (f.checked = checked))
+                    const room = this.rooms.find(f => {
+                        if (f.value === roomNumber) {
+                            f.checked = checked;
+                            let now = this.formartDateTime(new Date())
+                            f.checkedTime = now
+                            let isError = this.isErrorRoom()
+                            f.isError = isError
+                            this.dialog.checkRoom.form.isError = isError
+                            this.dialog.checkRoom.form.checkedTime = now
+                            return f;
+                        }
+                    })
                 },
-
+                // isCheckedRoom(){
+                //     let room = this.dialog.checkRoom.form
+                // },
                 /**
-                 * 选择房牌号的错误信息 
+                 * 判断房间是不是有问题
+                 * @param room
+                 * @returns {boolean}
+                 */
+                isErrorRoom() {
+                    let room = this.dialog.checkRoom.form
+                    console.log("room", room)
+                    if (room) {
+                        let isError = !room.peculiarSmell ||
+                            !room.houseNumber ||
+                            !room.wardrobe ||
+                            !room.window ||
+                            !room.wallCloth ||
+                            !room.sofa ||
+                            !room.TVRemoteControl ||
+                            !room.TV ||
+                            !room.toiletDoor ||
+                            !room.washbasinGlue ||
+                            !room.toiletGlue ||
+                            !room.ceiling ||
+                            !room.washbasin ||
+                            !room.kettle ||
+                            !room.airConditioner ||
+                            !room.bathroomExhaustFan ||
+                            !room.carpet ||
+                            // !room.airSwitch ||
+                            !room.swivelChair ||
+                            !room.faucet
+                        this.dialog.checkRoom.form.isError = isError
+
+                        return isError
+                    }
+                },
+                /**
+                 * 选择房牌号的错误信息
                  */
                 changeHouseNumberErrorMessage(e) {
                     console.log(e)
@@ -500,11 +637,25 @@
                     console.log(this.dialog.checkRoom.form.houseNumberErrorMessages);
                 },
                 /**
-                 * 关闭/取消检查房间弹窗 
+                 * 关闭/取消检查房间弹窗
                  */
                 closeDialogCheckRoom() {
-                    this.initCheckRoomForm(null)
-                    this.dialog.checkRoom.enabled = false
+                    console.log(111)
+                    if (this.dialog.checkRoom.form.roomNumber !== undefined && this.dialog.checkRoom.form.roomNumber !== null) {
+                        this.$confirm('是否保存结果?', '关闭', {
+                            confirmButtonText: '保存',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        }).then(() => {
+                            this.savelDialogCheckRoom(0)
+                        }).catch(() => {
+                            this.initCheckRoomForm(null)
+                            this.dialog.checkRoom.enabled = false
+                        });
+                    } else {
+                        this.initCheckRoomForm(null)
+                        this.dialog.checkRoom.enabled = false
+                    }
                 },
                 /**
                  * 保存
@@ -515,8 +666,14 @@
                         if (valid) {
                             // 当前操作的房间号
                             let roomNumber = this.dialog.checkRoom.form.roomNumber
+                            // 修改房间状态
                             this.changeRoomCheckedStatus(roomNumber, true)
                             console.log("roomNumber", roomNumber);
+                            if (this.dialog.checkRoom.form.isError) {
+                                this.dialog.overview.head.errorRoomNumber++
+                            }
+                            this.dialog.overview.head.checkedRoomNumber++
+                            this.dialog.overview.head.uncheckedRoomNumber--
                             // 保存
                             let key = getKey(ROOM_INFO_KEY, roomNumber)
                             let roomInfo = JSON.stringify(this.dialog.checkRoom.form);
@@ -538,7 +695,7 @@
                 },
 
                 /**
-                 * 导出excel 
+                 * 导出excel
                  */
                 exportExcelByCheckRoom() {
                     let exportData = [];
@@ -548,37 +705,37 @@
                         let key = getKey(ROOM_INFO_KEY, roomNumber)
                         let roomInfo = JSON.parse(getItem(key));
                         if (roomInfo === undefined || roomInfo === null) {
-                            roomInfo = {roomNumber:roomNumber}
+                            roomInfo = { roomNumber: roomNumber }
                         }
                         console.log(roomInfo);
                         // 使用中文key
-                        exportData.push({ 
+                        exportData.push({
                             '序号': serialNumber++,
-                            '房号': this.convert(roomInfo.roomNumber), 
-                            '异味' : this.convert(roomInfo.peculiarSmell),   // 异味
-                            '门牌号' : this.convert(roomInfo.houseNumber) + ' ' + this.convert(roomInfo.houseNumberSelectErrorMessages),     // 门牌号
-                            '衣柜' : this.convert(roomInfo.wardrobe),        // 衣柜
-                            '窗户' : this.convert(roomInfo.window),          // 窗户
-                            '墙布' : this.convert(roomInfo.wallCloth),       // 墙布
-                            '沙发' : this.convert(roomInfo.sofa),            // 沙发
-                            '电视遥控器' : this.convert(roomInfo.TVRemoteControl), // 电视遥控器
-                            '电视' : this.convert(roomInfo.TV),              // 电视
-                            '厕所门' : this.convert(roomInfo.toiletDoor),      // 厕所门
-                            '洗手台胶' : this.convert(roomInfo.washbasinGlue),  // 洗手台胶
-                            '马桶胶' : this.convert(roomInfo.toiletGlue),      // 马桶胶
-                            '天花板' : this.convert(roomInfo.ceiling),         // 天花板
-                            '脸盆' : this.convert(roomInfo.washbasin),       // 脸盆
-                            '烧水壶' : this.convert(roomInfo.kettle),          // 烧水壶
-                            '空调' : this.convert(roomInfo.airConditioner),  // 空调
-                            '卫生间排风扇' : this.convert(roomInfo.bathroomExhaustFan),    // 卫生间排风扇
-                            '地毯' : this.convert(roomInfo.carpet),          // 地毯
-                            '空开' : this.convert(roomInfo.airSwitch),       // 空开
-                            '转椅' : this.convert(roomInfo.swivelChair),     // 转椅
-                            '水龙头' : this.convert(roomInfo.faucet),          // 水龙头
-                            '备注' : this.convert(roomInfo.remark),          // 备注
+                            '房号': this.convert(roomInfo.roomNumber),
+                            '异味': this.convert(roomInfo.peculiarSmell),   // 异味
+                            '门牌号': this.convert(roomInfo.houseNumber) + ' ' + this.convert(roomInfo.houseNumberSelectErrorMessages),     // 门牌号
+                            '衣柜': this.convert(roomInfo.wardrobe),        // 衣柜
+                            '窗户': this.convert(roomInfo.window),          // 窗户
+                            '墙布': this.convert(roomInfo.wallCloth),       // 墙布
+                            '沙发': this.convert(roomInfo.sofa),            // 沙发
+                            '电视遥控器': this.convert(roomInfo.TVRemoteControl), // 电视遥控器
+                            '电视': this.convert(roomInfo.TV),              // 电视
+                            '厕所门': this.convert(roomInfo.toiletDoor),      // 厕所门
+                            '洗手台胶': this.convert(roomInfo.washbasinGlue),  // 洗手台胶
+                            '马桶胶': this.convert(roomInfo.toiletGlue),      // 马桶胶
+                            '天花板': this.convert(roomInfo.ceiling),         // 天花板
+                            '脸盆': this.convert(roomInfo.washbasin),       // 脸盆
+                            '烧水壶': this.convert(roomInfo.kettle),          // 烧水壶
+                            '空调': this.convert(roomInfo.airConditioner),  // 空调
+                            '卫生间排风扇': this.convert(roomInfo.bathroomExhaustFan),    // 卫生间排风扇
+                            '地毯': this.convert(roomInfo.carpet),          // 地毯
+                            '空开': this.convert(roomInfo.airSwitch),       // 空开
+                            '转椅': this.convert(roomInfo.swivelChair),     // 转椅
+                            '水龙头': this.convert(roomInfo.faucet),          // 水龙头
+                            '备注': this.convert(roomInfo.remark),          // 备注
                         })
                     }
-                    
+
                     // 将数据转换为 worksheet 对象
                     console.log(exportData);
                     const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -588,15 +745,33 @@
                     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
 
                     // 导出 Excel 文件
-                    XLSX.writeFile(workbook, 'data111.xlsx');
+                    XLSX.writeFile(workbook, this.formartDateTime(new Date()) + ".xlsx");
+                    // this.$message({
+                    //     message: `下载成功`,
+                    //     type: 'success',
+                    //     center: true
+                    // });
                 },
                 /**
-                 * 转换 
+                 * 转换日期
                  */
-                convert(value){
+                formartDateTime(date) {
+                    date = new Date();
+                    let fullYear = date.getFullYear();
+                    let month = date.getMonth();
+                    let day = date.getDay();
+                    let hours = date.getHours();
+                    let minutes = date.getMinutes();
+                    let seconds = date.getSeconds();
+                    return '' + fullYear + month + day + hours + minutes + seconds
+                },
+                /**
+                 * 转换
+                 */
+                convert(value) {
                     if (value !== undefined && value !== null) {
                         if (value === 0) {
-                            return '×'            
+                            return '×'
                         }
 
                         if (value === 1) {
@@ -607,20 +782,72 @@
 
                     return ''
                 },
+                /**
+                 * 重置
+                 */
+                reset() {
+                    this.$confirm('确认重置房间吗?', '重置', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        for (const item of this.rooms) {
+                            item.checked = false;
+                            item.isError = false;
+                        }
+                        this.dialog.overview.head.checkedRoomNumber = 0
+                        this.dialog.overview.head.uncheckedRoomNumber = this.rooms.length
+                        this.dialog.overview.head.errorRoomNumber = 0
+                        localStorage.clear();
+                        this.$message({
+                            type: 'success',
+                            message: '重置成功!',
+                            center: true
+                        });
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消重置',
+                            center: true
+                        });
+                    });
+                }
             },
             mounted() {
                 this.rooms = []
+                let checkedRoomNumber = 0;
+                let uncheckedRoomNumber = 0;
+                let errorRoomNumber = 0;
                 for (const roomNumber of ROOMS) {
-                    this.rooms.push({ value: roomNumber, checked: this.roomNumberIsChecked(roomNumber) })
+                    // 从缓存取
+                    let cacheKey = getKey(ROOM_INFO_KEY, roomNumber)
+                    let cacheValue = getItem(cacheKey);
+                    if (cacheValue !== undefined && cacheValue !== null) {
+                        let room = JSON.parse(cacheValue)
+                        console.log("1", room)
+                        let isError = room.isError
+                        if (isError) {
+                            errorRoomNumber++
+                        }
+                        this.rooms.push({ value: roomNumber, checked: true, isError: isError, checkedTime: undefined })
+
+                        checkedRoomNumber++;
+                    } else {
+                        this.rooms.push({ value: roomNumber, checked: false, isError: false })
+                        uncheckedRoomNumber++
+                    }
                 }
-                this.dialog.overview.enabled = true
-                
+                this.dialog.overview.head.totalRoomNumber = ROOMS.length
+                this.dialog.overview.head.checkedRoomNumber = checkedRoomNumber
+                this.dialog.overview.head.uncheckedRoomNumber = uncheckedRoomNumber
+                this.dialog.overview.head.errorRoomNumber = errorRoomNumber
+
                 console.log(this.rooms);
                 console.log(this.dialog.checkRoom.enabled);
             },
             watch: {
                 /**
-                 * 房间号下拉 
+                 * 房间号下拉
                  */
                 'dialog.checkRoom.form.roomNumber': {
                     handler(n, o) {
@@ -634,7 +861,7 @@
                     }
                 },
                 /**
-                 * 门牌号 
+                 * 门牌号
                  */
                 'dialog.checkRoom.form.houseNumber': {
                     handler(n, o) {
