@@ -49,10 +49,17 @@
     <style>
         .container-check-room-form{
             background-color: rgb(247, 248, 250);
-            margin-top: 80px;
         }
         .check-room-form{
-
+            padding: 70px 0;
+            height: 65vh;
+            overflow: overlay;
+        }
+        .check-room-submit-button{
+            position: fixed;
+            bottom: 20px;
+            left: 15px;
+            width: calc(100% - 30px);
         }
     </style>
 
@@ -81,11 +88,11 @@
                     left-arrow
                     @click-left="exitCheckRoom"
             >
-
             </van-nav-bar>
             <!--房间选择-->
             <van-popup v-model="showSelectRoomPicker" position="bottom">
                 <van-picker
+                        title="选择房间"
                         show-toolbar
                         :columns="this.$store.getters.rooms"
                         value-key="label"
@@ -96,6 +103,7 @@
             <!--门牌号异常选择-->
             <van-popup v-model="showSelectHouseNumberErrorMessagePicker" position="bottom">
                 <van-picker
+                        title="选择门牌号问题"
                         show-toolbar
                         :columns="this.$store.getters.houseNumberErrorMessage"
                         @confirm="selectHouseNumberErrorMessagePickerOnConfirm"
@@ -103,47 +111,53 @@
                 />
             </van-popup>
 
-            <van-form class="check-room-form" @submit="saveDialogCheckRoom(1)" style="z-index: 20">
+            <van-form ref="checkFormRef" class="check-room-form" @submit="onSubmitCheckForm"style="z-index: 20">
                 <van-cell-group inset>
                     <van-field
                             readonly
+                            required
                             clickable
                             name="picker"
                             :value="roomFullName"
+                            :rules="[{ required: true, message: '请填写用户名' }]"
                             label="选择房间"
                             placeholder="点击选择要检查的房间"
                             @click="showSelectRoomPicker = true"
                     />
                 </van-cell-group>
-                <van-cell-group inset v-for="group in this.$store.getters.checkItems" :title="group.groupName">
-                    <van-cell v-for="item in group.items" :title="item.itemName" :value="item.name">
-                        <van-field v-if="item.formType === 'switch' && (item.showPrecondition == null || form[item.showPrecondition] === false)"
-                                   :label="item.itemName"
-                                   :value="form[item.id]"
-                                   @click="showSelectHouseNumberErrorMessagePicker = true"
-                        >
-                            <template #input>
-                                <van-switch v-model="switchChecked" size="20" />
-                            </template>
-                        </van-field>
-                        <van-field v-else-if="item.formType === 'picker' && (item.showPrecondition == null || form[item.showPrecondition] === false)"
-                                   :label="item.itemName"
-                                   :value="form[item.id]"
-                                   @click="showSelectHouseNumberErrorMessagePicker = true"
-                        />
-                        <van-field v-else-if="item.formType === 'text' && (item.showPrecondition == null || form[item.showPrecondition] === false)"
-                                   :label="item.itemName"
-                                   :value="form[item.id]"
-                                   placeholder="请输入备注"
-                        />
+                <van-cell-group v-if="form.roomNumber" inset v-for="group in this.$store.getters.checkItems" :title="group.groupName">
+                    <van-cell v-for="item in group.items" :value="item.itemName" v-show="item.showPrecondition == null || form[item.showPrecondition] === false">
+                        <van-row type="flex" justify="end" v-if="item.formType === 'switch' && (item.showPrecondition == null || form[item.showPrecondition] === false)">
+                            <van-col span="20">{{item.itemName}}</van-col>
+                            <van-col span="4">
+                                <van-switch v-model="form[item.itemId]" size="20" :active-color="successfulColor" :inactive-color="unsuccessfulColor" />
+                            </van-col>
+                        </van-row>
+                        <van-row v-else-if="item.formType === 'picker' && (item.showPrecondition == null || form[item.showPrecondition] === false)">
+                            <van-col span="8">{{item.itemName}}</van-col>
+                            <van-col span="16">
+                                <van-field style="padding:0"
+                                        readonly
+                                        clickable
+                                        name="picker"
+                                        :value="form.houseNumberErrorMessages"
+                                        placeholder="点击选择选择错误信息"
+                                        @click="showSelectHouseNumberErrorMessagePicker = true"
+                                />
+                            </van-col>
+                        </van-row>
+                        <van-row v-else-if="item.formType === 'text' && (item.showPrecondition == null || form[item.showPrecondition] === false)">
+                            <van-col span="8">{{item.itemName}}</van-col>
+                            <van-col span="16">
+                                <van-field style="padding: 0px" autosize type="textarea" v-model="form[item.itemId]" placeholder="请输入用户名" />
+                            </van-col>
+                        </van-row>
                     </van-cell>
                 </van-cell-group>
-                <van-cell-group >
-                    <div style="margin: 20px 15px; position: relative">
-                        <van-button round block type="info" native-type="submit">提交</van-button>
-                    </div>
-                </van-cell-group>
             </van-form>
+            <div class="check-room-submit-button">
+                <van-button round block type="info" @click="saveDialogCheckRoom">提交</van-button>
+            </div>
         </div>
     </template>
 
@@ -390,48 +404,48 @@
                 checkItems: [
                     {
                         groupId:'门牌号', groupName:'门牌号', items:[
-                            {id:'houseNumber', itemName: '门牌号', formType: 'switch', defaultValue: true},
-                            {id:'houseNumberErrorMessage', itemName: '门牌号异常信息', formType: 'picker', defaultValue: true, showPrecondition:'houseNumber'},
-                            {id:'airSwitch', itemName: '空开', formType: 'switch', defaultValue: true},
-                            {id:'peculiarSmell', itemName: '异味', formType: 'switch', defaultValue: true},
+                            {itemId:'houseNumber', itemName: '门牌号', formType: 'switch', defaultValue: true},
+                            {itemId:'houseNumberErrorMessage', itemName: '门牌号异常信息', formType: 'picker', defaultValue: true, showPrecondition:'houseNumber'},
+                            {itemId:'airSwitch', itemName: '空开', formType: 'switch', defaultValue: true},
+                            {itemId:'peculiarSmell', itemName: '异味', formType: 'switch', defaultValue: true},
                         ]
                     },
                     {
                        groupId:'卫生间', groupName:'卫生间', items:[
-                            {id:'toiletDoor', itemName: '厕所门', formType: 'switch', defaultValue: true},
-                            {id:'washbasinGlue', itemName: '洗手台胶', formType: 'switch', defaultValue: true},
-                            {id:'toiletGlue', itemName: '马桶胶', formType: 'switch', defaultValue: true},
-                            {id:'ceiling', itemName: '天花板', formType: 'switch', defaultValue: true},
-                            {id:'washbasin', itemName: '脸盆', formType: 'switch', defaultValue: true},
-                            {id:'bathroomExhaustFan', itemName: '卫生间排风扇', formType: 'switch', defaultValue: true},
-                            {id:'faucet', itemName: '水龙头', formType: 'switch', defaultValue: true},
+                            {itemId:'toiletDoor', itemName: '厕所门', formType: 'switch', defaultValue: true},
+                            {itemId:'washbasinGlue', itemName: '洗手台胶', formType: 'switch', defaultValue: true},
+                            {itemId:'toiletGlue', itemName: '马桶胶', formType: 'switch', defaultValue: true},
+                            {itemId:'ceiling', itemName: '天花板', formType: 'switch', defaultValue: true},
+                            {itemId:'washbasin', itemName: '脸盆', formType: 'switch', defaultValue: true},
+                            {itemId:'bathroomExhaustFan', itemName: '卫生间排风扇', formType: 'switch', defaultValue: true},
+                            {itemId:'faucet', itemName: '水龙头', formType: 'switch', defaultValue: true},
                         ]
                     },
                     {
                         groupId:'橱柜', groupName:'橱柜', items:[
-                            {id:'wardrobe', itemName: '衣柜', formType: 'switch', defaultValue: true},
-                            {id:'kettle', itemName: '烧水壶', formType: 'switch', defaultValue: true},
+                            {itemId:'wardrobe', itemName: '衣柜', formType: 'switch', defaultValue: true},
+                            {itemId:'kettle', itemName: '烧水壶', formType: 'switch', defaultValue: true},
                         ]
                     },
                     {
                         groupId:'睡觉', groupName:'睡觉', items:[
-                            {id:'airConditioner', itemName: '空调', formType: 'switch', defaultValue: true},
-                            {id:'TV', itemName: '电视', formType: 'switch', defaultValue: true},
-                            {id:'TVRemoteControl', itemName: '电视遥控器', formType: 'switch', defaultValue: true},
-                            {id:'carpet', itemName: '地毯', formType: 'switch', defaultValue: true},
-                            {id:'wallCloth', itemName: '墙布', formType: 'switch', defaultValue: true},
+                            {itemId:'airConditioner', itemName: '空调', formType: 'switch', defaultValue: true},
+                            {itemId:'TV', itemName: '电视', formType: 'switch', defaultValue: true},
+                            {itemId:'TVRemoteControl', itemName: '电视遥控器', formType: 'switch', defaultValue: true},
+                            {itemId:'carpet', itemName: '地毯', formType: 'switch', defaultValue: true},
+                            {itemId:'wallCloth', itemName: '墙布', formType: 'switch', defaultValue: true},
                         ]
                     },
                     {
                         groupId:'休息区', groupName:'休息区', items:[
-                            {id:'window', itemName: '窗户', formType: 'switch', defaultValue: true},
-                            {id:'sofa', itemName: '沙发', formType: 'switch', defaultValue: true},
-                            {id:'swivelChair', itemName: '转椅', formType: 'switch', defaultValue: true},
+                            {itemId:'window', itemName: '窗户', formType: 'switch', defaultValue: true},
+                            {itemId:'sofa', itemName: '沙发', formType: 'switch', defaultValue: true},
+                            {itemId:'swivelChair', itemName: '转椅', formType: 'switch', defaultValue: true},
                         ]
                     },
                     {
                         groupId:'其他', groupName:'其他', items:[
-                            {id:'remark', itemName: '备注', formType: 'text', defaultValue: true},
+                            {itemId:'remark', itemName: '备注', formType: 'text', defaultValue: true},
                         ]
                     },
                 ],
@@ -439,7 +453,8 @@
                 roomError:{
                     houseNumberErrorMessage: [
                         { text: '门铃不响'},
-                        { text: '请勿打扰和立即清理不亮'}
+                        { text: '灯不亮'},
+                        { text: '门铃不响且灯不亮'},
                     ],
                 },
                 // 总房间数
@@ -621,19 +636,19 @@
                         airSwitch: true,       // 空开
                         swivelChair: true,     // 转椅
                         faucet: true,          // 水龙头
+
                         remark: undefined,          // 备注
                         isError: undefined,         /// 是否有问题
                         checkedTime: undefined,     /// 检查时间
 
                         // 需要存储到缓存的额外字段
-                        houseNumberSelectErrorMessages: undefined,     /// 门牌号异常信息
                         houseNumberErrorMessages: undefined,     /// 门牌号异常信息
                     },
                 }
             },
             methods:{
                 /**
-                 * 提交
+                 * 选房间
                  * @param value
                  */
                 selectRoomPickerOnConfirm(value) {
@@ -641,12 +656,14 @@
                     this.form.roomNumber = value[1]
                     this.showSelectRoomPicker = false;
                 },
+                /**
+                 * 选房牌号错误
+                 * @param value
+                 */
                 selectHouseNumberErrorMessagePickerOnConfirm(value) {
-                    this.checkRoom.form.houseNumberErrorMessages
+                    console.log(value.text)
+                    this.form.houseNumberErrorMessages = value.text
                     this.showSelectHouseNumberErrorMessagePicker = false;
-                },
-                test() {
-                  return store.getters.count
                 },
                 /**
                  * 检查房间，切换房间
@@ -660,7 +677,7 @@
                  * 是否显示item
                  */
                 showFormItem() {
-                    return this.checkRoom.form.roomNumber !== null && this.checkRoom.form.roomNumber !== undefined
+                    return this.form.roomNumber !== null && this.form.roomNumber !== undefined
                 },
                 /**
                  * 获取房间的缓存信息，如果缓存不存在就用默认值
@@ -672,9 +689,9 @@
                     console.log(roomNumber + "房间的信息：" + roomInfo);
                     if (roomInfo === null || roomInfo === undefined) {
                         this.initCheckRoomForm(roomNumber);
-                        return this.checkRoom.form
+                        return this.form
                     } else {
-                        this.checkRoom.form = { ...roomInfo }
+                        this.form = { ...roomInfo }
                     }
 
                     return roomInfo;
@@ -686,7 +703,6 @@
                     this.form.roomNumber = roomNumber;   // 房号
                     this.form.peculiarSmell = true;   // 异味
                     this.form.houseNumber = true;     // 门牌号
-                    this.form.houseNumberSelectErrorMessages = null,     // 门牌号异常信息
                         this.form.houseNumberErrorMessages = null,     // 门牌号异常信息
                         this.form.wardrobe = true;        // 衣柜
                     this.form.window = true;          // 窗户
@@ -726,41 +742,39 @@
                     this.initCheckRoomForm(null)
                     this.$router.push('/')
                 },
+
                 /**
                  * 保存
                  * @param {Number} model 模式，0保存并关闭；1：保存并继续
                  */
-                saveDialogCheckRoom(model) {
-                    this.$refs.checkRoomForm.validate((valid) => {
-                        if (valid) {
-                            // 当前操作的房间号
-                            let roomNumber = this.checkRoom.form.roomNumber
-
-                            let now = formatDateTime(new Date())
-                            let newRoom = {value: roomNumber, checked: true, isError: this.isErrorRoom(), checkedTime: now}
-                            console.log("roomNumber", newRoom);
-                            this.$store.commit('changeRoomStatus', newRoom)
-                            // 保存
-                            let key = getKey(ROOM_INFO_KEY, roomNumber)
-                            let roomInfo = JSON.stringify(this.checkRoom.form);
-                            setItem(key, roomInfo)
-                            // 重置表单
-                            this.initCheckRoomForm(null)
-                            this.$message({
-                                message: `房间${roomNumber}检查完成`,
-                                type: 'success',
-                                center: true
-                            });
-                        }
-                    });
+                saveDialogCheckRoom() {
+                    this.$refs.checkFormRef.submit()
                 },
+                onSubmitCheckForm(){
+                    console.log(123)
+                    // 当前操作的房间号
+                    let roomNumber = this.form.roomNumber
+
+                    let now = formatDateTime(new Date())
+                    let newRoom = {value: roomNumber, checked: true, isError: this.isErrorRoom(), checkedTime: now}
+                    console.log("roomNumber", newRoom);
+                    this.$store.commit('changeRoomStatus', newRoom)
+                    // 保存
+                    let key = getKey(ROOM_INFO_KEY, roomNumber)
+                    let roomInfo = JSON.stringify(this.form);
+                    setItem(key, roomInfo)
+                    // 重置表单
+                    this.initCheckRoomForm(null)
+                    vant.Notify({ type: 'success', message: `${roomNumber} 检查完成`});
+                },
+
                 /**
                  * 判断房间是不是有问题
                  * @param room
                  * @returns {boolean}
                  */
                 isErrorRoom() {
-                    let room = this.checkRoom.form
+                    let room = this.form
                     console.log("room", room)
                     if (room) {
                         let isError = !room.peculiarSmell ||
@@ -784,18 +798,17 @@
                             !room.swivelChair ||
                             !room.faucet
 
-                        this.checkRoom.form.isError = isError
+                        this.form.isError = isError
 
                         return isError
                     }
                 },
-
             },
             watch: {
                 /**
                  * 房间号下拉
                  */
-                'checkRoom.form.roomNumber': function (n, o) {
+                'form.roomNumber': function (n, o) {
                     console.log("checkRoom.form.roomNumber");
                     if (n !== null && n !== undefined) {
                         console.log(n);
@@ -808,11 +821,11 @@
                 /**
                  * 门牌号
                  */
-                'checkRoom.form.houseNumber': {
+                'form.houseNumber': {
                     handler(n, o) {
                         if (n) {
-                            this.checkRoom.form.houseNumberSelectErrorMessages = [];
-                            this.checkRoom.form.houseNumberErrorMessages = null;
+                            this.form.houseNumberSelectErrorMessages = [];
+                            this.form.houseNumberErrorMessages = null;
                         }
                     }
                 },
