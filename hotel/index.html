@@ -51,8 +51,14 @@
         }
     </style>
     <style>
-        .container-check-room-form{
+        .container{
             background-color: rgb(247, 248, 250);
+        }
+        .dashboardTemplateId{
+
+        }
+        .dashboard-head{
+
         }
         .check-room-form{
             position: relative;
@@ -70,6 +76,17 @@
         .optional-cell:before{
             content: '';
         }
+        .roomChecked {
+            color: var(--checked-successful-color);
+        }
+
+        .roomNotChecked {
+            color: var(--checked-unchecked-color);
+        }
+
+        .roomIsError {
+            color: var(--checked-unsuccessful-color);
+        }
     </style>
 
 </head>
@@ -80,13 +97,53 @@
             <router-view></router-view>
         </transition>
         <van-tabbar v-model="active" v-show="this.$store.getters.showFootMenu">
-            <van-tabbar-item replace to="/login" icon="home-o">看板</van-tabbar-item>
+            <van-tabbar-item replace to="/dashboard" icon="home-o">看板</van-tabbar-item>
             <van-tabbar-item replace to="/checkRoom" icon="manager">检查</van-tabbar-item>
             <van-tabbar-item replace to="/login" icon="eye-o">预览</van-tabbar-item>
             <van-tabbar-item replace to="/login" icon="setting-o">设置</van-tabbar-item>
         </van-tabbar>
     </div>
 
+    <!--仪表盘模板-->
+    <template id="dashboardTemplateId">
+        <div class="container container-dashboard">
+            <van-sticky :offset-top="10">
+                <van-cell-group>
+                    <van-row>
+                        <van-col span="6">
+                            <div>
+                                <div>房间总数</div>
+                                <van-icon name="hotel-o" />
+                                <span>123</span>
+                            </div>
+                        </van-col>
+                        <van-col span="6">
+                            <div>
+                                <div>房间总数</div>
+                                <van-icon name="hotel-o" />
+                                <span>123</span>
+                            </div>
+                        </van-col>
+                        <van-col span="6">
+                            <div>
+                                <div>房间总数</div>
+                                <van-icon name="hotel-o" />
+                                <span>123</span>
+                            </div>
+                        </van-col>
+                        <van-col span="6">
+                            <div>
+                                <div>房间总数</div>
+                                <van-icon name="hotel-o" />
+                                <span>123</span>
+                            </div>
+                        </van-col>
+                    </van-row>
+                </van-cell-group>
+            </van-sticky>
+
+        </div>
+    </template>
     <!--检查房间模板-->
     <template id="checkRoomTemplateId">
         <div class="container container-check-room-form">
@@ -110,13 +167,28 @@
             <!--房间选择-->
             <van-popup v-model="showSelectRoomPicker" position="bottom">
                 <van-picker
+                        ref="picker"
                         title="选择房间"
                         show-toolbar
+                        :lazy-render="false"
                         :columns="this.$store.getters.rooms"
                         value-key="label"
                         @confirm="selectRoomPickerOnConfirm"
                         @cancel="showSelectRoomPicker = false"
-                />
+                >
+                    <template #option="item">
+                        <van-row v-if="item.children">
+                            <van-col :span="24">
+                                <p>{{ item.label }}</p>
+                            </van-col>
+                        </van-row>
+                        <van-row v-else>
+                            <van-col :span="24" class="van-hairline--left">
+                                <span :class="item.isError ? 'roomIsError' : (item.checked ? 'roomChecked' : '')">{{ item.label }}</span>
+                            </van-col>
+                        </van-row>
+                    </template>
+                </van-picker>
             </van-popup>
             <!--门牌号异常选择-->
             <van-popup v-model="showSelectHouseNumberErrorMessagePicker" position="bottom">
@@ -166,7 +238,6 @@
                                            name="picker"
                                            class="optional-cell"
                                            :value="form.houseNumberErrorMessages"
-                                           :rules="[{ required: true}]"
                                            placeholder="点击选择错误信息"
                                            @click="showSelectHouseNumberErrorMessagePicker = true"
                                 />
@@ -367,6 +438,7 @@
         const ROOM_INFO_KEY = "roomInfoKey:${roomNumber}";
         const SUCCESSFUL_COLOR = '#67C23A'
         const UNSUCCESSFUL_COLOR = '#F56C6C'
+        const UNCHECKED_COLOR = '#E6A23C'
 
         // 检查的选项
         const RAW_CHECK_ITEMS = [
@@ -502,6 +574,9 @@
                 uncheckedRoomNumber: 0,
                 // 有问题房间数
                 errorRoomNumber: 0,
+                successfulColor: SUCCESSFUL_COLOR,
+                unsuccessfulColor: UNSUCCESSFUL_COLOR,
+                uncheckedColor: UNCHECKED_COLOR,
             },
             // 包含多个更新state函数的对象
             mutations: {
@@ -595,6 +670,7 @@
                     state.checkedRoomNumber = checkedRoomNumber
                     state.uncheckedRoomNumber = uncheckedRoomNumber
                     state.errorRoomNumber = errorRoomNumber
+                    console.log("state.rooms", state.rooms)
                 },
                 /**
                  * 修改房间状态
@@ -640,9 +716,34 @@
                 checkedRoomNumber:() => store.state.checkedRoomNumber,
                 uncheckedRoomNumber:() => store.state.uncheckedRoomNumber,
                 errorRoomNumber:() => store.state.errorRoomNumber,
-
+                successfulColor:() => store.state.successfulColor,
+                unsuccessfulColor:() => store.state.unsuccessfulColor,
+                uncheckedColor:() => store.state.uncheckedColor,
             }
         })
+
+        /**
+         * 仪表盘组件
+         */
+        const dashboardComponent = Vue.component('checkRoom', Vue.extend({
+            name: 'dashboard',
+            template: '#dashboardTemplateId',
+            data(){
+                return {
+
+                }
+            },
+            methods:{
+
+            },
+            watch: {
+
+            },
+            beforeCreate(){
+            },
+            created() {
+            }
+        }))
 
         /**
          * 查房组件
@@ -654,6 +755,7 @@
                 return {
                     successfulColor: SUCCESSFUL_COLOR,
                     unsuccessfulColor: UNSUCCESSFUL_COLOR,
+                    uncheckedColor: UNCHECKED_COLOR,
                     // 显示下拉
                     showSelectRoomPicker: false,
                     showSelectHouseNumberErrorMessagePicker: false,
@@ -752,15 +854,18 @@
                     }
                     let items = this.$store.getters.items
                     for (const formKey in this.form) {
-                        // 除了房间号，其他需要设置
-                        if (roomNumber == null || formKey !== 'roomNumber') {
-                            for(item of items) {
-                                if (formKey === item.itemId) {
-                                    this.form[formKey] = item.defaultValue;
+                        if (roomNumber == null) {
+                            this.form[formKey] = undefined
+                        } else {
+                            // 除了房间号，其他需要设置
+                            if (formKey !== 'roomNumber') {
+                                for(item of items) {
+                                    if (formKey === item.itemId) {
+                                        this.form[formKey] = item.defaultValue;
+                                    }
                                 }
                             }
                         }
-
                     }
                 },
                 /**
@@ -803,7 +908,7 @@
                     }
                     console.log("roomNumber", data);
                     this.$store.commit('changeRoomStatus', data)
-
+                    this.$refs.picker.setValues(this.$store.getters.rooms)
                     vant.Toast.success('保存成功');
                 },
 
@@ -890,7 +995,8 @@
                 // 属性2：是 component， 表示，如果 路由是前面匹配到的 path，则展示 component 属性对应的那个组件
                 //  注意：component 的属性值，必须是一个 组件模板对象，不能是模板名称
                 // {path:'/', component: login},
-                {path:'/', redirect: '/checkRoom'}, // 这里的 redirect 和 Node 中的 redirect 完全是两码事
+                {path:'/', redirect: '/dashboard'}, // 这里的 redirect 和 Node 中的 redirect 完全是两码事
+                {path:'/dashboard', component: dashboardComponent},
                 {path:'/checkRoom', component: checkRoomComponent},
 
             ]
@@ -899,7 +1005,6 @@
 
         const vm = new Vue({
             el: '#app',
-            // components: { dashboardComponent, checkRoomComponent },
             data: {
                 showFootMenu: true,
                 active: 0,
