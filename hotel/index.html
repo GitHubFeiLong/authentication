@@ -22,19 +22,23 @@
     <!-- use xlsx.mini.min.js from version 0.20.2 -->
     <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.mini.min.js"></script>
     <style>
+        :root {
+            --background-color: rgb(247, 248, 250);
+            --checked-successful-color: #67C23A;
+            --checked-unchecked-color: #E6A23C;
+            --checked-unsuccessful-color: #F56C6C;
+            --checked-successful-font-color: #fff;
+            --required-color: #ee0a24;
+            --van-nav-bar-height: 46px;
+            --van-tabbar-height: 50px;
+        }
         /* 全屏显示 */
         html, body {
             height: 100%;
             width: 100%;
             margin: 0;
             padding: 0;
-        }
-
-        :root {
-            --checked-successful-color: #67C23A;
-            --checked-unchecked-color: #E6A23C;
-            --checked-unsuccessful-color: #F56C6C;
-            --checked-successful-font-color: #fff;
+            background-color: var(--background-color);
         }
     </style>
     <!--van-->
@@ -51,15 +55,20 @@
             background-color: rgb(247, 248, 250);
         }
         .check-room-form{
-            padding: 70px 0;
-            height: 65vh;
-            overflow: overlay;
+            position: relative;
+            top: 50px;
+            height: calc(100vh - 150px);
+            overflow: scroll;
         }
-        .check-room-submit-button{
-            position: fixed;
-            bottom: 20px;
-            left: 15px;
-            width: calc(100% - 30px);
+        .van-cell[required]{
+            position: absolute;
+            left: 8px;
+            color: var(--required-color);
+            font-size: 14px;
+            content: '*';
+        }
+        .optional-cell:before{
+            content: '';
         }
     </style>
 
@@ -84,10 +93,19 @@
             <van-nav-bar
                     class="nav-bar"
                     :title="title"
-                    left-text="返回"
-                    left-arrow
-                    @click-left="exitCheckRoom"
             >
+                <template #left>
+                    <div @click="cancel">
+                        <van-icon name="cross" size="18" />
+                        <span style="font-size: 16px">取消</span>
+                    </div>
+                </template>
+                <template #right>
+                    <div @click="save">
+                        <van-icon name="success" size="18"/>
+                        <span style="font-size: 16px">保存</span>
+                    </div>
+                </template>
             </van-nav-bar>
             <!--房间选择-->
             <van-popup v-model="showSelectRoomPicker" position="bottom">
@@ -110,54 +128,59 @@
                         @cancel="showSelectHouseNumberErrorMessagePicker = false"
                 />
             </van-popup>
-
-            <van-form ref="checkFormRef" class="check-room-form" @submit="onSubmitCheckForm"style="z-index: 20">
-                <van-cell-group inset>
-                    <van-field
-                            readonly
-                            required
-                            clickable
-                            name="picker"
-                            :value="roomFullName"
-                            :rules="[{ required: true, message: '请填写用户名' }]"
-                            label="选择房间"
-                            placeholder="点击选择要检查的房间"
-                            @click="showSelectRoomPicker = true"
-                    />
-                </van-cell-group>
-                <van-cell-group v-if="form.roomNumber" inset v-for="group in this.$store.getters.checkItems" :title="group.groupName">
-                    <van-cell v-for="item in group.items" :value="item.itemName" v-show="item.showPrecondition == null || form[item.showPrecondition] === false">
+            <van-form ref="checkFormRef" class="check-room-form" @submit="onSubmitCheckForm">
+                <van-cell-group inset  v-for="group in this.$store.getters.checkItems" :key="group.groupId" :title="group.groupName">
+                    <van-cell v-for="item in group.items"
+                              :key="item.itemId" :value="item.itemName" v-show="item.showPrecondition == null || form[item.showPrecondition] === false"
+                              :required="item.required"
+                    >
                         <van-row type="flex" justify="end" v-if="item.formType === 'switch' && (item.showPrecondition == null || form[item.showPrecondition] === false)">
                             <van-col span="20">{{item.itemName}}</van-col>
                             <van-col span="4">
-                                <van-switch v-model="form[item.itemId]" size="20" :active-color="successfulColor" :inactive-color="unsuccessfulColor" />
+                                <van-switch v-model="form[item.itemId]" size="20" :disabled="form.roomNumber == undefined" :active-color="successfulColor" :inactive-color="unsuccessfulColor" />
                             </van-col>
                         </van-row>
-                        <van-row v-else-if="item.formType === 'picker' && (item.showPrecondition == null || form[item.showPrecondition] === false)">
+                        <van-row v-else-if="item.formType === 'picker' && item.itemId === 'roomNumber' && (item.showPrecondition == null || form[item.showPrecondition] === false)">
+                            <van-col span="8">{{item.itemName}}</van-col>
+                            <van-col span="16">
+                                <van-field
+                                        style="padding:0"
+                                        readonly
+                                        required
+                                        clickable
+                                        name="picker"
+                                        class="optional-cell"
+                                        :value="roomFullName"
+                                        :rules="[{ required: true}]"
+                                        placeholder="点击选择要检查的房间"
+                                        @click="showSelectRoomPicker = true"
+                                />
+                            </van-col>
+                        </van-row>
+                        <van-row v-else-if="item.formType === 'picker' && item.itemId === 'houseNumberErrorMessage' && (item.showPrecondition == null || form[item.showPrecondition] === false)">
                             <van-col span="8">{{item.itemName}}</van-col>
                             <van-col span="16">
                                 <van-field style="padding:0"
-                                        readonly
-                                        clickable
-                                        name="picker"
-                                        :value="form.houseNumberErrorMessages"
-                                        placeholder="点击选择选择错误信息"
-                                        @click="showSelectHouseNumberErrorMessagePicker = true"
+                                           readonly
+                                           clickable
+                                           name="picker"
+                                           class="optional-cell"
+                                           :value="form.houseNumberErrorMessages"
+                                           :rules="[{ required: true}]"
+                                           placeholder="点击选择错误信息"
+                                           @click="showSelectHouseNumberErrorMessagePicker = true"
                                 />
                             </van-col>
                         </van-row>
                         <van-row v-else-if="item.formType === 'text' && (item.showPrecondition == null || form[item.showPrecondition] === false)">
                             <van-col span="8">{{item.itemName}}</van-col>
                             <van-col span="16">
-                                <van-field style="padding: 0px" autosize type="textarea" v-model="form[item.itemId]" placeholder="请输入用户名" />
+                                <van-field style="padding: 0px" autosize  v-model="form[item.itemId]" :disabled="form.roomNumber == undefined" placeholder="请输入备注信息" />
                             </van-col>
                         </van-row>
                     </van-cell>
                 </van-cell-group>
             </van-form>
-            <div class="check-room-submit-button">
-                <van-button round block type="info" @click="saveDialogCheckRoom">提交</van-button>
-            </div>
         </div>
     </template>
 
@@ -344,6 +367,65 @@
         const ROOM_INFO_KEY = "roomInfoKey:${roomNumber}";
         const SUCCESSFUL_COLOR = '#67C23A'
         const UNSUCCESSFUL_COLOR = '#F56C6C'
+
+        // 检查的选项
+        const RAW_CHECK_ITEMS = [
+            {
+                groupId:'选择房间', groupName:'选择房间', items:[
+                    {itemId:'roomNumber', itemName: '选择房间', formType: 'picker', defaultValue: undefined, required: true, excelCol: true, order: 0},
+                ]
+            },
+            {
+                groupId:'门牌号', groupName:'门牌号', items:[
+                    {itemId:'houseNumber', itemName: '门牌号', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'houseNumberErrorMessage', itemName: '门牌号异常信息', formType: 'picker', defaultValue: true, showPrecondition:'houseNumber'},
+                    {itemId:'airSwitch', itemName: '空开', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'peculiarSmell', itemName: '异味', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                ]
+            },
+            {
+                groupId:'卫生间', groupName:'卫生间', items:[
+                    {itemId:'toiletDoor', itemName: '厕所门', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'washbasinGlue', itemName: '洗手台胶', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'toiletGlue', itemName: '马桶胶', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'ceiling', itemName: '天花板', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'washbasin', itemName: '脸盆', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'bathroomExhaustFan', itemName: '卫生间排风扇', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'faucet', itemName: '水龙头', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                ]
+            },
+            {
+                groupId:'橱柜', groupName:'橱柜', items:[
+                    {itemId:'wardrobe', itemName: '衣柜', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'kettle', itemName: '烧水壶', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                ]
+            },
+            {
+                groupId:'睡觉', groupName:'睡觉', items:[
+                    {itemId:'airConditioner', itemName: '空调', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'TV', itemName: '电视', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'TVRemoteControl', itemName: '电视遥控器', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'carpet', itemName: '地毯', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'wallCloth', itemName: '墙布', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                ]
+            },
+            {
+                groupId:'休息区', groupName:'休息区', items:[
+                    {itemId:'window', itemName: '窗户', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'sofa', itemName: '沙发', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                    {itemId:'swivelChair', itemName: '转椅', formType: 'switch', defaultValue: true, excelCol: true, order: 0},
+                ]
+            },
+            {
+                groupId:'其他', groupName:'其他', items:[
+                    {itemId:'remark', itemName: '备注', formType: 'text', defaultValue: '', excelCol: true, order: 0},
+                ]
+            },
+        ];
+
+        const RAW_ITEMS = []
+        RAW_CHECK_ITEMS.forEach(group => group.items.forEach(item => RAW_ITEMS.push(item)))
+        RAW_CHECK_ITEMS.sort((o1, o2) => o1.order - o2.order)
     </script>
     <!--缓存相关-->
     <script type="text/javascript">
@@ -401,54 +483,9 @@
                 // 所有楼层房间信息
                 rooms: [],
                 // 检查的选项
-                checkItems: [
-                    {
-                        groupId:'门牌号', groupName:'门牌号', items:[
-                            {itemId:'houseNumber', itemName: '门牌号', formType: 'switch', defaultValue: true},
-                            {itemId:'houseNumberErrorMessage', itemName: '门牌号异常信息', formType: 'picker', defaultValue: true, showPrecondition:'houseNumber'},
-                            {itemId:'airSwitch', itemName: '空开', formType: 'switch', defaultValue: true},
-                            {itemId:'peculiarSmell', itemName: '异味', formType: 'switch', defaultValue: true},
-                        ]
-                    },
-                    {
-                       groupId:'卫生间', groupName:'卫生间', items:[
-                            {itemId:'toiletDoor', itemName: '厕所门', formType: 'switch', defaultValue: true},
-                            {itemId:'washbasinGlue', itemName: '洗手台胶', formType: 'switch', defaultValue: true},
-                            {itemId:'toiletGlue', itemName: '马桶胶', formType: 'switch', defaultValue: true},
-                            {itemId:'ceiling', itemName: '天花板', formType: 'switch', defaultValue: true},
-                            {itemId:'washbasin', itemName: '脸盆', formType: 'switch', defaultValue: true},
-                            {itemId:'bathroomExhaustFan', itemName: '卫生间排风扇', formType: 'switch', defaultValue: true},
-                            {itemId:'faucet', itemName: '水龙头', formType: 'switch', defaultValue: true},
-                        ]
-                    },
-                    {
-                        groupId:'橱柜', groupName:'橱柜', items:[
-                            {itemId:'wardrobe', itemName: '衣柜', formType: 'switch', defaultValue: true},
-                            {itemId:'kettle', itemName: '烧水壶', formType: 'switch', defaultValue: true},
-                        ]
-                    },
-                    {
-                        groupId:'睡觉', groupName:'睡觉', items:[
-                            {itemId:'airConditioner', itemName: '空调', formType: 'switch', defaultValue: true},
-                            {itemId:'TV', itemName: '电视', formType: 'switch', defaultValue: true},
-                            {itemId:'TVRemoteControl', itemName: '电视遥控器', formType: 'switch', defaultValue: true},
-                            {itemId:'carpet', itemName: '地毯', formType: 'switch', defaultValue: true},
-                            {itemId:'wallCloth', itemName: '墙布', formType: 'switch', defaultValue: true},
-                        ]
-                    },
-                    {
-                        groupId:'休息区', groupName:'休息区', items:[
-                            {itemId:'window', itemName: '窗户', formType: 'switch', defaultValue: true},
-                            {itemId:'sofa', itemName: '沙发', formType: 'switch', defaultValue: true},
-                            {itemId:'swivelChair', itemName: '转椅', formType: 'switch', defaultValue: true},
-                        ]
-                    },
-                    {
-                        groupId:'其他', groupName:'其他', items:[
-                            {itemId:'remark', itemName: '备注', formType: 'text', defaultValue: true},
-                        ]
-                    },
-                ],
+                checkItems: RAW_CHECK_ITEMS,
+                // 检查项
+                items: RAW_ITEMS,
                 // 异常下拉
                 roomError:{
                     houseNumberErrorMessage: [
@@ -562,19 +599,25 @@
                 /**
                  * 修改房间状态
                  * @param state
-                 * @param {object} newRoom
-                 * @param {string} object.value 房间唯一标识
-                 * @param {boolean} object.checked true 已检查；false 未检查
-                 * @param {boolean} object.isError true 问题；false 正常
-                 * @param {string} object.checkedTime 检查时间
+                 * @param {object} data
+                 * @param {object} data.newRoom 房间新状态
+                 * @param {string} data.newRoom.value 房间唯一标识
+                 * @param {boolean} data.newRoom.checked true 已检查；false 未检查
+                 * @param {boolean} data.newRoom.isError true 问题；false 正常
+                 * @param {string} data.newRoom.checkedTime 检查时间
+                 * @param {object} data.form 保存的数据
                  */
-                changeRoomStatus(state, newRoom) {
+                changeRoomStatus(state, data) {
                     state.rooms.forEach(floor => {
                         floor.children.forEach(room => {
-                            if (room.value === newRoom.value) {
-                                room.checked = newRoom.checked;
-                                room.isError = newRoom.isError;
-                                room.checkedTime = newRoom.checked ? newRoom.checkedTime : null;
+                            if (room.value === data.newRoom.value) {
+                                room.checked = data.newRoom.checked;
+                                room.isError = data.newRoom.isError;
+                                room.checkedTime = data.newRoom.checked ? data.newRoom.checkedTime : null;
+                                // 保存
+                                let key = getKey(ROOM_INFO_KEY, data.newRoom.value)
+                                let roomInfo = JSON.stringify(data.form);
+                                setItem(key, roomInfo)
                                 return;
                             }
                         })
@@ -589,6 +632,7 @@
                 showFootMenu: () => store.state.showFootMenu,
                 rooms:() => store.state.rooms,
                 checkItems: () => store.state.checkItems,
+                items: () => store.state.items,
                 //===
                 houseNumberErrorMessage:() => store.state.roomError.houseNumberErrorMessage,
                 //==
@@ -596,6 +640,7 @@
                 checkedRoomNumber:() => store.state.checkedRoomNumber,
                 uncheckedRoomNumber:() => store.state.uncheckedRoomNumber,
                 errorRoomNumber:() => store.state.errorRoomNumber,
+
             }
         })
 
@@ -613,7 +658,7 @@
                     showSelectRoomPicker: false,
                     showSelectHouseNumberErrorMessagePicker: false,
                     roomFullName: undefined,
-                    title: '检查房间',
+                    title: '查房',
                     form: {
                         roomNumber: undefined,      // 房号
                         peculiarSmell: true,   // 异味
@@ -700,31 +745,23 @@
                  * 初始化房间
                  */
                 initCheckRoomForm(roomNumber) {
-                    this.form.roomNumber = roomNumber;   // 房号
-                    this.form.peculiarSmell = true;   // 异味
-                    this.form.houseNumber = true;     // 门牌号
-                        this.form.houseNumberErrorMessages = null,     // 门牌号异常信息
-                        this.form.wardrobe = true;        // 衣柜
-                    this.form.window = true;          // 窗户
-                    this.form.wallCloth = true;       // 墙布
-                    this.form.sofa = true;            // 沙发
-                    this.form.TVRemoteControl = true; // 电视遥控器
-                    this.form.TV = true;              // 电视
-                    this.form.toiletDoor = true;      // 厕所门
-                    this.form.washbasinGlue = true;  // 洗手台胶
-                    this.form.toiletGlue = true;      // 马桶胶
-                    this.form.ceiling = true;         // 天花板
-                    this.form.washbasin = true;       // 脸盆
-                    this.form.kettle = true;          // 烧水壶
-                    this.form.airConditioner = true;  // 空调
-                    this.form.bathroomExhaustFan = true;    // 卫生间排风扇
-                    this.form.carpet = true;          // 地毯
-                    this.form.airSwitch = null;    // 空开
-                    this.form.swivelChair = true;     // 转椅
-                    this.form.faucet = true;          // 水龙头
-                    this.form.remark = undefined;  // 备注
-                    this.form.isError = undefined;
-                    this.form.checkedTime = undefined;
+                    console.log("initCheckRoomForm")
+                    // 传的null
+                    if (!roomNumber) {
+                        this.roomFullName = null;
+                    }
+                    let items = this.$store.getters.items
+                    for (const formKey in this.form) {
+                        // 除了房间号，其他需要设置
+                        if (roomNumber == null || formKey !== 'roomNumber') {
+                            for(item of items) {
+                                if (formKey === item.itemId) {
+                                    this.form[formKey] = item.defaultValue;
+                                }
+                            }
+                        }
+
+                    }
                 },
                 /**
                  * 选择房牌号的错误信息
@@ -737,35 +774,37 @@
                 /**
                  * 关闭/取消检查房间弹窗
                  */
-                exitCheckRoom() {
-                    this.$store.commit('setShowFootMenu', true)
+                cancel() {
+                    // this.$store.commit('setShowFootMenu', true)
                     this.initCheckRoomForm(null)
-                    this.$router.push('/')
+                    this.roomFullName = undefined
+                    this.title = '查房'
+                    // this.$router.push('/')
                 },
 
                 /**
                  * 保存
                  * @param {Number} model 模式，0保存并关闭；1：保存并继续
                  */
-                saveDialogCheckRoom() {
+                save() {
                     this.$refs.checkFormRef.submit()
                 },
+                /**
+                 * 表单提交
+                 */
                 onSubmitCheckForm(){
-                    console.log(123)
                     // 当前操作的房间号
                     let roomNumber = this.form.roomNumber
 
                     let now = formatDateTime(new Date())
-                    let newRoom = {value: roomNumber, checked: true, isError: this.isErrorRoom(), checkedTime: now}
-                    console.log("roomNumber", newRoom);
-                    this.$store.commit('changeRoomStatus', newRoom)
-                    // 保存
-                    let key = getKey(ROOM_INFO_KEY, roomNumber)
-                    let roomInfo = JSON.stringify(this.form);
-                    setItem(key, roomInfo)
-                    // 重置表单
-                    this.initCheckRoomForm(null)
-                    vant.Notify({ type: 'success', message: `${roomNumber} 检查完成`});
+                    let data = {
+                        newRoom: {value: roomNumber, checked: true, isError: this.isErrorRoom(), checkedTime: now},
+                        form: this.form,
+                    }
+                    console.log("roomNumber", data);
+                    this.$store.commit('changeRoomStatus', data)
+
+                    vant.Toast.success('保存成功');
                 },
 
                 /**
@@ -813,9 +852,10 @@
                     if (n !== null && n !== undefined) {
                         console.log(n);
                         this.getRoomInfo(n)
-                        this.title = `检查 ${n} 房间`;
+                        // this.title = `${n}`;
+                        // this.title = `${this.roomFullName}`;
                     } else {
-                        this.title = '检查房间'
+                        this.title = '查房'
                     }
                 },
                 /**
@@ -831,8 +871,13 @@
                 },
             },
             beforeCreate(){
-                this.$store.commit('setShowFootMenu', false)
+                console.log(this.form)
+                this.$store.commit('setShowFootMenu', true)
             },
+            created() {
+                console.log(":")
+                this.initCheckRoomForm(null)
+            }
         }))
 
 
