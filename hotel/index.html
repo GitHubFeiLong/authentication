@@ -60,6 +60,11 @@
         .dashboard-head{
 
         }
+        .dashboard-title-cell-group {
+            height: 83px;
+            width: 100%;
+            padding: 5px 0;
+        }
         .dashboard-statistics{
             font-size: 20px;
             text-align: center;
@@ -89,6 +94,9 @@
         }
         .optional-cell:before{
             content: '';
+        }
+        .roomPrimary {
+            color: #1097d0;
         }
         .roomChecked {
             color: var(--checked-successful-color);
@@ -126,34 +134,34 @@
     <template id="dashboardTemplateId">
         <div class="container container-dashboard">
             <van-sticky :offset-top="70">
-                <van-cell-group>
+                <van-cell-group class="dashboard-title-cell-group">
                     <van-row>
                         <van-col span="5" offset="1">
                             <div class="dashboard-statistics">
                                 <p class="dashboard-title-p">总房数</p>
-                                <van-icon name="hotel-o" size="2rem"/>
+                                <van-icon name="hotel-o" class="roomPrimary" size="30"/>
                                 <span class="dashboard-title-span">{{this.$store.getters.totalRoomNumber}}</span>
                             </div>
                         </van-col>
                         <van-col span="5" offset="1">
                             <div class="dashboard-statistics">
                                 <p class="dashboard-title-p">未检数</p>
-                                <van-icon name="warning-o" class="roomNotChecked" size="2rem"/>
-                                <span class="dashboard-title-span">{{this.$store.getters.totalRoomNumber}}</span>
+                                <van-icon name="warning-o" class="roomNotChecked" size="30"/>
+                                <span class="dashboard-title-span">{{this.$store.getters.uncheckedRoomNumber}}</span>
                             </div>
                         </van-col>
                         <van-col span="5" offset="1">
                             <div class="dashboard-statistics">
                                 <p class="dashboard-title-p">已检数</p>
-                                <van-icon name="passed" class="roomChecked" size="2rem"/>
-                                <span class="dashboard-title-span">{{this.$store.getters.totalRoomNumber}}</span>
+                                <van-icon name="passed" class="roomChecked" size="30"/>
+                                <span class="dashboard-title-span">{{this.$store.getters.checkedRoomNumber}}</span>
                             </div>
                         </van-col>
                         <van-col span="5" offset="1">
                             <div class="dashboard-statistics">
                                 <p class="dashboard-title-p">问题数</p>
-                                <van-icon name="close" class="roomIsError" size="2rem"/>
-                                <span class="dashboard-title-span">{{this.$store.getters.totalRoomNumber}}</span>
+                                <van-icon name="close" class="roomIsError" size="30"/>
+                                <span class="dashboard-title-span">{{this.$store.getters.errorRoomNumber}}</span>
                             </div>
                         </van-col>
                     </van-row>
