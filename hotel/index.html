@@ -60,6 +60,20 @@
         .dashboard-head{
 
         }
+        .dashboard-statistics{
+            font-size: 20px;
+            text-align: center;
+        }
+        .dashboard-title-p{
+            font-size: 18px;
+            text-align: center;
+            margin: 10px 0 5px 0;
+            color: #3a3a3a;
+        }
+        .dashboard-title-span{
+            margin-left: 1px;
+            font-size: 20px;
+        }
         .check-room-form{
             position: relative;
             top: 50px;
@@ -93,6 +107,10 @@
 
 <body>
     <div id="app">
+        <van-nav-bar
+                class="nav-bar"
+                :title="this.$store.getters.title"
+        ></van-nav-bar>
         <transition mode="out-in">
             <router-view></router-view>
         </transition>
@@ -107,35 +125,35 @@
     <!--仪表盘模板-->
     <template id="dashboardTemplateId">
         <div class="container container-dashboard">
-            <van-sticky :offset-top="10">
+            <van-sticky :offset-top="70">
                 <van-cell-group>
                     <van-row>
-                        <van-col span="6">
-                            <div>
-                                <div>房间总数</div>
-                                <van-icon name="hotel-o" />
-                                <span>123</span>
+                        <van-col span="5" offset="1">
+                            <div class="dashboard-statistics">
+                                <p class="dashboard-title-p">总房数</p>
+                                <van-icon name="hotel-o" size="2rem"/>
+                                <span class="dashboard-title-span">{{this.$store.getters.totalRoomNumber}}</span>
                             </div>
                         </van-col>
-                        <van-col span="6">
-                            <div>
-                                <div>房间总数</div>
-                                <van-icon name="hotel-o" />
-                                <span>123</span>
+                        <van-col span="5" offset="1">
+                            <div class="dashboard-statistics">
+                                <p class="dashboard-title-p">未检数</p>
+                                <van-icon name="warning-o" class="roomNotChecked" size="2rem"/>
+                                <span class="dashboard-title-span">{{this.$store.getters.totalRoomNumber}}</span>
                             </div>
                         </van-col>
-                        <van-col span="6">
-                            <div>
-                                <div>房间总数</div>
-                                <van-icon name="hotel-o" />
-                                <span>123</span>
+                        <van-col span="5" offset="1">
+                            <div class="dashboard-statistics">
+                                <p class="dashboard-title-p">已检数</p>
+                                <van-icon name="passed" class="roomChecked" size="2rem"/>
+                                <span class="dashboard-title-span">{{this.$store.getters.totalRoomNumber}}</span>
                             </div>
                         </van-col>
-                        <van-col span="6">
-                            <div>
-                                <div>房间总数</div>
-                                <van-icon name="hotel-o" />
-                                <span>123</span>
+                        <van-col span="5" offset="1">
+                            <div class="dashboard-statistics">
+                                <p class="dashboard-title-p">问题数</p>
+                                <van-icon name="close" class="roomIsError" size="2rem"/>
+                                <span class="dashboard-title-span">{{this.$store.getters.totalRoomNumber}}</span>
                             </div>
                         </van-col>
                     </van-row>
@@ -551,6 +569,7 @@
         const store = new Vuex.Store({
             // 状态
             state: {
+                title: '看板', // 顶部导航栏title
                 showFootMenu: true, // 是否显示底部菜单
                 // 所有楼层房间信息
                 rooms: [],
@@ -580,6 +599,14 @@
             },
             // 包含多个更新state函数的对象
             mutations: {
+                /**
+                 * 设置title
+                 * @param state
+                 * @param value
+                 */
+                setTitle(state, value) {
+                  state.title = value
+                },
                 /**
                  * 设置显示底部菜单
                  * @param state
@@ -705,6 +732,7 @@
 
             },
             getters:{
+                title: () => store.state.title,
                 showFootMenu: () => store.state.showFootMenu,
                 rooms:() => store.state.rooms,
                 checkItems: () => store.state.checkItems,
