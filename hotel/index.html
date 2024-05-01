@@ -79,6 +79,11 @@
             margin-left: 1px;
             font-size: 20px;
         }
+        .floor-room-group{
+
+        }
+
+        /**/
         .check-room-form{
             position: relative;
             top: 50px;
@@ -126,7 +131,7 @@
             <van-tabbar-item replace to="/dashboard" icon="home-o">看板</van-tabbar-item>
             <van-tabbar-item replace to="/checkRoom" icon="manager">检查</van-tabbar-item>
             <van-tabbar-item replace to="/login" icon="eye-o">预览</van-tabbar-item>
-            <van-tabbar-item replace to="/login" icon="setting-o">设置</van-tabbar-item>
+            <van-tabbar-item replace to="/systemSetting" icon="setting-o">设置</van-tabbar-item>
         </van-tabbar>
     </div>
 
@@ -167,7 +172,58 @@
                     </van-row>
                 </van-cell-group>
             </van-sticky>
+            <van-sticky :offset-top="200">
+                <van-cell-group class="">
+                    <van-row>
+                        <van-col span="24" style="font-size:18px;text-align: center; margin: 15px 0;">房间概览</van-col>
+                    </van-row>
+                    <van-row>
+                        <van-tabs type="card">
+                            <van-row>
+                                <van-col sapn="12">
+                                    <van-tab title="楼层速览">
+                                        <div>
+                                            <div v-for="floor in this.$store.getters.floorProgress" :key="floor.value">
+                                                <van-row>
+                                                    <van-col span="6">
+                                                        <span>{{floor.label}}</span>
+                                                    </van-col>
+                                                    <van-col span="6">
+                                                        <span>{{floor.totalRoomNumber}}</span>
+                                                    </van-col>
+                                                    <van-col span="6">
+                                                        <span>{{floor.checkedRoomNumber}}</span>
+                                                    </van-col>
+                                                    <van-col span="6">
+                                                        <span>{{floor.uncheckedRoomNumber}}</span>
+                                                    </van-col>
+                                                </van-row>
+                                            </div>
+                                        </div>
+                                    </van-tab>
+                                </van-col>
+                                <van-col sapn="12">
+                                    <van-tab title="房间速览">
+                                        <div>
+                                            <div class="floor-room-group" v-for="floor in this.$store.getters.rooms" :key="floor.value">
+                                                <div class="">
+                                                    <span>{{floor.label}}</span>
+                                                </div>
+                                                <div>
+                                                    <div v-for="room in floor.children" :key="room.value">
+                                                        <div><span>{{room.label}}</span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </van-tab>
+                                </van-col>
+                            </van-row>
+                        </van-tabs>
+                    </van-row>
+                </van-cell-group>
 
+            </van-sticky>
         </div>
     </template>
     <!--检查房间模板-->
@@ -278,6 +334,15 @@
                     </van-cell>
                 </van-cell-group>
             </van-form>
+        </div>
+    </template>
+    <!--系统设置模板-->
+    <template id="systemSettingTemplateId">
+        <div class="container container-system-setting-form">
+            <van-tag type="primary">标签</van-tag>
+            <van-tag type="success">标签</van-tag>
+            <van-tag type="danger">标签</van-tag>
+            <van-tag type="warning">标签</van-tag>
         </div>
     </template>
 
@@ -743,6 +808,41 @@
                 title: () => store.state.title,
                 showFootMenu: () => store.state.showFootMenu,
                 rooms:() => store.state.rooms,
+                floorProgress:() => {
+                    let floors = [];
+                    for (const floor of store.state.rooms) {
+                        // 总房间数
+                        let totalRoomNumber = floor.children.length
+                        // 已检查房间数
+                        let checkedRoomNumber = 0
+                        // 未检查房间数
+                        let uncheckedRoomNumber = 0
+                        // 有问题房间数
+                        let errorRoomNumber = 0
+                        for (const room of floor.children) {
+                            if (room.checked) {
+                                checkedRoomNumber++
+                                if (room.isError) {
+                                    errorRoomNumber++
+                                }
+                            } else {
+                                uncheckedRoomNumber++
+                            }
+                        }
+                        let floorInfo = {
+                            value: floor.value,
+                            label: floor.label,
+                            totalRoomNumber,
+                            checkedRoomNumber,
+                            uncheckedRoomNumber,
+                            errorRoomNumber,
+                            children: floor.children
+                        }
+                        floors.push(floorInfo)
+                    }
+                    console.log("floors", floors)
+                    return floors
+                },
                 checkItems: () => store.state.checkItems,
                 items: () => store.state.items,
                 //===
@@ -761,7 +861,7 @@
         /**
          * 仪表盘组件
          */
-        const dashboardComponent = Vue.component('checkRoom', Vue.extend({
+        const dashboardComponent = Vue.component('dashboard', Vue.extend({
             name: 'dashboard',
             template: '#dashboardTemplateId',
             data(){
@@ -1021,6 +1121,28 @@
             }
         }))
 
+        /**
+         * 系统设置组件
+         */
+        const systemSettingComponent = Vue.component('systemSetting', Vue.extend({
+            name: 'systemSetting',
+            template: '#systemSettingTemplateId',
+            data(){
+                return {
+
+                }
+            },
+            methods:{
+
+            },
+            watch: {
+
+            },
+            beforeCreate(){
+            },
+            created() {
+            }
+        }))
 
         /*组件*/
         var routerObj = new VueRouter({
@@ -1034,6 +1156,7 @@
                 {path:'/', redirect: '/dashboard'}, // 这里的 redirect 和 Node 中的 redirect 完全是两码事
                 {path:'/dashboard', component: dashboardComponent},
                 {path:'/checkRoom', component: checkRoomComponent},
+                {path:'/systemSetting', component: systemSettingComponent},
 
             ]
             ,linkActiveClass:'myactive'
