@@ -60,9 +60,14 @@
         .dashboard-head{
 
         }
+        .van-cell-group {
+            background-color: #fff;
+            margin: 0 16px;
+            overflow: hidden;
+            border-radius: 8px;
+        }
         .dashboard-title-cell-group {
             height: 83px;
-            width: 100%;
             padding: 5px 0;
         }
         .dashboard-statistics{
@@ -79,11 +84,16 @@
             margin-left: 1px;
             font-size: 20px;
         }
-        .floor-room-group{
-
+        .van-tabs__content{
+            overflow: scroll;
+            height: 50vh;
+        }
+        .room_overview_content{
+            margin: 30px 20px;
         }
 
-        /**/
+
+        /*查房*/
         .check-room-form{
             position: relative;
             top: 50px;
@@ -173,56 +183,46 @@
                 </van-cell-group>
             </van-sticky>
             <van-sticky :offset-top="200">
-                <van-cell-group class="">
+                <van-cell-group>
                     <van-row>
                         <van-col span="24" style="font-size:18px;text-align: center; margin: 15px 0;">房间概览</van-col>
                     </van-row>
                     <van-row>
                         <van-tabs type="card">
-                            <van-row>
-                                <van-col sapn="12">
-                                    <van-tab title="楼层速览">
-                                        <div>
-                                            <div v-for="floor in this.$store.getters.floorProgress" :key="floor.value">
-                                                <van-row>
-                                                    <van-col span="6">
-                                                        <span>{{floor.label}}</span>
-                                                    </van-col>
-                                                    <van-col span="6">
-                                                        <span>{{floor.totalRoomNumber}}</span>
-                                                    </van-col>
-                                                    <van-col span="6">
-                                                        <span>{{floor.checkedRoomNumber}}</span>
-                                                    </van-col>
-                                                    <van-col span="6">
-                                                        <span>{{floor.uncheckedRoomNumber}}</span>
-                                                    </van-col>
-                                                </van-row>
-                                            </div>
+                            <van-tab title="楼层速览">
+                                <div class="room_overview_content">
+                                    <van-row v-for="floor in this.$store.getters.floorProgress" :key="floor.value">
+                                        <van-col span="6">
+                                            <span>{{floor.label}}</span>
+                                        </van-col>
+                                        <van-col span="6">
+                                            <span>{{floor.totalRoomNumber}}</span>
+                                        </van-col>
+                                        <van-col span="6">
+                                            <span>{{floor.checkedRoomNumber}}</span>
+                                        </van-col>
+                                        <van-col span="6">
+                                            <span>{{floor.uncheckedRoomNumber}}</span>
+                                        </van-col>
+                                    </van-row>
+                                </div>
+                            </van-tab>
+                            <van-tab title="房间速览">
+                                <div class="room_overview_content" v-for="floor in this.$store.getters.rooms" :key="floor.value">
+                                    <div class="">
+                                        <span>{{floor.label}}</span>
+                                    </div>
+                                    <div>
+                                        <div v-for="room in floor.children" :key="room.value">
+                                            <div><span>{{room.label}}</span></div>
                                         </div>
-                                    </van-tab>
-                                </van-col>
-                                <van-col sapn="12">
-                                    <van-tab title="房间速览">
-                                        <div>
-                                            <div class="floor-room-group" v-for="floor in this.$store.getters.rooms" :key="floor.value">
-                                                <div class="">
-                                                    <span>{{floor.label}}</span>
-                                                </div>
-                                                <div>
-                                                    <div v-for="room in floor.children" :key="room.value">
-                                                        <div><span>{{room.label}}</span></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </van-tab>
-                                </van-col>
-                            </van-row>
+                                    </div>
+                                </div>
+                            </van-tab>
+
                         </van-tabs>
                     </van-row>
                 </van-cell-group>
-
             </van-sticky>
         </div>
     </template>
