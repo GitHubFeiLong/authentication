@@ -84,14 +84,66 @@
             margin-left: 1px;
             font-size: 20px;
         }
+        .van-tabs--card>.van-tabs__wrap{
+            height: 35px;
+        }
+        .van-tabs__nav--card {
+            height: 35px;
+            z-index: 100;
+        }
         .van-tabs__content{
             overflow: scroll;
-            height: 50vh;
+            max-height: 50vh;
         }
-        .room_overview_content{
-            margin: 30px 20px;
+        .room_overview_content__table{
+            margin: 25px 16px;
+        }
+        .room_overview_content__table{
+            margin: 25px 16px;
+        }
+        .room_overview_table{
+            width: 100%;
+        }
+        table, th, td {
+            border: 1px solid #c1c1c1;
+            border-collapse: collapse; /* 移除单元格之间的间隔 */
+            color:#3a3a3a;
+        }
+        .room_overview_table tr {
+            text-align: right;
+        }
+        .room_overview_table tr:nth-child(1) {
+            text-align: center !important;
+            height: 50px;
+            background-color: #b5adad5c;
+        }
+        .room_overview_table tr:nth-child(n + 1) {
+            text-align: center;
+            height: 30px;
+        }
+        .van-index-bar__sidebar{
+            right: 10px;
+            top: 60%;
+        }
+        .van-index-bar__index {
+            line-height: 30px;
+            font-size: 14px;
         }
 
+        .index_flex{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: start;
+        }
+        .index_flex > div {
+            width: 70px;
+            height: 70px;
+            text-align: center;
+            line-height: 70px;
+            border-radius: 5px;
+            margin: 0 0px 5px 10px;
+            border: 1px solid red;
+        }
 
         /*查房*/
         .check-room-form{
@@ -167,9 +219,9 @@
                         </van-col>
                         <van-col span="5" offset="1">
                             <div class="dashboard-statistics">
-                                <p class="dashboard-title-p">已检数</p>
+                                <p class="dashboard-title-p">正常数</p>
                                 <van-icon name="passed" class="roomChecked" size="30"/>
-                                <span class="dashboard-title-span">{{this.$store.getters.checkedRoomNumber}}</span>
+                                <span class="dashboard-title-span">{{this.$store.getters.unErrorRoomNumber}}</span>
                             </div>
                         </van-col>
                         <van-col span="5" offset="1">
@@ -190,33 +242,38 @@
                     <van-row>
                         <van-tabs type="card">
                             <van-tab title="楼层速览">
-                                <div class="room_overview_content">
-                                    <van-row v-for="floor in this.$store.getters.floorProgress" :key="floor.value">
-                                        <van-col span="6">
-                                            <span>{{floor.label}}</span>
-                                        </van-col>
-                                        <van-col span="6">
-                                            <span>{{floor.totalRoomNumber}}</span>
-                                        </van-col>
-                                        <van-col span="6">
-                                            <span>{{floor.checkedRoomNumber}}</span>
-                                        </van-col>
-                                        <van-col span="6">
-                                            <span>{{floor.uncheckedRoomNumber}}</span>
-                                        </van-col>
-                                    </van-row>
+                                <div class="room_overview_content__table">
+                                    <table class="room_overview_table">
+                                        <tr>
+                                            <th>楼层</th>
+                                            <th>总房数</th>
+                                            <th>未检数</th>
+                                            <th>正常数</th>
+                                            <th>问题数</th>
+                                        </tr>
+                                        <tr v-for="floor in this.$store.getters.floorProgress" :key="floor.value">
+                                            <td>{{floor.label}}</td>
+                                            <td>{{floor.totalRoomNumber}}</td>
+                                            <td>{{floor.uncheckedRoomNumber}}</td>
+                                            <td>{{floor.unErrorRoomNumber}}</td>
+                                            <td>{{floor.errorRoomNumber}}</td>
+                                        </tr>
+                                    </table>
                                 </div>
                             </van-tab>
                             <van-tab title="房间速览">
-                                <div class="room_overview_content" v-for="floor in this.$store.getters.rooms" :key="floor.value">
-                                    <div class="">
-                                        <span>{{floor.label}}</span>
-                                    </div>
-                                    <div>
-                                        <div v-for="room in floor.children" :key="room.value">
-                                            <div><span>{{room.label}}</span></div>
+                                <div class="room_overview_content__">
+                                    <van-index-bar :index-list="this.$store.getters.floorIndexList">
+                                        <div class="room_overview_content__index" v-for="floor in this.$store.getters.rooms"
+                                             :key="floor.value">
+                                            <van-index-anchor :index="floor.label">{{floor.label}}</van-index-anchor>
+                                            <div class="index_flex">
+                                                <div v-for="room in floor.children" :key="room.value">
+                                                    <span>{{room.label}}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </van-index-bar>
                                 </div>
                             </van-tab>
 
@@ -646,6 +703,7 @@
                 showFootMenu: true, // 是否显示底部菜单
                 // 所有楼层房间信息
                 rooms: [],
+                floorIndexList: [], // 房间索引
                 // 检查的选项
                 checkItems: RAW_CHECK_ITEMS,
                 // 检查项
@@ -664,6 +722,8 @@
                 checkedRoomNumber: 0,
                 // 未检查房间数
                 uncheckedRoomNumber: 0,
+                // 没有问题房间数
+                unErrorRoomNumber: 0,
                 // 有问题房间数
                 errorRoomNumber: 0,
                 successfulColor: SUCCESSFUL_COLOR,
@@ -726,6 +786,7 @@
                     let totalRoomNumber = 0;
                     let checkedRoomNumber = 0;
                     let uncheckedRoomNumber = 0;
+                    let unErrorRoomNumber = 0;
                     let errorRoomNumber = 0;
                     // 楼层
                     for (const rawFloor of RAW_FLOORS) {
@@ -743,6 +804,8 @@
                                 let isError = room.isError
                                 if (isError) {
                                     errorRoomNumber++
+                                } else {
+                                    unErrorRoomNumber++
                                 }
                                 floorRooms.push({
                                     value: rawFloorRoom.value,
@@ -765,10 +828,17 @@
                         }
                         let floorItem = {value: rawFloor.value, label: rawFloor.label, children: floorRooms}
                         state.rooms.push(floorItem)
+
+                        //
+                        state.floorIndexList.push(rawFloor.label)
+
                     }
+
+                    // 设置房间个状态数量
                     state.totalRoomNumber = totalRoomNumber
                     state.checkedRoomNumber = checkedRoomNumber
                     state.uncheckedRoomNumber = uncheckedRoomNumber
+                    state.unErrorRoomNumber = unErrorRoomNumber
                     state.errorRoomNumber = errorRoomNumber
                     console.log("state.rooms", state.rooms)
                 },
@@ -787,6 +857,13 @@
                     state.rooms.forEach(floor => {
                         floor.children.forEach(room => {
                             if (room.value === data.newRoom.value) {
+                                // 之前是已检查
+                                if (room.checked) {
+
+                                } else {
+                                    // 之前是未检查
+                                }
+
                                 room.checked = data.newRoom.checked;
                                 room.isError = data.newRoom.isError;
                                 room.checkedTime = data.newRoom.checked ? data.newRoom.checkedTime : null;
@@ -794,6 +871,7 @@
                                 let key = getKey(ROOM_INFO_KEY, data.newRoom.value)
                                 let roomInfo = JSON.stringify(data.form);
                                 setItem(key, roomInfo)
+
                                 return;
                             }
                         })
@@ -808,6 +886,7 @@
                 title: () => store.state.title,
                 showFootMenu: () => store.state.showFootMenu,
                 rooms:() => store.state.rooms,
+                floorIndexList: () => store.state.floorIndexList,
                 floorProgress:() => {
                     let floors = [];
                     for (const floor of store.state.rooms) {
@@ -819,11 +898,15 @@
                         let uncheckedRoomNumber = 0
                         // 有问题房间数
                         let errorRoomNumber = 0
+                        // 没有问题房间数
+                        let unErrorRoomNumber = 0
                         for (const room of floor.children) {
                             if (room.checked) {
                                 checkedRoomNumber++
                                 if (room.isError) {
                                     errorRoomNumber++
+                                } else {
+                                    unErrorRoomNumber++
                                 }
                             } else {
                                 uncheckedRoomNumber++
@@ -836,6 +919,7 @@
                             checkedRoomNumber,
                             uncheckedRoomNumber,
                             errorRoomNumber,
+                            unErrorRoomNumber,
                             children: floor.children
                         }
                         floors.push(floorInfo)
@@ -851,6 +935,7 @@
                 totalRoomNumber:() => store.state.totalRoomNumber,
                 checkedRoomNumber:() => store.state.checkedRoomNumber,
                 uncheckedRoomNumber:() => store.state.uncheckedRoomNumber,
+                unErrorRoomNumber:() => store.state.unErrorRoomNumber,
                 errorRoomNumber:() => store.state.errorRoomNumber,
                 successfulColor:() => store.state.successfulColor,
                 unsuccessfulColor:() => store.state.unsuccessfulColor,
@@ -878,6 +963,7 @@
             beforeCreate(){
             },
             created() {
+                console.log(11)
             }
         }))
 
