@@ -53,6 +53,8 @@
     <style>
         .container{
             background-color: rgb(247, 248, 250);
+            -webkit-touch-callout: none !important;
+            -webkit-user-select: none;
         }
         .dashboardTemplateId{
 
@@ -66,6 +68,7 @@
             overflow: hidden;
             border-radius: 8px;
         }
+
         .dashboard-title-cell-group {
             height: 83px;
             padding: 5px 0;
@@ -98,9 +101,6 @@
         .room_overview_content__table{
             margin: 25px 16px;
         }
-        .room_overview_content__table{
-            margin: 25px 16px;
-        }
         .room_overview_table{
             width: 100%;
         }
@@ -121,31 +121,50 @@
             text-align: center;
             height: 30px;
         }
+
         .van-index-bar__sidebar{
-            right: 10px;
+            right: -10px;
             top: 60%;
+            display: none;
         }
         .van-index-bar__index {
             line-height: 30px;
             font-size: 14px;
         }
-
-        .index_flex{
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: start;
+        .room_overview_content__index{
+            padding: 0 6px;
         }
-        .index_flex > div {
-            width: 70px;
-            height: 70px;
-            text-align: center;
-            line-height: 70px;
+
+        .room_overview_content__item > div {
             border-radius: 5px;
-            margin: 0 0px 5px 10px;
-            border: 1px solid red;
+        }
+
+        .overview_item_checked > div {
+            background-color: var(--checked-successful-color);
+            color: var(--checked-successful-font-color);
+            box-shadow: -2px 5px 10px 0px rgb(103 194 58 / 50%);
+        }
+
+        .overview_item_unchecked > div {
+            background-color: var(--checked-unchecked-color);
+            color: var(--checked-unsuccessful-font-color);
+            box-shadow: -2px 5px 10px 0px rgb(230 162 60 / 50%);
+        }
+
+        .overview_item_checked_error > div {
+            background-color: var(--checked-unsuccessful-color);
+            color: var(--checked-unsuccessful-font-color);
+            box-shadow: -2px 5px 10px 0px rgb(245 108 108 / 50%);
         }
 
         /*查房*/
+        .overview_item_dialog .check-room-form{
+            position: relative;
+            height: calc(100vh - 200px);
+            overflow: scroll;
+            top: unset !important;
+        }
+
         .check-room-form{
             position: relative;
             top: 50px;
@@ -176,6 +195,13 @@
         .roomIsError {
             color: var(--checked-unsuccessful-color);
         }
+        .container-system-setting-form{
+            position: relative;
+            margin-top: 60px;
+        }
+        .container-system-setting-form  .van-cell-group {
+            margin: unset;
+        }
     </style>
 
 </head>
@@ -189,10 +215,9 @@
         <transition mode="out-in">
             <router-view></router-view>
         </transition>
-        <van-tabbar v-model="active" v-show="this.$store.getters.showFootMenu">
+        <van-tabbar v-model="active">
             <van-tabbar-item replace to="/dashboard" icon="home-o">看板</van-tabbar-item>
             <van-tabbar-item replace to="/checkRoom" icon="manager">检查</van-tabbar-item>
-            <van-tabbar-item replace to="/login" icon="eye-o">预览</van-tabbar-item>
             <van-tabbar-item replace to="/systemSetting" icon="setting-o">设置</van-tabbar-item>
         </van-tabbar>
     </div>
@@ -200,7 +225,7 @@
     <!--仪表盘模板-->
     <template id="dashboardTemplateId">
         <div class="container container-dashboard">
-            <van-sticky :offset-top="70">
+            <van-sticky :offset-top="65">
                 <van-cell-group class="dashboard-title-cell-group">
                     <van-row>
                         <van-col span="5" offset="1">
@@ -234,13 +259,13 @@
                     </van-row>
                 </van-cell-group>
             </van-sticky>
-            <van-sticky :offset-top="200">
+            <van-sticky :offset-top="185">
                 <van-cell-group>
                     <van-row>
                         <van-col span="24" style="font-size:18px;text-align: center; margin: 15px 0;">房间概览</van-col>
                     </van-row>
                     <van-row>
-                        <van-tabs type="card">
+                        <van-tabs type="card" v-model="active">
                             <van-tab title="楼层速览">
                                 <div class="room_overview_content__table">
                                     <table class="room_overview_table">
@@ -251,36 +276,47 @@
                                             <th>正常数</th>
                                             <th>问题数</th>
                                         </tr>
-                                        <tr v-for="floor in this.$store.getters.floorProgress" :key="floor.value">
-                                            <td>{{floor.label}}</td>
-                                            <td>{{floor.totalRoomNumber}}</td>
-                                            <td>{{floor.uncheckedRoomNumber}}</td>
-                                            <td>{{floor.unErrorRoomNumber}}</td>
-                                            <td>{{floor.errorRoomNumber}}</td>
+                                        <tr v-for="floor in this.$store.getters.floorProgress" :key="floor.value" >
+                                            <td><div @click="clickFloor(floor)">{{floor.label}}</div></td>
+                                            <td><div @click="clickFloor(floor)">{{floor.totalRoomNumber}}</div></td>
+                                            <td><div @click="clickFloor(floor)">{{floor.uncheckedRoomNumber}}</div></td>
+                                            <td><div @click="clickFloor(floor)">{{floor.unErrorRoomNumber}}</div></td>
+                                            <td><div @click="clickFloor(floor)">{{floor.errorRoomNumber}}</div></td>
                                         </tr>
                                     </table>
                                 </div>
                             </van-tab>
                             <van-tab title="房间速览">
                                 <div class="room_overview_content__">
-                                    <van-index-bar :index-list="this.$store.getters.floorIndexList">
+                                    <van-index-bar ref="indexBar" :index-list="this.$store.getters.floorIndexList">
                                         <div class="room_overview_content__index" v-for="floor in this.$store.getters.rooms"
                                              :key="floor.value">
                                             <van-index-anchor :index="floor.label">{{floor.label}}</van-index-anchor>
-                                            <div class="index_flex">
-                                                <div v-for="room in floor.children" :key="room.value">
+                                            <van-grid square :column-num="4" :gutter="10" clickable>
+                                                <van-grid-item v-for="room in floor.children" :key="room.value" class="room_overview_content__item" :class="room.checked ? (room.isError ? 'overview_item_checked_error' : 'overview_item_checked') : 'overview_item_unchecked'"
+                                                @click="clickItem(room)"
+                                                >
                                                     <span>{{room.label}}</span>
-                                                </div>
-                                            </div>
+                                                </van-grid-item>
+                                            </van-grid>
                                         </div>
                                     </van-index-bar>
                                 </div>
                             </van-tab>
-
                         </van-tabs>
                     </van-row>
                 </van-cell-group>
             </van-sticky>
+
+
+            <!--弹窗-->
+            <van-dialog v-model="dialog.show" :title="dialog.title" @confirm="dialogConfirm" @cancel="dialogCancel" show-cancel-button class="overview_item_dialog">
+                <van-row gutter="5">
+                    <van-col span="7" style="text-align: right; margin: 15px 0;">检查时间:</van-col>
+                    <van-col span="17" style="text-align: left; margin: 15px 0;">{{dialog.checkedTime}}</van-col>
+                </van-row>
+                <check-room ref="childCheckRoom" :show-nav-bar="false" :default-room-value="dialog.roomValue" />
+            </van-dialog>
         </div>
     </template>
     <!--检查房间模板-->
@@ -289,6 +325,7 @@
             <van-nav-bar
                     class="nav-bar"
                     :title="title"
+                    v-show="showNavBar"
             >
                 <template #left>
                     <div @click="cancel">
@@ -306,7 +343,7 @@
             <!--房间选择-->
             <van-popup v-model="showSelectRoomPicker" position="bottom">
                 <van-picker
-                        ref="picker"
+                        ref="roomPicker"
                         title="选择房间"
                         show-toolbar
                         :lazy-render="false"
@@ -396,10 +433,13 @@
     <!--系统设置模板-->
     <template id="systemSettingTemplateId">
         <div class="container container-system-setting-form">
-            <van-tag type="primary">标签</van-tag>
-            <van-tag type="success">标签</van-tag>
-            <van-tag type="danger">标签</van-tag>
-            <van-tag type="warning">标签</van-tag>
+            <van-cell-group inset title="数据">
+                <van-cell icon="down" title="下载数据" @click="download" value="导出已检查的房间数据" ></van-cell>
+                <!--<van-cell icon="share-o" title="发起分享" @click="openShare" value="将本地数据分享给其他用户" ></van-cell>
+                <van-cell icon="share-o" title="发起分享" @click="openShare" :value="ipAddress.ip" ></van-cell>
+                <van-cell icon="points" title="接收分享" value="接收别人分享的数据" ></van-cell>-->
+                <van-cell icon="delete-o" title="重置数据" @click="reset" value="删除已操作的记录" ></van-cell>
+            </van-cell-group>
         </div>
     </template>
 
@@ -658,6 +698,10 @@
             return localStorage.setItem(key, value);
         }
 
+        function removeItem(key) {
+            return localStorage.removeItem(key);
+        }
+
         function clear() {
             return localStorage.clear();
         }
@@ -683,12 +727,19 @@
         function formatDateTime(date) {
             date = new Date();
             let fullYear = date.getFullYear();
-            let month = date.getMonth();
-            let day = date.getDay();
+            let month = date.getMonth() + 1;
+            let day = date.getDate();
             let hours = date.getHours();
             let minutes = date.getMinutes();
             let seconds = date.getSeconds();
-            return '' + fullYear + month + day + hours + minutes + seconds
+
+            month = month < 10 ? '0' + month : month;
+            day = day < 10 ? '0' + day : day;
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+
+            return `${fullYear}-${month}-${day} ${hours}:${minutes}:${seconds}`
         }
     </script>
     <!--VUE-->
@@ -700,7 +751,6 @@
             // 状态
             state: {
                 title: '看板', // 顶部导航栏title
-                showFootMenu: true, // 是否显示底部菜单
                 // 所有楼层房间信息
                 rooms: [],
                 floorIndexList: [], // 房间索引
@@ -741,14 +791,6 @@
                   state.title = value
                 },
                 /**
-                 * 设置显示底部菜单
-                 * @param state
-                 * @param value
-                 */
-                setShowFootMenu(state, value) {
-                    state.showFootMenu = value
-                },
-                /**
                  * 实时计算房间数，已检，未检，问题
                  * @param state
                  */
@@ -757,6 +799,7 @@
                     let checkedRoomNumber = 0;
                     let uncheckedRoomNumber = 0;
                     let errorRoomNumber = 0;
+                    let unErrorRoomNumber = 0;
                     // 楼层
                     for (const floor of state.rooms) {
                         // 楼层房间
@@ -764,11 +807,13 @@
                             totalRoomNumber++
                             if(room.checked){
                                 checkedRoomNumber++
+                                if(room.isError) {
+                                    errorRoomNumber++
+                                } else {
+                                    unErrorRoomNumber++
+                                }
                             } else {
                                 uncheckedRoomNumber++
-                            }
-                            if(room.isError) {
-                                errorRoomNumber++
                             }
                         }
                     }
@@ -776,6 +821,9 @@
                     state.checkedRoomNumber = checkedRoomNumber
                     state.uncheckedRoomNumber = uncheckedRoomNumber
                     state.errorRoomNumber = errorRoomNumber
+                    state.unErrorRoomNumber = unErrorRoomNumber
+
+                    console.log("totalRoomNumber:" +  totalRoomNumber + ", checkedRoomNumber" + checkedRoomNumber + ", uncheckedRoomNumber:" + uncheckedRoomNumber + ", unErrorRoomNumber:" + unErrorRoomNumber + ", errorRoomNumber" + errorRoomNumber)
                 },
                 /**
                  * 初始化房间
@@ -840,6 +888,9 @@
                     state.uncheckedRoomNumber = uncheckedRoomNumber
                     state.unErrorRoomNumber = unErrorRoomNumber
                     state.errorRoomNumber = errorRoomNumber
+                    console.log("totalRoomNumber:" +  totalRoomNumber + ", checkedRoomNumber" + checkedRoomNumber + ", uncheckedRoomNumber:" + uncheckedRoomNumber + ", unErrorRoomNumber:" + unErrorRoomNumber + ", errorRoomNumber" + errorRoomNumber)
+
+
                     console.log("state.rooms", state.rooms)
                 },
                 /**
@@ -854,37 +905,63 @@
                  * @param {object} data.form 保存的数据
                  */
                 changeRoomStatus(state, data) {
+                    console.log("修改房间状态，并修改状态数量，参数：", data)
                     state.rooms.forEach(floor => {
                         floor.children.forEach(room => {
                             if (room.value === data.newRoom.value) {
-                                // 之前是已检查
-                                if (room.checked) {
-
-                                } else {
-                                    // 之前是未检查
-                                }
-
                                 room.checked = data.newRoom.checked;
                                 room.isError = data.newRoom.isError;
                                 room.checkedTime = data.newRoom.checked ? data.newRoom.checkedTime : null;
-                                // 保存
                                 let key = getKey(ROOM_INFO_KEY, data.newRoom.value)
-                                let roomInfo = JSON.stringify(data.form);
-                                setItem(key, roomInfo)
-
+                                if (data.newRoom.checked) {
+                                    data.form.checkedTime = room.checkedTime
+                                    // 保存
+                                    let roomInfo = JSON.stringify(data.form);
+                                    setItem(key, roomInfo)
+                                } else {
+                                    // 设置未检查状态删除缓存
+                                    removeItem(key);
+                                }
                                 return;
                             }
                         })
                     })
-                }
-            },
-            // 包含多个对应事件回调函数
-            actions:{
+                    console.log("重新计算房间各个状态的数量")
+                    this.commit('calculateRoomNumber')
+                },
 
+                /**
+                 * 重置
+                 * @param state
+                 */
+                rest(state) {
+                    localStorage.clear()
+                    this.commit('initRooms');
+                },
+            },
+            // 包含多个对应事件回调函数,有返回值是一个promise
+            actions:{
+                /**
+                 * 根据房间号获取楼层
+                 * @param state
+                 * @param roomValue
+                 */
+                getRoomFloor({state}, roomValue) {
+                    let floorLabel;
+                    state.rooms.forEach(floor => {
+                        floor.children.forEach(room => {
+                            if (room.value === roomValue) {
+                                floorLabel = floor.label
+                                console.log("floorLabel = " + floorLabel)
+                                return floorLabel;
+                            }
+                        })
+                    })
+                    return floorLabel;
+                },
             },
             getters:{
                 title: () => store.state.title,
-                showFootMenu: () => store.state.showFootMenu,
                 rooms:() => store.state.rooms,
                 floorIndexList: () => store.state.floorIndexList,
                 floorProgress:() => {
@@ -951,10 +1028,92 @@
             template: '#dashboardTemplateId',
             data(){
                 return {
+                    timeOutEvent: null,
+                    active: 0,
+                    dialog: {
+                        show: false,
+                        title: null,
+                        roomValue: null,
+                        checkedTime: null,
+                    },
 
                 }
             },
             methods:{
+                /**
+                 * 点击某个房间
+                 * @param {object} room
+                 * @param {object} room.value 房间名
+                 * @param {object} room.checked 是否已检
+                 * @param {object} room.isError 是否错误
+                 */
+                clickItem(room) {
+                    console.log("room", room)
+                    if (this.timeOutEvent !== null) {
+                        clearTimeout(this.timeOutEvent)
+                        console.log("双击")
+                        this.timeOutEvent = null;
+                        if (room.checked) {
+                            vant.Dialog.confirm({
+                                title: "修改房间状态",
+                                message: '是否修改房间 ' + room.value + ' 为未检查？',
+                            }).then(() => {
+                                console.log("确认")
+                                // on confirm
+                                let newRoom = {newRoom:{value: room.value, checked: false, isError: false, checkedTime: null}}
+                                this.$store.commit('changeRoomStatus', newRoom)
+                            }).catch(() => {
+                                console.log("取消")
+                                // on cancel
+                            });
+                        } else {
+
+                        }
+
+                    } else {
+                        this.timeOutEvent = setTimeout(() => {
+                            this.timeOutEvent = null;
+                            console.log("单击")
+                            this.dialog.show = true
+                            this.dialog.title = room.value
+                            this.dialog.roomValue = room.value
+                            if (room.checkedTime) {
+                                this.dialog.checkedTime = room.checkedTime
+                            } else {
+                                this.dialog.checkedTime = '-'
+                            }
+
+                        }, 250);
+                    }
+                },
+
+                /**
+                 * 弹窗点击确定
+                 */
+                dialogConfirm(){
+                    // 调用子组件的方法
+                    this.$refs.childCheckRoom.save();
+                },
+                /**
+                 * 弹窗点击取消
+                 */
+                dialogCancel() {
+
+
+                },
+
+                /**
+                 * 点击楼层
+                 */
+                clickFloor(floor) {
+                    console.log(floor)
+                    this.active = 1
+                    // 确保dom加载成功再执行
+                    this.$nextTick(() => {
+                        this.$refs.indexBar.scrollTo(floor.label)
+                    });
+                },
+
 
             },
             watch: {
@@ -963,7 +1122,7 @@
             beforeCreate(){
             },
             created() {
-                console.log(11)
+                this.$store.commit('setTitle', "看板");
             }
         }))
 
@@ -973,11 +1132,24 @@
         const checkRoomComponent = Vue.component('checkRoom', Vue.extend({
             name: 'checkRoom',
             template: '#checkRoomTemplateId',
+            props:{
+                showNavBar: {
+                    type: Boolean,
+                    required: false,
+                    default: true,
+                },
+                defaultRoomValue: {
+                    type: String,
+                    required: false,
+                    default: null
+                }
+            },
             data(){
                 return {
                     successfulColor: SUCCESSFUL_COLOR,
                     unsuccessfulColor: UNSUCCESSFUL_COLOR,
                     uncheckedColor: UNCHECKED_COLOR,
+                    // showNavBar: true, // 是否显示导航栏
                     // 显示下拉
                     showSelectRoomPicker: false,
                     showSelectHouseNumberErrorMessagePicker: false,
@@ -1102,7 +1274,6 @@
                  * 关闭/取消检查房间弹窗
                  */
                 cancel() {
-                    // this.$store.commit('setShowFootMenu', true)
                     this.initCheckRoomForm(null)
                     this.roomFullName = undefined
                     this.title = '查房'
@@ -1130,7 +1301,10 @@
                     }
                     console.log("roomNumber", data);
                     this.$store.commit('changeRoomStatus', data)
-                    this.$refs.picker.setValues(this.$store.getters.rooms)
+                    console.log(this.$refs)
+                    if (this.$refs.roomPicker != null) {
+                        this.$refs.roomPicker.setValues(this.$store.getters.rooms)
+                    }
                     vant.Toast.success('保存成功');
                 },
 
@@ -1179,8 +1353,6 @@
                     if (n !== null && n !== undefined) {
                         console.log(n);
                         this.getRoomInfo(n)
-                        // this.title = `${n}`;
-                        // this.title = `${this.roomFullName}`;
                     } else {
                         this.title = '查房'
                     }
@@ -1191,19 +1363,32 @@
                 'form.houseNumber': {
                     handler(n, o) {
                         if (n) {
-                            this.form.houseNumberSelectErrorMessages = [];
                             this.form.houseNumberErrorMessages = null;
                         }
                     }
                 },
-            },
-            beforeCreate(){
-                console.log(this.form)
-                this.$store.commit('setShowFootMenu', true)
+                defaultRoomValue: {
+                    handler(n, o) {
+                        if (n) {
+                            if (this.defaultRoomValue) {
+                                this.$store.dispatch("getRoomFloor", this.defaultRoomValue).then((floor) => {
+                                    this.roomFullName = floor + ' ' + this.defaultRoomValue
+                                });
+                                this.form.roomNumber = this.defaultRoomValue
+                            }
+                        }
+                    }
+                }
             },
             created() {
-                console.log(":")
                 this.initCheckRoomForm(null)
+                if (this.defaultRoomValue) {
+                    this.$store.dispatch("getRoomFloor", this.defaultRoomValue).then((floor) => {
+                        this.roomFullName = floor + ' ' + this.defaultRoomValue
+                    });
+                    this.form.roomNumber = this.defaultRoomValue
+                }
+                this.$store.commit('setTitle', "检查");
             }
         }))
 
@@ -1215,18 +1400,135 @@
             template: '#systemSettingTemplateId',
             data(){
                 return {
-
+                    ipAddress: {
+                        ip: null,
+                        location: null,
+                        type: null,
+                    }
                 }
             },
             methods:{
+                /**
+                 * 转换
+                 */
+                convert(value) {
+                    if (value !== undefined && value !== null) {
+                        if (value === false) {
+                            return '×'
+                        }
 
-            },
-            watch: {
+                        if (value === true) {
+                            return '√'
+                        }
+                        return value;
+                    }
 
-            },
-            beforeCreate(){
+                    return ''
+                },
+                download() {
+                    let exportData = [];
+                    let serialNumber = 1;
+                    for (const floor of this.$store.getters.rooms) {
+                        for (const room of floor.children) {
+                            if (room.checked) {
+                                // 获取缓存
+                                let key = getKey(ROOM_INFO_KEY, room.label)
+                                let roomInfo = JSON.parse(getItem(key));
+                                if (roomInfo != null) {
+                                    // 使用中文key
+                                    exportData.push({
+                                        '序号': serialNumber++,
+                                        '房号': this.convert(roomInfo.roomNumber),
+                                        '异味': this.convert(roomInfo.peculiarSmell),   // 异味
+                                        '门牌号': this.convert(roomInfo.houseNumber) + ' ' + this.convert(roomInfo.houseNumberErrorMessages),     // 门牌号
+                                        '衣柜': this.convert(roomInfo.wardrobe),        // 衣柜
+                                        '窗户': this.convert(roomInfo.window),          // 窗户
+                                        '墙布': this.convert(roomInfo.wallCloth),       // 墙布
+                                        '沙发': this.convert(roomInfo.sofa),            // 沙发
+                                        '电视遥控器': this.convert(roomInfo.TVRemoteControl), // 电视遥控器
+                                        '电视': this.convert(roomInfo.TV),              // 电视
+                                        '厕所门': this.convert(roomInfo.toiletDoor),      // 厕所门
+                                        '洗手台胶': this.convert(roomInfo.washbasinGlue),  // 洗手台胶
+                                        '马桶胶': this.convert(roomInfo.toiletGlue),      // 马桶胶
+                                        '天花板': this.convert(roomInfo.ceiling),         // 天花板
+                                        '脸盆': this.convert(roomInfo.washbasin),       // 脸盆
+                                        '烧水壶': this.convert(roomInfo.kettle),          // 烧水壶
+                                        '空调': this.convert(roomInfo.airConditioner),  // 空调
+                                        '卫生间排风扇': this.convert(roomInfo.bathroomExhaustFan),    // 卫生间排风扇
+                                        '地毯': this.convert(roomInfo.carpet),          // 地毯
+                                        '空开': this.convert(roomInfo.airSwitch),       // 空开
+                                        '转椅': this.convert(roomInfo.swivelChair),     // 转椅
+                                        '水龙头': this.convert(roomInfo.faucet),          // 水龙头
+                                        '备注': this.convert(roomInfo.remark),          // 备注
+                                    })
+                                }
+                            }
+                        }
+                    }
+
+                    // 将数据转换为 worksheet 对象
+                    console.log(exportData);
+                    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+                    // 将 worksheet 对象添加到 workbook 中
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+                    // 导出 Excel 文件
+                    XLSX.writeFile(workbook, formatDateTime(new Date()) + ".xlsx");
+                },
+                /**
+                 *
+                 */
+                openShare() {
+                    this.getIpAddress();
+                    // this.test();
+
+                },
+                test() {
+
+                },
+                getIpAddress() { //获取ip, 位置
+                    let year = new Date().getFullYear();
+                    fetch(`https://${year}.ip138.com/`)
+                        .then(x => {
+                            console.log(x)
+                            return x.text()
+                        })
+                        .then(h => {
+                        let domParser = new DOMParser();
+                        let doc = domParser.parseFromString(h, "text/html");
+                        let text = doc?.querySelector('p')?.innerText?.trim();
+                        console.log(text)//您的iP地址是：[xxx.xx.xxx.xxx ] 来自：中国上海xx xx
+                        try {
+                            let ip = text.substring(text.indexOf("[") + 1, text.indexOf("]")).trim();
+                            this.ipAddress.ip = ip;
+                            let other = text.substring(text.indexOf("来自：") + 3).trim();
+                            let arr = other.split(" ");
+                            this.ipAddress.location = arr[0];
+                            this.ipAddress.type = arr[1];
+                        } catch (e) {
+                            console.error(e)
+                        }
+                    })
+                },
+
+                /**
+                 * 重置
+                 */
+                reset() {
+                    vant.Dialog.confirm({
+                        message: '确认重置数据吗？',
+                    }).then(() => {
+                        this.$store.commit('rest');
+                        vant.Toast.success("重置成功");
+                    }).catch(() => {
+                        console.log("已取消重置数据请求")
+                    });
+                }
             },
             created() {
+                this.$store.commit('setTitle', "设置");
             }
         }))
 
@@ -1238,11 +1540,10 @@
                 // 属性1：是path，表示监听哪个路由链接地址
                 // 属性2：是 component， 表示，如果 路由是前面匹配到的 path，则展示 component 属性对应的那个组件
                 //  注意：component 的属性值，必须是一个 组件模板对象，不能是模板名称
-                // {path:'/', component: login},
-                {path:'/', redirect: '/dashboard'}, // 这里的 redirect 和 Node 中的 redirect 完全是两码事
-                {path:'/dashboard', component: dashboardComponent},
-                {path:'/checkRoom', component: checkRoomComponent},
-                {path:'/systemSetting', component: systemSettingComponent},
+                {path:'/', redirect: '/dashboard', meta: {active: 0}}, // 这里的 redirect 和 Node 中的 redirect 完全是两码事
+                {path:'/dashboard', component: dashboardComponent, meta: {active: 0}},
+                {path:'/checkRoom', component: checkRoomComponent, meta: {active: 1}},
+                {path:'/systemSetting', component: systemSettingComponent, meta: {active: 2}},
 
             ]
             ,linkActiveClass:'myactive'
@@ -1251,7 +1552,6 @@
         const vm = new Vue({
             el: '#app',
             data: {
-                showFootMenu: true,
                 active: 0,
                 // 单选框
                 successfulColor: '#67C23A',
@@ -1259,6 +1559,13 @@
             },
             methods: {
 
+            },
+            created(){
+                let meta = this.$router.currentRoute.meta;
+                if (meta && meta.active >= 0) {
+                    this.active = meta.active
+                }
+                console.log(this.$router.currentRoute)
             },
             mounted() {
                 this.$store.commit('initRooms')
