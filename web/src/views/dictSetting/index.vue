@@ -5,11 +5,11 @@
     <div class="filter-container">
       <div class="filter-item">
         <span class="filter-item-label">类型编码: </span>
-        <DictTypeSelect :default-select-id="dictSetting.table.filter.dictTypeId" :clearable="false" :disabled="true" @changeDictType="changeDictType"/>
+        <DictTypeSelect :default-select-id="dictSetting.table.filter.dictTypeId" @changeDictType="changeDictType"/>
       </div>
       <div class="filter-item">
         <span class="filter-item-label">字典编码: </span>
-        <DictSelect key="one" :default-select-id="dictSetting.table.filter.dictId" :dict-type-id="dictSetting.table.filter.dictTypeId" :clearable="false" :disabled="true" @changeDict="changeDict"/>
+        <DictSelect key="one" :default-select-id="dictSetting.table.filter.dictId" :dict-type-id="dictSetting.table.filter.dictTypeId" @changeDict="changeDict"/>
       </div>
       <div class="filter-item">
         <span class="filter-item-label">配置名称: </span>

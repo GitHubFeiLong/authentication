@@ -152,6 +152,13 @@
             <div class="el-link-parent">
               <el-link
                   v-permission="'sys:user:edit'"
+                  icon="el-icon-info"
+                  :underline="false"
+                  type="primary"
+                  @click="seeDetail(scope.row)"
+              >详情</el-link>
+              <el-link
+                  v-permission="'sys:user:edit'"
                   icon="el-icon-edit"
                   :underline="false"
                   type="primary"
@@ -294,9 +301,12 @@ export default {
   name: 'DictPage',
   components: {UploadSingleExcel, DictTypeSelect},
   mounted() {
+    let dictTypeId = this.$route.query.dictTypeId;
+    if (dictTypeId) {
+      this.dict.table.filter.dictTypeId = dictTypeId
+    }
     // 优先加载表格数据
-    this.loadPageDictType()
-    console.log(this.$router.currentRoute);
+    this.loadPageDict()
     // 强制渲染，解决表格 固定列后，列错位问题
     this.$nextTick(() => {
       this.$refs.table.doLayout()
@@ -538,6 +548,18 @@ export default {
       this.dict.table.filter = {}
       this.dict.table.data = []
       done();
+    },
+
+    /**
+     * 查看字典类型下的所有字典明细
+     */
+    seeDetail(row) {
+      this.$router.push({
+        path:'/dictSetting/index',
+        query:{
+          dictTypeId: row.id
+        }
+      })
     },
 
     //~ 新增字典

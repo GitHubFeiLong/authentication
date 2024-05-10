@@ -152,7 +152,7 @@
                   icon="el-icon-info"
                   :underline="false"
                   type="primary"
-                  @click="drawerDictOpen(scope.row)"
+                  @click="seeDetail(scope.row)"
               >详情</el-link>
               <el-link
                   v-permission="'sys:user:edit'"
@@ -363,12 +363,24 @@ export default {
         showImportDialog: false,
         action: `${API_PREFIX}/import-export/import-dict-type`
       },
+
+      /**
+       * 查看字典类型下的所有字典明细
+       */
+      seeDetail(row) {
+        this.$router.push({
+          path:'/dict/index',
+          query:{
+            dictTypeId: row.id
+          }
+        })
+      },
     }
   },
   mounted() {
     // 优先加载表格数据
     this.loadPageDictType()
-    console.log(this.$router.currentRoute);
+    console.log("currentRoute", this.$router.currentRoute);
     // 强制渲染，解决表格 固定列后，列错位问题
     this.$nextTick(() => {
       this.$refs.table.doLayout()
