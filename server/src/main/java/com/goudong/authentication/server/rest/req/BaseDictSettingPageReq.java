@@ -20,7 +20,10 @@ public class BaseDictSettingPageReq extends BasePage {
     @ApiModelProperty(value = "字典配置id集合", hidden = true)
     private List<Long> ids;
 
-    @ApiModelProperty(value = "字典主键", required = true)
+    @ApiModelProperty(value = "字典类型主键")
+    private Long dictTypeId;
+
+    @ApiModelProperty(value = "字典主键")
     private Long dictId;
 
     @ApiModelProperty("字典配置名称")

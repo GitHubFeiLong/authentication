@@ -29,16 +29,16 @@
     <!--顶部操作栏-->
     <div class="el-table-tool">
       <div class="left-tool">
-        <el-button v-permission="'sys:user:add'" class="el-button--small" icon="el-icon-plus" type="primary" @click="dialog.dictType.create.enabled=true">
+        <el-button v-permission="'sys:dict:management:type:add'" class="el-button--small" icon="el-icon-plus" type="primary" @click="dialog.dictType.create.enabled=true">
           新增
         </el-button>
-        <el-button v-permission="'sys:user:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteDictTypes">
+        <el-button v-permission="'sys:dict:management:type:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteDictTypes">
           删除
         </el-button>
-        <el-button v-permission="'sys:user:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
+        <el-button v-permission="'sys:dict:management:type:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
           导入
         </el-button>
-        <el-button v-permission="'sys:user:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
+        <el-button v-permission="'sys:dict:management:type:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
           导出
         </el-button>
       </div>
@@ -116,11 +116,10 @@
             prop="enabled"
             align="center"
         >
-          <!--   :disabled="permissionDisabled('sys:dict:enable')"     -->
           <template v-slot="scope">
             <el-switch
                 v-model="scope.row.enabled"
-
+                :disabled="permissionDisabled('sys:dict:management:type:edit')"
                 :active-value="true"
                 :inactive-value="false"
                 @change="changeDictTypeEnabled(scope.row)"
@@ -148,21 +147,21 @@
           <template v-slot="scope">
             <div class="el-link-parent">
               <el-link
-                  v-permission="'sys:user:edit'"
+                  v-permission="'sys:dict:management:dict:query'"
                   icon="el-icon-info"
                   :underline="false"
                   type="primary"
                   @click="seeDetail(scope.row)"
               >详情</el-link>
               <el-link
-                  v-permission="'sys:user:edit'"
+                  v-permission="'sys:dict:management:type:edit'"
                   icon="el-icon-edit"
                   :underline="false"
                   type="primary"
                   @click="editDictType(scope.row)"
               >编辑</el-link>
               <el-link
-                  v-permission="'sys:user:delete'"
+                  v-permission="'sys:dict:management:type:delete'"
                   icon="el-icon-delete"
                   :underline="false"
                   type="danger"

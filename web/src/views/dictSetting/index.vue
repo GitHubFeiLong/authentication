@@ -29,16 +29,16 @@
     <!--顶部操作栏-->
     <div class="el-table-tool">
       <div class="left-tool">
-        <el-button v-permission="'sys:user:add'" class="el-button--small" icon="el-icon-plus" type="primary" @click="dictSetting.dialog.create.enabled=true">
+        <el-button v-permission="'sys:dict:management:setting:add'" class="el-button--small" icon="el-icon-plus" type="primary" @click="dictSetting.dialog.create.enabled=true">
           新增
         </el-button>
-        <el-button v-permission="'sys:user:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteDictSetting(dictSetting.table.checkIds)">
+        <el-button v-permission="'sys:dict:management:setting:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteDictSetting(dictSetting.table.checkIds)">
           删除
         </el-button>
-        <el-button v-permission="'sys:user:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
+        <el-button v-permission="'sys:dict:management:setting:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
           导入
         </el-button>
-        <el-button v-permission="'sys:user:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
+        <el-button v-permission="'sys:dict:management:setting:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
           导出
         </el-button>
       </div>
@@ -124,10 +124,10 @@
           <template v-slot="scope">
             <el-switch
                 v-model="scope.row.enabled"
-                :disabled="permissionDisabled('sys:usr:enable')"
+                :disabled="permissionDisabled('sys:dict:management:setting:edit')"
                 :active-value="true"
                 :inactive-value="false"
-                @change="changeDictTypeEnabled(scope.row)"
+                @change="changeDictSettingEnabled(scope.row)"
             />
           </template>
         </el-table-column>
@@ -140,10 +140,10 @@
           <template v-slot="scope">
             <el-switch
                 v-model="scope.row.defaulted"
-                :disabled="permissionDisabled('sys:usr:enable')"
+                :disabled="permissionDisabled('sys:dict:management:setting:edit')"
                 :active-value="true"
                 :inactive-value="false"
-                @change="changeDictTypeEnabled(scope.row)"
+                @change="changeDictSettingDefaulted(scope.row)"
             />
           </template>
         </el-table-column>
@@ -162,14 +162,14 @@
           <template v-slot="scope">
             <div class="el-link-parent">
               <el-link
-                  v-permission="'sys:user:edit'"
+                  v-permission="'sys:dict:management:setting:edit'"
                   icon="el-icon-edit"
                   :underline="false"
                   type="primary"
                   @click="editDictSetting(scope.row)"
               >编辑</el-link>
               <el-link
-                  v-permission="'sys:user:delete'"
+                  v-permission="'sys:dict:management:setting:delete'"
                   icon="el-icon-delete"
                   :underline="false"
                   type="danger"
@@ -196,18 +196,14 @@
     <!--  新增字典配置  -->
     <el-dialog title="新增字典配置" width="600px" :visible.sync="dictSetting.dialog.create.enabled" @close="dialogCreateCancel" :append-to-body="true">
       <el-form ref="dialogCreateForm" :model="dictSetting.dialog.create.data" :rules="dictSetting.dialog.rules" label-width="80px">
-        <el-form-item label="字典类型" prop="dictId">
+        <el-form-item label="字典类型" prop="dictTypeId">
           <DictTypeSelect :default-select-id="dictSetting.dialog.create.data.dictTypeId"
-                          :clearable="false"
-                          :disabled="true"
                           @changeDictType="changeDictTypeByDialog"/>
         </el-form-item>
         <el-form-item label="字典明细" prop="dictId">
           <DictSelect ref="dialogDictSelectRef"
                       :default-select-id.sync="dictSetting.dialog.create.data.dictId"
                       :dict-type-id.sync="dictSetting.dialog.create.data.dictTypeId"
-                      :clearable="false"
-                      :disabled="true"
                       @changeDict="changeDictByDialog"
           />
         </el-form-item>
@@ -327,6 +323,8 @@
 <script>
 import DictTypeSelect from "@/components/Dict/DictTypeSelect.vue";
 import {
+  changeDefaultedBaseDictSettingApi,
+  changeEnabledBaseDictSettingApi ,
   createBaseDictSettingApi,
   deleteDictSettingApi,
   getBaseDictSettingByIdApi,
@@ -345,6 +343,22 @@ import DictSelect from "@/components/Dict/DictSelect.vue";
 export default {
   name: 'DictSettingPage',
   components: {DictTypeSelect, DictSelect, UploadSingleExcel},
+  mounted() {
+    let dictTypeId = this.$route.query.dictTypeId;
+    let dictId = this.$route.query.dictId;
+    this.dictSetting.table.filter.dictTypeId = dictTypeId
+    this.dictSetting.table.filter.dictId = dictId
+    this.dictSetting.dialog.create.data.dictTypeId = dictTypeId
+    this.dictSetting.dialog.create.data.dictId = dictId
+
+
+    // 优先加载表格数据
+    this.loadPageDictSetting()
+    // 强制渲染，解决表格 固定列后，列错位问题
+    this.$nextTick(() => {
+      this.$refs.table.doLayout()
+    })
+  },
   data() {
     return {
       // 抽屉
@@ -380,7 +394,7 @@ export default {
               name: null,
               template: null,
               setting: null,
-              enabled: false,
+              enabled: true,
               defaulted: false,
               remark: null,
             },
@@ -400,12 +414,14 @@ export default {
             },
           },
           rules: { // 弹窗的规则
-            code: [
-              {required: true, max: 16, message: '请输入16位及以内的字典编码', trigger: 'blur'},
-              {required: true, validator: SimpleCode, trigger: 'blur'}
+            dictTypeId:[
+              {required: true, message: '请选择字典类型编码', trigger: 'blur'},
+            ],
+            dictId:[
+              {required: true, message: '请选择字典编码', trigger: 'blur'},
             ],
             name: [
-              {required: true, max: 16, message: '请输入16位及以内的字典名称', trigger: 'blur'},
+              {required: true, max: 16, message: '请输入16位及以内的配置名称', trigger: 'blur'},
             ],
             template: [
               {required: false, validator: JsonText, trigger: 'blur'}
@@ -537,6 +553,7 @@ export default {
       const pageParam = {
         page: this.dictSetting.table.page,
         size: this.dictSetting.table.size,
+        dictTypeId: this.dictSetting.table.filter.dictTypeId,
         dictId: this.dictSetting.table.filter.dictId,
         code: this.dictSetting.table.filter.code,
         name: this.dictSetting.table.filter.name,
@@ -605,7 +622,34 @@ export default {
     selectionChangeFunc(rows) {
       this.dictSetting.table.checkIds = rows.map(m => m.id)
     },
-
+    /**
+     * 修改字典配置激活状态
+     */
+    changeDictSettingEnabled(row){
+      let parameter = {id: row.id};
+      changeEnabledBaseDictSettingApi(parameter).then(response => {
+        // 保存成功
+        Message({
+          message: '修改成功',
+          type: 'success',
+        })
+        this.loadPageDictSetting()
+      })
+    },
+    /**
+     * 修改字典配置默认状态
+     */
+    changeDictSettingDefaulted(row){
+      let parameter = {id: row.id};
+      changeDefaultedBaseDictSettingApi(parameter).then(response => {
+        // 保存成功
+        Message({
+          message: '修改成功',
+          type: 'success',
+        })
+        this.loadPageDictSetting()
+      })
+    },
     /**
      * 批量删除字典明细
      */

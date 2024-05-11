@@ -5,7 +5,7 @@
     <div class="filter-container">
       <div class="filter-item">
         <span class="filter-item-label">类型编码: </span>
-        <DictTypeSelect :default-select-id="dict.table.filter.dictTypeId" :clearable="false" @changeDictType="changeDictType"/>
+        <DictTypeSelect :default-select-id="dict.table.filter.dictTypeId" @changeDictType="changeDictType"/>
       </div>
       <div class="filter-item">
         <span class="filter-item-label">字典编码: </span>
@@ -33,16 +33,16 @@
     <!--顶部操作栏-->
     <div class="el-table-tool">
       <div class="left-tool">
-        <el-button v-permission="'sys:user:add'" class="el-button--small" icon="el-icon-plus" type="primary" @click="dict.dialog.create.enabled=true">
+        <el-button v-permission="'sys:dict:management:dict:add'" class="el-button--small" icon="el-icon-plus" type="primary" @click="dict.dialog.create.enabled=true">
           新增
         </el-button>
-        <el-button v-permission="'sys:user:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteDict(dict.table.checkIds)">
+        <el-button v-permission="'sys:dict:management:dict:delete'" class="el-button--small" icon="el-icon-delete" type="danger" @click="deleteDict(dict.table.checkIds)">
           删除
         </el-button>
-        <el-button v-permission="'sys:user:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
+        <el-button v-permission="'sys:dict:management:dict:import'" class="el-button--small" icon="el-icon-upload2" @click="uploadSingleExcelAttr.showImportDialog=true">
           导入
         </el-button>
-        <el-button v-permission="'sys:user:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
+        <el-button v-permission="'sys:dict:management:dict:export'" class="el-button--small" icon="el-icon-download" @click="exportExcel">
           导出
         </el-button>
       </div>
@@ -129,10 +129,10 @@
           <template v-slot="scope">
             <el-switch
                 v-model="scope.row.enabled"
-                :disabled="permissionDisabled('sys:usr:enable')"
+                :disabled="permissionDisabled('sys:dict:management:dict:edit')"
                 :active-value="true"
                 :inactive-value="false"
-                @change="changeDictTypeEnabled(scope.row)"
+                @change="changeDictEnabled(scope.row)"
             />
           </template>
         </el-table-column>
@@ -151,21 +151,21 @@
           <template v-slot="scope">
             <div class="el-link-parent">
               <el-link
-                  v-permission="'sys:user:edit'"
+                  v-permission="'sys:dict:management:setting:query'"
                   icon="el-icon-info"
                   :underline="false"
                   type="primary"
                   @click="seeDetail(scope.row)"
               >详情</el-link>
               <el-link
-                  v-permission="'sys:user:edit'"
+                  v-permission="'sys:dict:management:dict:edit'"
                   icon="el-icon-edit"
                   :underline="false"
                   type="primary"
                   @click="editDictType(scope.row)"
               >编辑</el-link>
               <el-link
-                  v-permission="'sys:user:delete'"
+                  v-permission="'sys:dict:management:dict:delete'"
                   icon="el-icon-delete"
                   :underline="false"
                   type="danger"
@@ -192,7 +192,7 @@
     <el-dialog title="新增字典" width="600px" :visible.sync="dict.dialog.create.enabled" @close="dialogCreateCancel" :append-to-body="true">
       <el-form ref="dialogCreateForm" :model="dict.dialog.create.data" :rules="dict.dialog.rules" label-width="80px">
         <el-form-item label="字典类型" prop="dictTypeId">
-          <DictTypeSelect :default-select-id="dict.dialog.create.data.dictTypeId" :clearable="false" @changeDictType="dialogChangeDictType"/>
+          <DictTypeSelect :default-select-id="dict.dialog.create.data.dictTypeId" @changeDictType="dialogChangeDictType"/>
         </el-form-item>
         <el-form-item label="字典编码" prop="code">
           <el-input v-model="dict.dialog.create.data.code" placeholder="请输入字典编码" clearable/>
@@ -231,7 +231,7 @@
     <el-dialog title="编辑字典" width="600px" :visible.sync="dict.dialog.edit.enabled" @close="dialogEditCancel" :append-to-body="true">
       <el-form ref="dialogEditForm" :model="dict.dialog.edit.data" :rules="dict.dialog.rules" label-width="80px">
         <el-form-item label="字典类型" prop="dictTypeId">
-          <DictTypeSelect :default-select-id="dict.dialog.edit.data.dictTypeId" :clearable="false" :disabled="true" @changeDictType="editDialogChangeDictType"/>
+          <DictTypeSelect :clearable="false" :disabled="true" @changeDictType="editDialogChangeDictType"/>
         </el-form-item>
         <el-form-item label="字典编码" prop="code">
           <el-input v-model="dict.dialog.edit.data.code" @input="inputChange($event)" placeholder="请输入字典编码" clearable/>
@@ -282,6 +282,7 @@
 
 <script>
 import {
+  changeEnabledBaseDictApi,
   createBaseDictApi,
   deleteDictApi,
   getBaseDictByIdApi,
@@ -302,8 +303,10 @@ export default {
   components: {UploadSingleExcel, DictTypeSelect},
   mounted() {
     let dictTypeId = this.$route.query.dictTypeId;
+
     if (dictTypeId) {
       this.dict.table.filter.dictTypeId = dictTypeId
+      this.dict.dialog.create.data.dictTypeId = dictTypeId
     }
     // 优先加载表格数据
     this.loadPageDict()
@@ -362,6 +365,9 @@ export default {
             },
           },
           rules: { // 弹窗的规则
+            dictTypeId: [
+              {required: true,message: '请选择字典类型编码', trigger: 'blur'},
+            ],
             code: [
               {required: true, max: 16, message: '请输入16位及以内的字典编码', trigger: 'blur'},
               {required: true, validator: SimpleCode, trigger: 'blur'}
@@ -499,6 +505,21 @@ export default {
     },
 
     /**
+     * 切换激活状态
+     * @param row
+     */
+    changeDictEnabled(row) {
+      let parameter = {id: row.id};
+      changeEnabledBaseDictApi(parameter).then(response => {
+        // 保存成功
+        Message({
+          message: '修改成功',
+          type: 'success',
+        })
+      })
+    },
+
+    /**
      * 批量删除字典明细
      */
     deleteDict(ids) {
@@ -550,6 +571,7 @@ export default {
       done();
     },
 
+
     /**
      * 查看字典类型下的所有字典明细
      */
@@ -557,7 +579,8 @@ export default {
       this.$router.push({
         path:'/dictSetting/index',
         query:{
-          dictTypeId: row.id
+          dictTypeId: row.dictTypeId,
+          dictId: row.id,
         }
       })
     },
@@ -704,31 +727,6 @@ export default {
         },
       }
       exportDictApi(data);
-    },
-
-    /**
-     * 打开字典配置抽屉
-     * @param {Object} row 字典明细的行数据
-     */
-    drawerDictOpen(row) {
-      this.dictSettingDrawer.dictTypeId = row.dictTypeId
-      this.dictSettingDrawer.dictId = row.id
-      this.dictSettingDrawer.dictCode = row.code
-      this.dictSettingDrawer.dictName = row.name
-      this.dictSettingDrawer.visible = true
-    },
-    /**
-     * 修改字典配置抽屉显示变量
-     * @param {Boolean} visible true:显示抽屉；false：隐藏抽屉
-     */
-    changeDictSettingDrawerVisible(visible) {
-      this.dictSettingDrawer = {
-        dictTypeId: '',
-        dictId: '',
-        dictCode: '',
-        dictName: '',
-        visible: visible,
-      }
     },
   },
 }

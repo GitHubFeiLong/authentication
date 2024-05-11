@@ -6,6 +6,7 @@ import com.goudong.authentication.server.domain.BaseDictSetting;
 import com.goudong.authentication.server.domain.BaseDictType;
 import com.goudong.authentication.server.repository.BaseDictSettingRepository;
 import com.goudong.authentication.server.repository.resp.IdCountResp;
+import com.goudong.authentication.server.rest.req.BaseDictSettingChangeDefaultedReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingChangeEnabledReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingPageReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingUpdateReq;
@@ -81,6 +82,9 @@ public class BaseDictSettingServiceImpl implements BaseDictSettingService {
 
             if (CollectionUtil.isNotEmpty(req.getIds())) {
                 andPredicateList.add(root.<Long>get("id").in(req.getIds()));
+            }
+            if (req.getDictTypeId() != null) {
+                andPredicateList.add(criteriaBuilder.equal(root.<Long>get("dictTypeId"), req.getDictTypeId()));
             }
             if (req.getDictId() != null) {
                 andPredicateList.add(criteriaBuilder.equal(root.<Long>get("dictId"), req.getDictId()));
@@ -178,13 +182,46 @@ public class BaseDictSettingServiceImpl implements BaseDictSettingService {
      * @return true：修改成功；false：修改失败
      */
     @Override
+    @Transactional
     public Boolean changeEnabled(BaseDictSettingChangeEnabledReq req) {
         log.info("查询字典配置：{}", req.getId());
         BaseDictSetting dictSetting = this.findById(req.getId());
+        if (dictSetting.getEnabled()) {
+            dictSetting.setDefaulted(false);
+        }
         log.info("修改字典配置激活状态：原enabled={},将要修改为{}", dictSetting.getEnabled(), !dictSetting.getEnabled());
         dictSetting.setEnabled(!dictSetting.getEnabled());
         baseDictSettingRepository.save(dictSetting);
         log.info("修改字典配置激活状态成功");
+        return true;
+    }
+
+    /**
+     * 修改字典配置的默认状态
+     *
+     * @param req 修改字典配置参数
+     * @return true：修改成功；false：修改失败
+     */
+    @Override
+    @Transactional
+    public Boolean changeDefaulted(BaseDictSettingChangeDefaultedReq req) {
+        log.info("查询字典配置：{}", req.getId());
+        BaseDictSetting dictSetting = this.findById(req.getId());
+        log.info("修改字典明细下的字典配置为非默认");
+        int i = baseDictSettingRepository.updateDefaultedByDictId(dictSetting.getDictId());
+        log.info("修改字典明细下的字典配置为非默认，受影响的行数：{}", i);
+
+
+        log.info("修改字典配置默认状态：原defaulted={},将要修改为{}", dictSetting.getDefaulted(), !dictSetting.getDefaulted());
+
+        dictSetting.setDefaulted(!dictSetting.getDefaulted());
+
+        if (dictSetting.getDefaulted()) {
+            log.info("字典配置修改成激活状态");
+            dictSetting.setEnabled(true);
+        }
+        baseDictSettingRepository.save(dictSetting);
+        log.info("修改字典配置默认状态成功");
         return true;
     }
 
