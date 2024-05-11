@@ -157,6 +157,19 @@ export function updateBaseDictApi(data) {
 }
 
 /**
+ * 修改字典明细激活状态
+ * @param {Object} data     修改字典明细参数
+ * @param {Number} data.id  修改字典明细的ID
+ */
+export function changeEnabledBaseDictApi(data) {
+  return request({
+    url: `${API_PREFIX}/dict/base-dict/change-enabled`,
+    method: 'put',
+    data
+  })
+}
+
+/**
  * 删除字典
  * @param {Array} ids 批量删除字典ID集合
  */
@@ -230,6 +243,32 @@ export function createBaseDictSettingApi(data) {
 export function updateBaseDictSettingApi(data) {
   return request({
     url: `${API_PREFIX}/dict/base-dict-setting`,
+    method: 'put',
+    data
+  })
+}
+
+/**
+ * 修改字典配置激活状态
+ * @param {Object} data     修改字典配置参数
+ * @param {Number} data.id  修改字典配置的ID
+ */
+export function changeEnabledBaseDictSettingApi(data) {
+  return request({
+    url: `${API_PREFIX}/dict/base-dict-setting/change-enabled`,
+    method: 'put',
+    data
+  })
+}
+
+/**
+ * 修改字典配置默认状态
+ * @param {Object} data     修改字典配置参数
+ * @param {Number} data.id  修改字典配置的ID
+ */
+export function changeDefaultedBaseDictSettingApi(data) {
+  return request({
+    url: `${API_PREFIX}/dict/base-dict-setting/change-defaulted`,
     method: 'put',
     data
   })

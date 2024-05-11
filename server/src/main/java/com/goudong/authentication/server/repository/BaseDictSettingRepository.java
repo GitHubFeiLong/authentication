@@ -42,6 +42,15 @@ public interface BaseDictSettingRepository extends JpaRepository<BaseDictSetting
      * @return  删除的数量
      */
     @Modifying
-    @Query(value = "delete from base_dict_setting where dict_type_id = :dictId", nativeQuery = true)
+    @Query(value = "delete from base_dict_setting where dict_id = :dictId", nativeQuery = true)
     int deleteByDictId(Long dictId);
+
+    /**
+     * 修改字典下的所有配置都改为非默认
+     * @param dictId    字典ID
+     * @return  修改数量
+     */
+    @Query(value = "update base_dict_setting set defaulted = false where dict_id = :dictId and defaulted = true" , nativeQuery = true)
+    @Modifying
+    int updateDefaultedByDictId(Long dictId);
 }

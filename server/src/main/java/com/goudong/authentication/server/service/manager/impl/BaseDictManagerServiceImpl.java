@@ -330,6 +330,17 @@ public class BaseDictManagerServiceImpl implements BaseDictManagerService {
     }
 
     /**
+     * 修改字典配置的默认状态
+     *
+     * @param req 修改字典配置参数
+     * @return true：修改成功；false：修改失败
+     */
+    @Override
+    public Boolean changeDefaultedBaseDictSetting(BaseDictSettingChangeDefaultedReq req) {
+        return baseDictSettingService.changeDefaulted(req);
+    }
+
+    /**
      * 批量删除字典配置
      *
      * @param ids 待删除的字典配置主键集合

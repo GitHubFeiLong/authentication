@@ -2,6 +2,7 @@ package com.goudong.authentication.server.service;
 
 import com.goudong.authentication.server.domain.BaseDict;
 import com.goudong.authentication.server.domain.BaseDictSetting;
+import com.goudong.authentication.server.rest.req.BaseDictSettingChangeDefaultedReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingChangeEnabledReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingPageReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingUpdateReq;
@@ -46,6 +47,14 @@ public interface BaseDictSettingService {
      * @return true：修改成功；false：修改失败
      */
     Boolean changeEnabled(BaseDictSettingChangeEnabledReq req);
+
+    /**
+     * 修改字典配置的默认状态
+     *
+     * @param req 修改字典配置参数
+     * @return true：修改成功；false：修改失败
+     */
+    Boolean changeDefaulted(BaseDictSettingChangeDefaultedReq req);
 
     /**
      * 批量删除字典配置

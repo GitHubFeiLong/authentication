@@ -152,6 +152,12 @@ public class BaseDictResource {
         return Result.ofSuccess(baseDictManagerService.changeEnabledBaseDictSetting(req));
     }
 
+    @PutMapping("/base-dict-setting/change-defaulted")
+    @ApiOperation(value = "【字典配置】切换默认状态")
+    public Result<Boolean> changeDefaultedBaseDictSetting(@RequestBody @Validated BaseDictSettingChangeDefaultedReq req) {
+        return Result.ofSuccess(baseDictManagerService.changeDefaultedBaseDictSetting(req));
+    }
+
     @DeleteMapping("/base-dict-setting")
     @ApiOperation(value = "批量删除字典")
     public Result<Boolean> deleteBaseDictSettings(@RequestBody @NotNull Long[] ids) {
