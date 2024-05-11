@@ -47,8 +47,6 @@ public class BaseDictSettingImportExcelListener implements ReadListener<BaseDict
      */
     private final List<BaseDictSetting> cachedDataList = new ArrayList<>();
 
-
-
     /**
      * 字典服务接口
      */
@@ -130,7 +128,6 @@ public class BaseDictSettingImportExcelListener implements ReadListener<BaseDict
         item.setTemplate(data.getTemplate());
         item.setSetting(data.getSetting());
         item.setEnabled(Objects.equals(ActivateEnum.ACTIVATED.getLabel(), data.getEnabled()));
-        item.setDefaulted(Objects.equals("默认", data.getDefaulted()));
         item.setRemark(data.getRemark());
         item.setCreatedDate(now);
         item.setLastModifiedDate(now);

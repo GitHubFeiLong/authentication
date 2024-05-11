@@ -39,11 +39,6 @@ public class BaseDictSettingImportExcelTemplate {
     @ColumnWidth(20)
     private String enabled;
 
-    @ApiModelProperty("默认配置")
-    @ExcelProperty("默认配置")
-    @ColumnWidth(20)
-    private String defaulted;
-
     @ApiModelProperty("备注")
     @ExcelProperty("备注")
     @ColumnWidth(40)

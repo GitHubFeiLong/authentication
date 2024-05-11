@@ -81,7 +81,6 @@ public class BaseDictResource {
         return Result.ofSuccess(baseDictManagerService.deleteBaseDictTypes(Arrays.asList(ids)));
     }
 
-
     //~BaseDict
     //==================================================================================================================
     @PostMapping("/page/base-dict")
@@ -140,6 +139,12 @@ public class BaseDictResource {
         return Result.ofSuccess(baseDictManagerService.getBaseDictSettingById(id));
     }
 
+    @GetMapping("/base-dict-setting/code/{dictCode}")
+    @ApiOperation(value = "【字典配置】根据字典编码查询")
+    public Result<BaseDictSettingDTO> getBaseDictSettingByDictCode(@PathVariable String dictCode) {
+        return Result.ofSuccess(baseDictManagerService.getBaseDictSettingByDictCode(dictCode));
+    }
+
     @PutMapping("/base-dict-setting")
     @ApiOperation(value = "【字典配置】修改")
     public Result<BaseDictSettingDTO> updateBaseDictSetting(@RequestBody @Validated BaseDictSettingUpdateReq req) {
@@ -150,12 +155,6 @@ public class BaseDictResource {
     @ApiOperation(value = "【字典配置】切换激活状态")
     public Result<Boolean> changeEnabledBaseDictSetting(@RequestBody @Validated BaseDictSettingChangeEnabledReq req) {
         return Result.ofSuccess(baseDictManagerService.changeEnabledBaseDictSetting(req));
-    }
-
-    @PutMapping("/base-dict-setting/change-defaulted")
-    @ApiOperation(value = "【字典配置】切换默认状态")
-    public Result<Boolean> changeDefaultedBaseDictSetting(@RequestBody @Validated BaseDictSettingChangeDefaultedReq req) {
-        return Result.ofSuccess(baseDictManagerService.changeDefaultedBaseDictSetting(req));
     }
 
     @DeleteMapping("/base-dict-setting")

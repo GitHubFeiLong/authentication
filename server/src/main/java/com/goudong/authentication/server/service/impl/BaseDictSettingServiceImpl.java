@@ -1,21 +1,16 @@
 package com.goudong.authentication.server.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.goudong.authentication.server.domain.BaseDict;
 import com.goudong.authentication.server.domain.BaseDictSetting;
-import com.goudong.authentication.server.domain.BaseDictType;
 import com.goudong.authentication.server.repository.BaseDictSettingRepository;
-import com.goudong.authentication.server.repository.resp.IdCountResp;
-import com.goudong.authentication.server.rest.req.BaseDictSettingChangeDefaultedReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingChangeEnabledReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingPageReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingUpdateReq;
 import com.goudong.authentication.server.rest.resp.BaseDictSettingPageResp;
-import com.goudong.authentication.server.rest.resp.BaseDictTypePageResp;
 import com.goudong.authentication.server.service.BaseDictSettingService;
+import com.goudong.authentication.server.service.dto.BaseDictSettingDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.mapper.BaseDictSettingMapper;
-import com.goudong.authentication.server.service.mapper.BaseDictTypeMapper;
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.boot.web.core.ClientException;
 import com.goudong.core.lang.PageResult;
@@ -29,17 +24,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 /**
  * 类描述：
@@ -97,7 +88,7 @@ public class BaseDictSettingServiceImpl implements BaseDictSettingService {
         };
 
         // 单独创建排序对象
-        Sort sort = Sort.by("enabled").descending().and(Sort.by("defaulted").descending());
+        Sort sort = Sort.by("createdDate").descending();
 
         // 开启分页，就需要分页查询
         if (req.getOpenPage()) {
@@ -186,42 +177,12 @@ public class BaseDictSettingServiceImpl implements BaseDictSettingService {
     public Boolean changeEnabled(BaseDictSettingChangeEnabledReq req) {
         log.info("查询字典配置：{}", req.getId());
         BaseDictSetting dictSetting = this.findById(req.getId());
-        if (dictSetting.getEnabled()) {
-            dictSetting.setDefaulted(false);
-        }
+        log.info("修改字典明细的其它字典配置为未激活");
+        baseDictSettingRepository.updateEnabledByDictId(false, dictSetting.getDictId());
         log.info("修改字典配置激活状态：原enabled={},将要修改为{}", dictSetting.getEnabled(), !dictSetting.getEnabled());
         dictSetting.setEnabled(!dictSetting.getEnabled());
         baseDictSettingRepository.save(dictSetting);
         log.info("修改字典配置激活状态成功");
-        return true;
-    }
-
-    /**
-     * 修改字典配置的默认状态
-     *
-     * @param req 修改字典配置参数
-     * @return true：修改成功；false：修改失败
-     */
-    @Override
-    @Transactional
-    public Boolean changeDefaulted(BaseDictSettingChangeDefaultedReq req) {
-        log.info("查询字典配置：{}", req.getId());
-        BaseDictSetting dictSetting = this.findById(req.getId());
-        log.info("修改字典明细下的字典配置为非默认");
-        int i = baseDictSettingRepository.updateDefaultedByDictId(dictSetting.getDictId());
-        log.info("修改字典明细下的字典配置为非默认，受影响的行数：{}", i);
-
-
-        log.info("修改字典配置默认状态：原defaulted={},将要修改为{}", dictSetting.getDefaulted(), !dictSetting.getDefaulted());
-
-        dictSetting.setDefaulted(!dictSetting.getDefaulted());
-
-        if (dictSetting.getDefaulted()) {
-            log.info("字典配置修改成激活状态");
-            dictSetting.setEnabled(true);
-        }
-        baseDictSettingRepository.save(dictSetting);
-        log.info("修改字典配置默认状态成功");
         return true;
     }
 
@@ -277,15 +238,18 @@ public class BaseDictSettingServiceImpl implements BaseDictSettingService {
     @Transactional
     public synchronized BaseDictSetting save(BaseDictSetting baseDictSetting) {
         log.info("保存字典配置");
-        if (baseDictSetting.getDefaulted()) {
-            // 修改
-            log.info("将字典{}的所有配置修改称非默认", baseDictSetting.getDictId());
-            baseDictSettingRepository.updateNonDefaultedByDictId(baseDictSetting.getDictId());
-
-            // 设置激活
-            baseDictSetting.setEnabled(true);
-        }
-
         return baseDictSettingRepository.save(baseDictSetting);
+    }
+
+    /**
+     * 根据字典主键ID查询激活状态的字典配置
+     *
+     * @param dictId 字典主键ID
+     * @return 字典配置
+     */
+    @Override
+    public BaseDictSettingDTO getBaseDictSettingByDictId(Long dictId) {
+        BaseDictSetting first = baseDictSettingRepository.findFirstByDictIdAndEnabled(dictId, true);
+        return baseDictSettingMapper.toDto(first);
     }
 }

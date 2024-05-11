@@ -95,6 +95,12 @@
             align="center"
         />
         <el-table-column
+            label="类型编码"
+            min-width="50"
+            prop="dictTypeCode"
+            sortable
+        />
+        <el-table-column
             label="字典编码"
             min-width="50"
             prop="code"
@@ -231,7 +237,7 @@
     <el-dialog title="编辑字典" width="600px" :visible.sync="dict.dialog.edit.enabled" @close="dialogEditCancel" :append-to-body="true">
       <el-form ref="dialogEditForm" :model="dict.dialog.edit.data" :rules="dict.dialog.rules" label-width="80px">
         <el-form-item label="字典类型" prop="dictTypeId">
-          <DictTypeSelect :clearable="false" :disabled="true" @changeDictType="editDialogChangeDictType"/>
+          <DictTypeSelect :default-select-id="dict.dialog.edit.data.dictTypeId" :clearable="false" :disabled="true" @changeDictType="editDialogChangeDictType"/>
         </el-form-item>
         <el-form-item label="字典编码" prop="code">
           <el-input v-model="dict.dialog.edit.data.code" @input="inputChange($event)" placeholder="请输入字典编码" clearable/>

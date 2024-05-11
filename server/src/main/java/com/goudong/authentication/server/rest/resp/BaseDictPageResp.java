@@ -27,6 +27,10 @@ public class BaseDictPageResp {
      */
     @ApiModelProperty(value = "应用id")
     private Long appId;
+
+    @ApiModelProperty(value = "字典类型编码")
+    private String dictTypeCode;
+
     /**
      * 字典编码
      */

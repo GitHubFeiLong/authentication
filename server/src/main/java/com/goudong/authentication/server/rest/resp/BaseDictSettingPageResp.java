@@ -33,10 +33,20 @@ public class BaseDictSettingPageResp {
     @ApiModelProperty(value = "字典类型主键")
     private Long dictTypeId;
     /**
+     * 字典类型编码
+     */
+    @ApiModelProperty(value = "字典类型编码")
+    private String dictTypeCode;
+    /**
      * 字典主键
      */
     @ApiModelProperty(value = "字典主键")
     private Long dictId;
+    /**
+     * 字典明细编码
+     */
+    @ApiModelProperty(value = "字典明细编码")
+    private String dictCode;
     /**
      * 字典配置名称
      */
@@ -57,11 +67,6 @@ public class BaseDictSettingPageResp {
      */
     @ApiModelProperty(value = "是否激活（true：已激活；false：未激活）")
     private Boolean enabled;
-    /**
-     * 是否是默认的（true：默认的；false：非默认的）
-     */
-    @ApiModelProperty(value = "是否是默认的（true：默认的；false：非默认的）")
-    private Boolean defaulted;
     /**
      * 说明备注
      */

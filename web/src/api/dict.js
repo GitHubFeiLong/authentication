@@ -262,19 +262,6 @@ export function changeEnabledBaseDictSettingApi(data) {
 }
 
 /**
- * 修改字典配置默认状态
- * @param {Object} data     修改字典配置参数
- * @param {Number} data.id  修改字典配置的ID
- */
-export function changeDefaultedBaseDictSettingApi(data) {
-  return request({
-    url: `${API_PREFIX}/dict/base-dict-setting/change-defaulted`,
-    method: 'put',
-    data
-  })
-}
-
-/**
  * 删除字典配置
  * @param {Array} ids 批量删除字典配置ID集合
  */

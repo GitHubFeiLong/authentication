@@ -23,6 +23,7 @@ import com.goudong.authentication.server.service.mapper.BaseDictMapper;
 import com.goudong.authentication.server.service.mapper.BaseDictSettingMapper;
 import com.goudong.authentication.server.service.mapper.BaseDictTypeMapper;
 import com.goudong.authentication.server.util.BeanSearcherUtil;
+import com.goudong.authentication.server.util.HttpRequestUtil;
 import com.goudong.authentication.server.util.PageResultUtil;
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import com.goudong.boot.web.core.BasicException;
@@ -36,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：
@@ -185,7 +187,12 @@ public class BaseDictManagerServiceImpl implements BaseDictManagerService {
      */
     @Override
     public PageResult<BaseDictPageResp> pageBaseDict(BaseDictPageReq req) {
-        return baseDictService.page(req);
+        PageResult<BaseDictPageResp> page = baseDictService.page(req);
+        page.getContent().forEach(p -> {
+            BaseDictType baseDictType = baseDictTypeService.findById(p.getDictTypeId());
+            p.setDictTypeCode(baseDictType.getCode());
+        });
+        return page;
     }
 
     /**
@@ -276,7 +283,14 @@ public class BaseDictManagerServiceImpl implements BaseDictManagerService {
      */
     @Override
     public PageResult<BaseDictSettingPageResp> pageBaseDictSetting(BaseDictSettingPageReq req) {
-        return baseDictSettingService.page(req);
+        PageResult<BaseDictSettingPageResp> page = baseDictSettingService.page(req);
+        page.getContent().forEach(p -> {
+            BaseDictType baseDictType = baseDictTypeService.findById(p.getDictTypeId());
+            BaseDict baseDict = baseDictService.findById(p.getDictId());
+            p.setDictTypeCode(baseDictType.getCode());
+            p.setDictCode(baseDict.getCode());
+        });
+        return page;
     }
 
     /**
@@ -330,17 +344,6 @@ public class BaseDictManagerServiceImpl implements BaseDictManagerService {
     }
 
     /**
-     * 修改字典配置的默认状态
-     *
-     * @param req 修改字典配置参数
-     * @return true：修改成功；false：修改失败
-     */
-    @Override
-    public Boolean changeDefaultedBaseDictSetting(BaseDictSettingChangeDefaultedReq req) {
-        return baseDictSettingService.changeDefaulted(req);
-    }
-
-    /**
      * 批量删除字典配置
      *
      * @param ids 待删除的字典配置主键集合
@@ -349,5 +352,18 @@ public class BaseDictManagerServiceImpl implements BaseDictManagerService {
     @Override
     public Boolean deleteBaseDictSettings(List<Long> ids) {
         return baseDictSettingService.deleteByIds(ids);
+    }
+
+    /**
+     * 根据字典编码查询激活状态的字典配置
+     *
+     * @param dictCode 字典编码
+     * @return 字典配置
+     */
+    @Override
+    public BaseDictSettingDTO getBaseDictSettingByDictCode(String dictCode) {
+        Long xAppId = HttpRequestUtil.getXAppId();
+        BaseDict baseDict = baseDictService.findByAppIdAndCode(xAppId, dictCode);
+        return baseDictSettingService.getBaseDictSettingByDictId(baseDict.getId());
     }
 }

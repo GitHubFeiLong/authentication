@@ -160,17 +160,16 @@ public interface BaseDictManagerService {
     Boolean changeEnabledBaseDictSetting(BaseDictSettingChangeEnabledReq req);
 
     /**
-     * 修改字典配置的默认状态
-     * @param req   修改字典配置参数
-     * @return      true：修改成功；false：修改失败
-     */
-    Boolean changeDefaultedBaseDictSetting(BaseDictSettingChangeDefaultedReq req);
-
-    /**
      * 批量删除字典配置
      * @param ids   待删除的字典配置主键集合
      * @return  true：删除成功
      */
     Boolean deleteBaseDictSettings(List<Long> ids);
 
+    /**
+     * 根据字典编码查询激活状态的字典配置
+     * @param dictCode  字典编码
+     * @return  字典配置
+     */
+    BaseDictSettingDTO getBaseDictSettingByDictCode(String dictCode);
 }

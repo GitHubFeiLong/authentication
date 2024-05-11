@@ -53,7 +53,6 @@ CREATE TABLE `base_dict_setting`
     `template`           json                            NOT NULL COMMENT '配置模板注释',
     `setting`            json                            NOT NULL COMMENT '字典JSON配置',
     `enabled`            bit(1)                          NOT NULL               DEFAULT b'0' COMMENT '是否激活（true：已激活；false：未激活）',
-    `defaulted`          bit(1)                          NOT NULL               DEFAULT b'0' COMMENT '是否是默认的（true：默认的；false：非默认的）',
     `remark`             varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '说明备注',
     `created_date`       datetime                                               DEFAULT NULL COMMENT '创建时间',
     `last_modified_date` datetime                                               DEFAULT NULL COMMENT '最后修改时间',

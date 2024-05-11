@@ -59,11 +59,6 @@ public class BaseDictSettingDTO {
     @ApiModelProperty(value = "是否激活（true：已激活；false：未激活）")
     private Boolean enabled;
     /**
-     * 是否是默认的（true：默认的；false：非默认的）
-     */
-    @ApiModelProperty(value = "是否是默认的（true：默认的；false：非默认的）")
-    private Boolean defaulted;
-    /**
      * 说明备注
      */
     @ApiModelProperty(value = "说明备注")

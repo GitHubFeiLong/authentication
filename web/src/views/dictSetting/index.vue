@@ -103,6 +103,18 @@
             align="center"
         />
         <el-table-column
+            label="类型编码"
+            min-width="50"
+            prop="dictTypeCode"
+            sortable
+        />
+        <el-table-column
+            label="字典编码"
+            min-width="50"
+            prop="dictCode"
+            sortable
+        />
+        <el-table-column
             label="配置名称"
             prop="name"
             min-width="50"
@@ -128,22 +140,6 @@
                 :active-value="true"
                 :inactive-value="false"
                 @change="changeDictSettingEnabled(scope.row)"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column
-            label="默认"
-            width="80"
-            prop="defaulted"
-            align="center"
-        >
-          <template v-slot="scope">
-            <el-switch
-                v-model="scope.row.defaulted"
-                :disabled="permissionDisabled('sys:dict:management:setting:edit')"
-                :active-value="true"
-                :inactive-value="false"
-                @change="changeDictSettingDefaulted(scope.row)"
             />
           </template>
         </el-table-column>
@@ -230,14 +226,6 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="是否默认" prop="enabled">
-          <el-switch
-              v-model="dictSetting.dialog.create.data.defaulted"
-              :active-value="true"
-              :inactive-value="false"
-              :disabled="!dictSetting.dialog.create.data.enabled"
-          />
-        </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="dictSetting.dialog.create.data.remark" placeholder="请输入配置备注" clearable/>
         </el-form-item>
@@ -289,14 +277,6 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="是否默认" prop="enabled">
-          <el-switch
-              v-model="dictSetting.dialog.edit.data.defaulted"
-              :active-value="true"
-              :inactive-value="false"
-              :disabled="!dictSetting.dialog.edit.data.enabled"
-          />
-        </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="dictSetting.dialog.edit.data.remark" placeholder="请输入配置备注" clearable/>
         </el-form-item>
@@ -323,8 +303,7 @@
 <script>
 import DictTypeSelect from "@/components/Dict/DictTypeSelect.vue";
 import {
-  changeDefaultedBaseDictSettingApi,
-  changeEnabledBaseDictSettingApi ,
+  changeEnabledBaseDictSettingApi,
   createBaseDictSettingApi,
   deleteDictSettingApi,
   getBaseDictSettingByIdApi,
@@ -336,7 +315,7 @@ import {isNotEmpty} from "@/utils/assertUtil";
 import UploadSingleExcel from "@/components/UploadExcel/UploadSingleExcel.vue";
 import {API_PREFIX} from "@/constant/commons";
 import {exportDictSettingApi, exportDictSettingTemplateApi} from "@/api/file";
-import {JsonText, SimpleCode} from "@/utils/ElementValidatorUtil";
+import {JsonText} from "@/utils/ElementValidatorUtil";
 import {Message} from "element-ui";
 import DictSelect from "@/components/Dict/DictSelect.vue";
 
@@ -395,7 +374,6 @@ export default {
               template: null,
               setting: null,
               enabled: true,
-              defaulted: false,
               remark: null,
             },
           },
@@ -409,7 +387,6 @@ export default {
               template: null,
               setting: null,
               enabled: false,
-              defaulted: false,
               remark: null,
             },
           },
@@ -451,26 +428,6 @@ export default {
         this.dictSetting.table.filter.dictId = n;
       },
       deep: true // 深度监听父组件传过来对象变化
-    },
-    /**
-     * 监听新增字典类型弹窗中的激活状态
-     */
-    'dictSetting.dialog.create.data.enabled':{
-      handler(n, e){
-        if(!n) {
-          this.dictSetting.dialog.create.data.defaulted = false
-        }
-      },
-    },
-    /**
-     * 监听新增字典类型弹窗中的激活状态
-     */
-    'dictSetting.dialog.edit.data.enabled':{
-      handler(n, e){
-        if(!n) {
-          this.dictSetting.dialog.edit.data.defaulted = false
-        }
-      },
     },
   },
   methods: {
@@ -628,20 +585,6 @@ export default {
     changeDictSettingEnabled(row){
       let parameter = {id: row.id};
       changeEnabledBaseDictSettingApi(parameter).then(response => {
-        // 保存成功
-        Message({
-          message: '修改成功',
-          type: 'success',
-        })
-        this.loadPageDictSetting()
-      })
-    },
-    /**
-     * 修改字典配置默认状态
-     */
-    changeDictSettingDefaulted(row){
-      let parameter = {id: row.id};
-      changeDefaultedBaseDictSettingApi(parameter).then(response => {
         // 保存成功
         Message({
           message: '修改成功',

@@ -20,12 +20,13 @@ public interface BaseDictSettingRepository extends JpaRepository<BaseDictSetting
 
     /**
      * 将字典下所有配置都设置称非默认
+     * @param enabled   激活状态
      * @param dictId    字典ID
      * @return  修改数量
      */
     @Modifying
-    @Query(nativeQuery = true, value ="update base_dict_setting set defaulted=0 where dict_id =?1")
-    int updateNonDefaultedByDictId(Long dictId);
+    @Query(nativeQuery = true, value ="update base_dict_setting set enabled=?1 where dict_id =?2")
+    int updateEnabledByDictId(boolean enabled, Long dictId);
 
     /**
      * 删除指定字典类型下的所有字典配置
@@ -46,11 +47,10 @@ public interface BaseDictSettingRepository extends JpaRepository<BaseDictSetting
     int deleteByDictId(Long dictId);
 
     /**
-     * 修改字典下的所有配置都改为非默认
-     * @param dictId    字典ID
-     * @return  修改数量
+     * 根据字典主键ID和激活状态查询第一条
+     * @param dictId
+     * @param enabled
+     * @return
      */
-    @Query(value = "update base_dict_setting set defaulted = false where dict_id = :dictId and defaulted = true" , nativeQuery = true)
-    @Modifying
-    int updateDefaultedByDictId(Long dictId);
+    BaseDictSetting findFirstByDictIdAndEnabled(Long dictId, Boolean enabled);
 }

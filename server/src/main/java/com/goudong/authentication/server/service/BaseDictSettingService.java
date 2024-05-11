@@ -1,12 +1,11 @@
 package com.goudong.authentication.server.service;
 
-import com.goudong.authentication.server.domain.BaseDict;
 import com.goudong.authentication.server.domain.BaseDictSetting;
-import com.goudong.authentication.server.rest.req.BaseDictSettingChangeDefaultedReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingChangeEnabledReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingPageReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingUpdateReq;
 import com.goudong.authentication.server.rest.resp.BaseDictSettingPageResp;
+import com.goudong.authentication.server.service.dto.BaseDictSettingDTO;
 import com.goudong.core.lang.PageResult;
 
 import java.util.List;
@@ -49,14 +48,6 @@ public interface BaseDictSettingService {
     Boolean changeEnabled(BaseDictSettingChangeEnabledReq req);
 
     /**
-     * 修改字典配置的默认状态
-     *
-     * @param req 修改字典配置参数
-     * @return true：修改成功；false：修改失败
-     */
-    Boolean changeDefaulted(BaseDictSettingChangeDefaultedReq req);
-
-    /**
      * 批量删除字典配置
      * @param ids   字典配置的主键
      * @return  true：删除成功
@@ -84,4 +75,11 @@ public interface BaseDictSettingService {
      */
     BaseDictSetting save(BaseDictSetting baseDictSetting);
 
+    /**
+     * 根据字典主键ID查询激活状态的字典配置
+     *
+     * @param dictId 字典主键ID
+     * @return 字典配置
+     */
+    BaseDictSettingDTO getBaseDictSettingByDictId(Long dictId);
 }
