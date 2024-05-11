@@ -516,6 +516,7 @@ export default {
           message: '修改成功',
           type: 'success',
         })
+        this.loadPageDict()
       })
     },
 

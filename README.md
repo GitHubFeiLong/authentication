@@ -8,6 +8,7 @@ authentication分为服务端（server）和客户端（client） 后台web管�
 + 用户管理
 + 角色管理
 + 菜单管理
++ 字典管理
 + 应用管理
 
 登录有两种方式：
@@ -19,6 +20,7 @@ authentication分为服务端（server）和客户端（client） 后台web管�
 + 用户模块
 + 角色模块
 + 菜单模块
++ 字典模块
 + 应用模块
 + 权限模块
 + 导入导出模块
@@ -31,4 +33,3 @@ authentication分为服务端（server）和客户端（client） 后台web管�
 + spring mvc 跳转/error 请求怎么获取正确的uri
 + 将login-success页面相关代码封装，并书写文档，方便第三方应用后台接入
 + 异常管理：根据
-+ 字典管理，字典类型、字典、字典配置
