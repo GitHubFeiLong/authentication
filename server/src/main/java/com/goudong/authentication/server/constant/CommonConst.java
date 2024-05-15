@@ -33,7 +33,7 @@ public class CommonConst {
      */
     public static final List<Long> ROLE_APP_ADMIN_IGNORE_MENUS = ListUtil.newArrayList(
             // 应用管理
-            1400L
+            1900L
     );
 
     /**

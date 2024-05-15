@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import com.goudong.authentication.common.constant.CommonConst;
+import com.goudong.authentication.common.util.JsonUtil;
 import com.goudong.authentication.server.constant.DateConst;
 import com.goudong.authentication.server.domain.BaseApp;
 import com.goudong.authentication.server.domain.BaseAppCert;
@@ -33,6 +34,7 @@ import com.goudong.core.lang.PageResult;
 import com.goudong.core.security.cer.CertificateUtil;
 import com.goudong.core.util.AssertUtil;
 import com.goudong.core.util.ListUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -49,6 +51,7 @@ import java.util.*;
  * @author  chenf
  */
 @Service
+@Slf4j
 public class BaseAppManagerServiceImpl implements BaseAppManagerService {
     //~fields
     //==================================================================================================================
