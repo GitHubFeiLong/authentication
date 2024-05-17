@@ -56,8 +56,8 @@ public class CommonConst {
             "/**/*.ico*",
             "/**/swagger-resources*",
             "/**/api-docs*",
-            "/druid/**",
-            "/actuator/**"
+            "/**/druid/**",
+            "/**/actuator/**"
     );
 
     /**

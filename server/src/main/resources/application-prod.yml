@@ -8,6 +8,17 @@ server:
   port: 8080
   servlet:
     context-path: /api/authentication-server
+
+# 监控
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
 spring:
   main:
     allow-bean-definition-overriding: true #重命名其中一个 bean 或启用覆盖
@@ -75,3 +86,4 @@ authentication:
   server:
     token:
       access-token-expiration: 3600
+
