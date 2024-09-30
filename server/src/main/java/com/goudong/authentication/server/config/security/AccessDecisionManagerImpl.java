@@ -22,9 +22,9 @@ public class AccessDecisionManagerImpl implements AccessDecisionManager {
 
     /**
      * 权限校验
-     * @param authentication                        待校验的用户
-     * @param o                                     请求对象
-     * @param collection                            资源需要的权限集合{@link FilterInvocationSecurityMetadataSourceImpl#getAttributes(Object)} 返回值
+     * @param authentication    待校验的用户
+     * @param o                 请求对象
+     * @param collection        资源需要的权限集合{@link FilterInvocationSecurityMetadataSourceImpl#getAttributes(Object)} 返回值
      */
     @Override
     public void decide(Authentication authentication, Object o, Collection<ConfigAttribute> collection) {

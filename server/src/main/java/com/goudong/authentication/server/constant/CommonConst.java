@@ -1,13 +1,14 @@
 package com.goudong.authentication.server.constant;
 
-import com.goudong.core.util.ListUtil;
+
+import com.goudong.authentication.common.util.ListUtil;
 
 import java.util.List;
 import java.util.regex.Pattern;
 
 /**
  * 类描述：
- *
+ * 常量类
  * @author cfl
  * @version 1.0
  */

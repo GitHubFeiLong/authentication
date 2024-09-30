@@ -3,9 +3,9 @@ package com.goudong.authentication.server.util;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.zhxu.bs.SearchResult;
+import com.goudong.authentication.server.lang.PageResultConverter;
 import com.goudong.authentication.server.rest.req.search.BasePage;
-import com.goudong.boot.web.core.PageResultConverter;
-import com.goudong.core.lang.PageResult;
+import com.goudong.authentication.server.lang.PageResult;
 
 public class PageResultUtil {
 

@@ -1,7 +1,7 @@
 package com.goudong.authentication.common.core;
 
 import com.goudong.authentication.common.constant.CommonConst;
-import com.goudong.core.util.AssertUtil;
+import com.goudong.authentication.common.util.AssertUtil;
 import lombok.Data;
 
 import java.util.regex.Matcher;
@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 /**
  * 类描述：
- *
+ * 认证上下文，给客户端使用
  * @author chenf
  * @version 1.0
  */

@@ -1,8 +1,10 @@
 package com.goudong.authentication.server.service.manager.impl;
 
-import cn.hutool.core.bean.BeanUtil;
+import com.goudong.authentication.common.util.CollectionUtil;
+import com.goudong.authentication.common.util.tree.v2.Tree;
 import com.goudong.authentication.server.domain.BaseMenu;
 import com.goudong.authentication.server.domain.BaseRole;
+import com.goudong.authentication.server.lang.RedisTool;
 import com.goudong.authentication.server.rest.req.BaseMenuChangeSortNumReq;
 import com.goudong.authentication.server.rest.req.BaseMenuCreateReq;
 import com.goudong.authentication.server.rest.req.BaseMenuGetAllReq;
@@ -14,10 +16,6 @@ import com.goudong.authentication.server.service.dto.BaseMenuDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseMenuManagerService;
 import com.goudong.authentication.server.util.SecurityContextUtil;
-import com.goudong.boot.redis.core.RedisTool;
-import com.goudong.core.util.CollectionUtil;
-import com.goudong.core.util.ListUtil;
-import com.goudong.core.util.tree.v2.Tree;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.goudong.authentication.server.enums.RedisKeyTemplateProviderEnum.*;
+import static com.goudong.authentication.server.enums.RedisKeyTemplateProviderEnum.APP_API_PERMISSION;
 
 /**
  * 类描述：

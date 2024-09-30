@@ -1,12 +1,12 @@
 package com.goudong.authentication.server.service.impl;
 
+import com.goudong.authentication.common.security.cer.CertificateUtil;
 import com.goudong.authentication.server.domain.BaseAppCert;
 import com.goudong.authentication.server.repository.BaseAppCertRepository;
 import com.goudong.authentication.server.rest.req.BaseAppCertCreateReq;
 import com.goudong.authentication.server.service.BaseAppCertService;
 import com.goudong.authentication.server.service.dto.BaseAppCertDTO;
 import com.goudong.authentication.server.service.mapper.BaseAppCertMapper;
-import com.goudong.core.security.cer.CertificateUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

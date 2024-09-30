@@ -19,9 +19,8 @@ import java.util.TimeZone;
 
 /**
  * 类描述：
- *
- * @Author Administrator
- * @Version 1.0
+ * JSON工具类
+ * @author Administrator
  */
 @Slf4j
 public class JsonUtil {

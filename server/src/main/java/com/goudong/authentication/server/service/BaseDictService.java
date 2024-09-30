@@ -1,10 +1,10 @@
 package com.goudong.authentication.server.service;
+
 import com.goudong.authentication.server.domain.BaseDict;
+import com.goudong.authentication.server.exception.DictNotFoundException;
+import com.goudong.authentication.server.lang.PageResult;
 import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.resp.BaseDictPageResp;
-import com.goudong.authentication.server.service.dto.BaseDictDTO;
-import com.goudong.authentication.server.exception.DictNotFoundException;
-import com.goudong.core.lang.PageResult;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.goudong.authentication.server.enums;
 
-import com.goudong.boot.web.bean.DatabaseKeyInterface;
-import com.goudong.core.util.StringUtil;
+import com.goudong.authentication.common.util.StringUtil;
+import com.goudong.authentication.server.bean.DatabaseKeyInterface;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

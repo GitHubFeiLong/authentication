@@ -1,9 +1,10 @@
 package com.goudong.authentication.server.config.security;
 
 import com.goudong.authentication.server.constant.DateConst;
-import com.goudong.boot.web.core.ClientException;
-import com.goudong.boot.web.enumerate.ClientExceptionEnum;
-import com.goudong.core.lang.Result;
+import com.goudong.authentication.server.exception.BasicException;
+import com.goudong.authentication.server.exception.ClientException;
+import com.goudong.authentication.server.exception.ClientExceptionEnum;
+import com.goudong.authentication.server.lang.Result;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.core.AuthenticationException;
@@ -25,7 +26,7 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException {
         ClientExceptionEnum notAuthentication = ClientExceptionEnum.UNAUTHORIZED;
-        Result result = Result.ofFail(new ClientException(notAuthentication));
+        Result<Object> result = Result.ofFail(new ClientException(notAuthentication));
 
         httpServletResponse.setStatus(notAuthentication.getStatus());
         httpServletResponse.setCharacterEncoding("UTF-8");

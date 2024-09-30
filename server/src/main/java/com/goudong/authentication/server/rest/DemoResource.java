@@ -1,8 +1,8 @@
 package com.goudong.authentication.server.rest;
 
+import com.goudong.authentication.server.lang.Result;
 import com.goudong.authentication.server.rest.req.BaseAppCreate;
 import com.goudong.authentication.server.service.dto.PermissionDTO;
-import com.goudong.core.lang.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

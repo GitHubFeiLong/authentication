@@ -1,11 +1,11 @@
 package com.goudong.authentication.server.service.manager.impl;
 
+import com.goudong.authentication.common.util.StringUtil;
 import com.goudong.authentication.server.constant.HttpHeaderConst;
 import com.goudong.authentication.server.domain.BaseUser;
 import com.goudong.authentication.server.repository.BaseUserRepository;
 import com.goudong.authentication.server.service.dto.MyUserDetails;
 import com.goudong.authentication.server.service.manager.MyUserDetailsManagerService;
-import com.goudong.core.util.StringUtil;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 

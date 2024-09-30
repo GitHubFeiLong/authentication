@@ -1,7 +1,6 @@
 package com.goudong.authentication.server.rest.resp;
 
-import com.goudong.authentication.server.service.dto.BaseMenuDTO;
-import com.goudong.core.util.tree.v2.TreeInterface;
+import com.goudong.authentication.common.util.tree.v2.TreeInterface;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 

@@ -1,6 +1,6 @@
 package com.goudong.authentication.server.config.security;
 
-import com.goudong.boot.redis.core.RedisTool;
+import com.goudong.authentication.server.lang.RedisTool;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;

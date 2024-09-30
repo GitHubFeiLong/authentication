@@ -1,17 +1,15 @@
 package com.goudong.authentication.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.goudong.authentication.server.aop.ApiLogAop;
+import com.goudong.authentication.server.bean.ApiLogBean;
+import com.goudong.authentication.server.bean.DatabaseKey;
+import com.goudong.authentication.server.bean.DatabaseKeyInterface;
+import com.goudong.authentication.server.config.ErrorAttributesService;
+import com.goudong.authentication.server.lang.LogApplicationStartup;
+import com.goudong.authentication.server.properties.ApiLogProperties;
 import com.goudong.authentication.server.config.MyErrorAttributes;
 import com.goudong.authentication.server.enums.DatabaseKeyEnum;
-import com.goudong.boot.redis.EnableCommonsRedisConfig;
-import com.goudong.boot.web.EnableCommonsWebMvcConfig;
-import com.goudong.boot.web.aop.ApiLogAop;
-import com.goudong.boot.web.bean.ApiLogBean;
-import com.goudong.boot.web.bean.DatabaseKey;
-import com.goudong.boot.web.bean.DatabaseKeyInterface;
-import com.goudong.boot.web.core.ErrorAttributesService;
-import com.goudong.boot.web.core.LogApplicationStartup;
-import com.goudong.boot.web.properties.ApiLogProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -23,7 +21,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StopWatch;
-import org.springframework.web.servlet.handler.MappedInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -38,8 +35,6 @@ import java.util.stream.Stream;
 @SpringBootApplication
 @EntityScan("com.goudong.authentication.server.domain")
 @EnableJpaRepositories(basePackages = {"com.goudong.authentication.server.repository"})
-@EnableCommonsWebMvcConfig
-@EnableCommonsRedisConfig
 @ConfigurationPropertiesScan(value = "com.goudong.authentication.server.properties")
 public class AuthenticationServerApplication {
 
@@ -86,14 +81,13 @@ public class AuthenticationServerApplication {
 
     /**
      * 接口日志切面
-     * @param environment       spring运行的环境对象
      * @param objectMapper      对象映射器
      * @param apiLogProperties  日志配置Bean
      * @return                  日志AOP
      */
     @Bean
-    public ApiLogAop apiLogAop(Environment environment, ObjectMapper objectMapper, ApiLogProperties apiLogProperties) {
-        return new ApiLogAop(environment, objectMapper, apiLogProperties);
+    public ApiLogAop apiLogAop(ObjectMapper objectMapper, ApiLogProperties apiLogProperties) {
+        return new ApiLogAop(objectMapper, apiLogProperties);
     }
 
     /**

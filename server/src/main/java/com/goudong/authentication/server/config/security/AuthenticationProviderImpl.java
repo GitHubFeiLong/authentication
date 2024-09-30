@@ -1,14 +1,14 @@
 package com.goudong.authentication.server.config.security;
 
+import com.goudong.authentication.common.util.AssertUtil;
 import com.goudong.authentication.server.constant.CommonConst;
 import com.goudong.authentication.server.domain.BaseApp;
 import com.goudong.authentication.server.domain.BaseUser;
+import com.goudong.authentication.server.exception.ClientException;
+import com.goudong.authentication.server.exception.ClientExceptionEnum;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseAppManagerService;
 import com.goudong.authentication.server.service.manager.BaseUserManagerService;
-import com.goudong.boot.web.core.ClientException;
-import com.goudong.boot.web.enumerate.ClientExceptionEnum;
-import com.goudong.core.util.AssertUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.*;
@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**

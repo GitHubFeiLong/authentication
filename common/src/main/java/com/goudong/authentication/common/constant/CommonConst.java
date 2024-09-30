@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
  * 类描述：
  * 全局通用常量
  * @author chenf
- * @version 1.0
  */
 public class CommonConst {
     //~fields

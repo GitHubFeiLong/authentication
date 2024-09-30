@@ -1,6 +1,6 @@
 package com.goudong.authentication.server.enums.option;
 
-import com.goudong.core.lang.IEnum;
+import com.goudong.authentication.common.lang.IEnum;
 import lombok.Getter;
 
 /**

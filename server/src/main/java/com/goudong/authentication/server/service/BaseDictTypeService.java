@@ -1,10 +1,9 @@
 package com.goudong.authentication.server.service;
 
 import com.goudong.authentication.server.domain.BaseDictType;
+import com.goudong.authentication.server.lang.PageResult;
 import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.resp.BaseDictTypePageResp;
-import com.goudong.authentication.server.service.dto.BaseDictTypeDTO;
-import com.goudong.core.lang.PageResult;
 
 import java.util.List;
 

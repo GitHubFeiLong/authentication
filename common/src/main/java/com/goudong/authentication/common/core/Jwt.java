@@ -1,7 +1,6 @@
 package com.goudong.authentication.common.core;
 
 import com.goudong.authentication.common.util.JsonUtil;
-import com.goudong.boot.web.core.ClientException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -67,8 +66,8 @@ public class Jwt {
 
     /**
      * 创建token
-     * @param userSimple
-     * @return
+     * @param userSimple    用户简单对象
+     * @return  token对象
      */
     public Token generateToken(UserSimple userSimple) {
         // 获取失效时间
@@ -127,7 +126,7 @@ public class Jwt {
             return JsonUtil.toObject(body.getSubject(), UserSimple.class);
         } catch (ExpiredJwtException e) {
             log.error("解析token失败：{}", e.getMessage());
-            throw ClientException.clientByUnauthorized();
+            throw new RuntimeException("解析token失败");
         }
     }
 }

@@ -1,16 +1,15 @@
 package com.goudong.authentication.server.config.security;
 
+import com.goudong.authentication.common.util.CollectionUtil;
 import com.goudong.authentication.server.constant.CommonConst;
 import com.goudong.authentication.server.service.dto.ApiPermissionDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseMenuManagerService;
 import com.goudong.authentication.server.util.SecurityContextUtil;
-import com.goudong.core.util.CollectionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.stereotype.Component;

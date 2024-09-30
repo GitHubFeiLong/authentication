@@ -1,6 +1,7 @@
 package com.goudong.authentication.server.service;
 
 import com.goudong.authentication.server.domain.BaseRole;
+import com.goudong.authentication.server.lang.PageResult;
 import com.goudong.authentication.server.rest.req.BaseRoleCreateReq;
 import com.goudong.authentication.server.rest.req.BaseRolePageReq;
 import com.goudong.authentication.server.rest.req.BaseRoleUpdateReq;
@@ -9,7 +10,6 @@ import com.goudong.authentication.server.rest.resp.BaseRoleDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseRolePageResp;
 import com.goudong.authentication.server.service.dto.BaseMenuDTO;
 import com.goudong.authentication.server.service.dto.BaseRoleDTO;
-import com.goudong.core.lang.PageResult;
 
 import java.util.List;
 

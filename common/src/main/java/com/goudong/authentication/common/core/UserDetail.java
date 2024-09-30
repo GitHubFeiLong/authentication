@@ -7,7 +7,7 @@ import java.util.Objects;
 
 /**
  * 类描述：
- *
+ * 用户详细信息
  * @author Administrator
  */
 @Data

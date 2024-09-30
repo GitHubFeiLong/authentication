@@ -1,5 +1,6 @@
 package com.goudong.authentication.server.rest;
 
+import com.goudong.authentication.server.lang.Result;
 import com.goudong.authentication.server.rest.req.BaseRoleChangePermissionReq;
 import com.goudong.authentication.server.rest.req.BaseRoleCreateReq;
 import com.goudong.authentication.server.rest.req.BaseRolePageReq;
@@ -8,8 +9,7 @@ import com.goudong.authentication.server.rest.resp.BaseRolePageResp;
 import com.goudong.authentication.server.rest.resp.BaseRolePermissionListResp;
 import com.goudong.authentication.server.service.dto.BaseRoleDTO;
 import com.goudong.authentication.server.service.manager.BaseRoleManagerService;
-import com.goudong.core.lang.PageResult;
-import com.goudong.core.lang.Result;
+import com.goudong.authentication.server.lang.PageResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;

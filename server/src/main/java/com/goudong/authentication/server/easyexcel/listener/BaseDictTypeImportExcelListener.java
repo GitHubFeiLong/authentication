@@ -1,23 +1,17 @@
 package com.goudong.authentication.server.easyexcel.listener;
 
-import cn.hutool.json.JSONObject;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.goudong.authentication.common.util.AssertUtil;
 import com.goudong.authentication.common.util.JsonUtil;
+import com.goudong.authentication.common.util.StringUtil;
 import com.goudong.authentication.server.domain.BaseDictType;
-import com.goudong.authentication.server.easyexcel.template.BaseAppImportExcelTemplate;
 import com.goudong.authentication.server.easyexcel.template.BaseDictTypeImportExcelTemplate;
 import com.goudong.authentication.server.enums.option.ActivateEnum;
-import com.goudong.authentication.server.rest.req.BaseAppCreate;
+import com.goudong.authentication.server.exception.ClientException;
 import com.goudong.authentication.server.service.BaseDictTypeService;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
-import com.goudong.authentication.server.service.manager.BaseAppManagerService;
-import com.goudong.authentication.server.service.manager.BaseDictManagerService;
-import com.goudong.boot.web.core.BasicException;
-import com.goudong.boot.web.core.ClientException;
-import com.goudong.core.util.AssertUtil;
-import com.goudong.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -26,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 /**
  * 类描述：

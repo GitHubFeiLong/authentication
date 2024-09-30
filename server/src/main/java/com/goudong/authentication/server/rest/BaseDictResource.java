@@ -1,16 +1,15 @@
 package com.goudong.authentication.server.rest;
 
-import com.goudong.authentication.server.domain.BaseDictType;
+import com.goudong.authentication.server.lang.PageResult;
+import com.goudong.authentication.server.lang.Result;
 import com.goudong.authentication.server.rest.req.*;
-import com.goudong.authentication.server.rest.resp.*;
+import com.goudong.authentication.server.rest.resp.BaseDictPageResp;
+import com.goudong.authentication.server.rest.resp.BaseDictSettingPageResp;
+import com.goudong.authentication.server.rest.resp.BaseDictTypePageResp;
 import com.goudong.authentication.server.service.dto.BaseDictDTO;
 import com.goudong.authentication.server.service.dto.BaseDictSettingDTO;
 import com.goudong.authentication.server.service.dto.BaseDictTypeDTO;
-import com.goudong.authentication.server.service.dto.BaseRoleDTO;
 import com.goudong.authentication.server.service.manager.BaseDictManagerService;
-import com.goudong.authentication.server.service.manager.BaseRoleManagerService;
-import com.goudong.core.lang.PageResult;
-import com.goudong.core.lang.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;

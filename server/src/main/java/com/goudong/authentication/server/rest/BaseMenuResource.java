@@ -1,6 +1,7 @@
 package com.goudong.authentication.server.rest;
 
-import com.goudong.authentication.server.domain.BaseMenu;
+import com.goudong.authentication.common.util.ListUtil;
+import com.goudong.authentication.server.lang.Result;
 import com.goudong.authentication.server.rest.req.BaseMenuChangeSortNumReq;
 import com.goudong.authentication.server.rest.req.BaseMenuCreateReq;
 import com.goudong.authentication.server.rest.req.BaseMenuGetAllReq;
@@ -8,8 +9,6 @@ import com.goudong.authentication.server.rest.req.BaseMenuUpdateReq;
 import com.goudong.authentication.server.rest.resp.BaseMenuGetAllResp;
 import com.goudong.authentication.server.service.dto.BaseMenuDTO;
 import com.goudong.authentication.server.service.manager.BaseMenuManagerService;
-import com.goudong.core.lang.Result;
-import com.goudong.core.util.ListUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;

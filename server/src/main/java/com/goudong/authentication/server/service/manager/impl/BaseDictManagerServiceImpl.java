@@ -1,16 +1,14 @@
 package com.goudong.authentication.server.service.manager.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.zhxu.bs.SearchResult;
 import com.goudong.authentication.server.domain.BaseDict;
 import com.goudong.authentication.server.domain.BaseDictSetting;
 import com.goudong.authentication.server.domain.BaseDictType;
+import com.goudong.authentication.server.lang.PageResult;
 import com.goudong.authentication.server.rest.req.*;
-import com.goudong.authentication.server.rest.req.search.BaseRoleDropDownReq;
 import com.goudong.authentication.server.rest.resp.BaseDictPageResp;
 import com.goudong.authentication.server.rest.resp.BaseDictSettingPageResp;
 import com.goudong.authentication.server.rest.resp.BaseDictTypePageResp;
-import com.goudong.authentication.server.rest.resp.BaseRoleDropDownResp;
 import com.goudong.authentication.server.service.BaseDictService;
 import com.goudong.authentication.server.service.BaseDictSettingService;
 import com.goudong.authentication.server.service.BaseDictTypeService;
@@ -22,22 +20,14 @@ import com.goudong.authentication.server.service.manager.BaseDictManagerService;
 import com.goudong.authentication.server.service.mapper.BaseDictMapper;
 import com.goudong.authentication.server.service.mapper.BaseDictSettingMapper;
 import com.goudong.authentication.server.service.mapper.BaseDictTypeMapper;
-import com.goudong.authentication.server.util.BeanSearcherUtil;
 import com.goudong.authentication.server.util.HttpRequestUtil;
-import com.goudong.authentication.server.util.PageResultUtil;
 import com.goudong.authentication.server.util.SecurityContextUtil;
-import com.goudong.boot.web.core.BasicException;
-import com.goudong.boot.web.core.ClientException;
-import com.goudong.core.lang.PageResult;
-import com.goudong.core.util.AssertUtil;
-import com.goudong.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 类描述：

@@ -1,8 +1,7 @@
 package com.goudong.authentication.server.util;
 
+import com.goudong.authentication.server.exception.ClientException;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
-import com.goudong.boot.web.core.BasicException;
-import com.goudong.boot.web.core.ClientException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 

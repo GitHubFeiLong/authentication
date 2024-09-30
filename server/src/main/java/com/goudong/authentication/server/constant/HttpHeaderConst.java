@@ -6,8 +6,6 @@ package com.goudong.authentication.server.constant;
  * 自定义的头命名使用`X-`前缀，与规范的区分。
  * @see org.springframework.http.HttpHeaders
  * @author msi
- * @version 1.0
- * @date 2022/1/20 20:12
  */
 public class HttpHeaderConst {
 

@@ -1,8 +1,8 @@
 package com.goudong.authentication.server.pojo;
 
-import com.goudong.boot.web.core.ClientException;
-import com.goudong.core.security.cer.CertificateUtil;
-import com.goudong.core.util.AssertUtil;
+import com.goudong.authentication.common.security.cer.CertificateUtil;
+import com.goudong.authentication.common.util.AssertUtil;
+import com.goudong.authentication.server.exception.ClientException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;

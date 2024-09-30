@@ -1,9 +1,8 @@
 package com.goudong.authentication.server.config;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.goudong.boot.web.core.BasicException;
-import com.goudong.boot.web.core.ErrorAttributesServiceImpl;
-import com.goudong.core.lang.Result;
+import com.goudong.authentication.server.exception.BasicException;
+import com.goudong.authentication.server.lang.Result;
 import io.jsonwebtoken.SignatureException;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.http.HttpStatus;

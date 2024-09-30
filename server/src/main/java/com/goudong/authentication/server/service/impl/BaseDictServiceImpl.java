@@ -1,8 +1,13 @@
 package com.goudong.authentication.server.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.goudong.authentication.common.util.AssertUtil;
+import com.goudong.authentication.common.util.CollectionUtil;
+import com.goudong.authentication.common.util.StringUtil;
 import com.goudong.authentication.server.domain.BaseDict;
+import com.goudong.authentication.server.exception.ClientException;
 import com.goudong.authentication.server.exception.DictNotFoundException;
+import com.goudong.authentication.server.lang.PageResult;
 import com.goudong.authentication.server.repository.BaseDictRepository;
 import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.resp.BaseDictPageResp;
@@ -10,11 +15,6 @@ import com.goudong.authentication.server.service.BaseDictService;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.mapper.BaseDictMapper;
 import com.goudong.authentication.server.util.SecurityContextUtil;
-import com.goudong.boot.web.core.ClientException;
-import com.goudong.core.lang.PageResult;
-import com.goudong.core.util.AssertUtil;
-import com.goudong.core.util.CollectionUtil;
-import com.goudong.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

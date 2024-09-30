@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 /**
  * 类描述：
- * 
+ * 字符串函数式接口
  * @author chenf
  */
 @FunctionalInterface

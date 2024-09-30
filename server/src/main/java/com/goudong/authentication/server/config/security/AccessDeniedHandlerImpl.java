@@ -1,9 +1,9 @@
 package com.goudong.authentication.server.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.goudong.boot.web.bean.ApiLogBean;
-import com.goudong.boot.web.enumerate.ClientExceptionEnum;
-import com.goudong.core.lang.Result;
+import com.goudong.authentication.server.bean.ApiLogBean;
+import com.goudong.authentication.server.exception.ClientExceptionEnum;
+import com.goudong.authentication.server.lang.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -41,7 +41,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) throws IOException {
         ClientExceptionEnum notAuthorization = ClientExceptionEnum.FORBIDDEN;
-        Result result = Result.ofFail(notAuthorization);
+        Result<?> result = Result.ofFail(notAuthorization);
 
         httpServletResponse.setStatus(notAuthorization.getStatus());
         httpServletResponse.setCharacterEncoding("UTF-8");

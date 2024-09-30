@@ -1,12 +1,12 @@
 package com.goudong.authentication.server.service;
 
 import com.goudong.authentication.server.domain.BaseDictSetting;
+import com.goudong.authentication.server.lang.PageResult;
 import com.goudong.authentication.server.rest.req.BaseDictSettingChangeEnabledReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingPageReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingUpdateReq;
 import com.goudong.authentication.server.rest.resp.BaseDictSettingPageResp;
 import com.goudong.authentication.server.service.dto.BaseDictSettingDTO;
-import com.goudong.core.lang.PageResult;
 
 import java.util.List;
 

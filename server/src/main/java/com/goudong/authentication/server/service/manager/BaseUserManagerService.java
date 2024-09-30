@@ -4,13 +4,13 @@ import com.goudong.authentication.common.core.LoginResp;
 import com.goudong.authentication.common.core.Token;
 import com.goudong.authentication.common.core.UserDetail;
 import com.goudong.authentication.server.domain.BaseUser;
+import com.goudong.authentication.server.lang.PageResult;
 import com.goudong.authentication.server.rest.req.*;
 import com.goudong.authentication.server.rest.req.search.BaseUserDropDownReq;
 import com.goudong.authentication.server.rest.resp.BaseUserDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseUserPageResp;
 import com.goudong.authentication.server.service.dto.BaseUserDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
-import com.goudong.core.lang.PageResult;
 
 import java.util.List;
 

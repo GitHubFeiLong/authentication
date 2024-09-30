@@ -9,7 +9,7 @@ import com.goudong.authentication.server.rest.resp.BaseRoleDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseRolePageResp;
 import com.goudong.authentication.server.rest.resp.BaseRolePermissionListResp;
 import com.goudong.authentication.server.service.dto.BaseRoleDTO;
-import com.goudong.core.lang.PageResult;
+import com.goudong.authentication.server.lang.PageResult;
 
 import java.util.List;
 

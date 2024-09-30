@@ -1,12 +1,12 @@
 package com.goudong.authentication.server.service;
 
 import com.goudong.authentication.server.domain.BaseApp;
+import com.goudong.authentication.server.lang.PageResult;
 import com.goudong.authentication.server.rest.req.BaseAppUpdate;
 import com.goudong.authentication.server.rest.req.search.BaseAppDropDownReq;
 import com.goudong.authentication.server.rest.req.search.BaseAppPageReq;
 import com.goudong.authentication.server.rest.resp.BaseAppPageResp;
 import com.goudong.authentication.server.service.dto.BaseAppDTO;
-import com.goudong.core.lang.PageResult;
 
 import java.util.List;
 

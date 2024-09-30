@@ -1,10 +1,9 @@
 package com.goudong.authentication.server.handler;
 
 
-import com.goudong.boot.web.core.BasicException;
-import com.goudong.boot.web.core.ClientException;
-import com.goudong.boot.web.handler.HandlerInterface;
-import com.goudong.core.lang.Result;
+import com.goudong.authentication.server.exception.BasicException;
+import com.goudong.authentication.server.exception.ClientException;
+import com.goudong.authentication.server.lang.Result;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +32,7 @@ public class JwtExceptionHandler implements HandlerInterface{
      * @return
      */
     @ExceptionHandler(SignatureException.class)
-    public Result<BasicException> signatureExceptionDispose(SignatureException exception) {
+    public Result<Object> signatureExceptionDispose(SignatureException exception) {
         BasicException basicException = ClientException.builder()
                 .clientMessage("解析签名失败")
                 .status(HttpStatus.UNAUTHORIZED.value())
@@ -45,7 +44,7 @@ public class JwtExceptionHandler implements HandlerInterface{
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    public Result<BasicException> expiredJwtExceptionDispose(ExpiredJwtException exception) {
+    public Result<Object> expiredJwtExceptionDispose(ExpiredJwtException exception) {
         BasicException basicException = ClientException.builder()
                 .clientMessage("令牌已失效,请重新登录")
                 .status(HttpStatus.UNAUTHORIZED.value())

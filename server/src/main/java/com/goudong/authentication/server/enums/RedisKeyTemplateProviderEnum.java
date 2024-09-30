@@ -1,11 +1,11 @@
 package com.goudong.authentication.server.enums;
 
+import com.goudong.authentication.server.lang.RedisKeyProvider;
 import com.goudong.authentication.server.rest.req.search.BaseAppDropDownReq;
 import com.goudong.authentication.server.rest.req.search.BaseUserDropDownReq;
 import com.goudong.authentication.server.rest.resp.BaseUserDropDownResp;
 import com.goudong.authentication.server.service.dto.ApiPermissionDTO;
 import com.goudong.authentication.server.service.dto.PermissionDTO;
-import com.goudong.boot.redis.core.RedisKeyProvider;
 import org.springframework.data.redis.connection.DataType;
 
 import java.util.Optional;

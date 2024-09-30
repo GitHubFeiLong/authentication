@@ -1,7 +1,12 @@
 package com.goudong.authentication.server.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.goudong.authentication.common.util.AssertUtil;
+import com.goudong.authentication.common.util.CollectionUtil;
+import com.goudong.authentication.common.util.StringUtil;
 import com.goudong.authentication.server.domain.BaseDictSetting;
+import com.goudong.authentication.server.exception.ClientException;
+import com.goudong.authentication.server.lang.PageResult;
 import com.goudong.authentication.server.repository.BaseDictSettingRepository;
 import com.goudong.authentication.server.rest.req.BaseDictSettingChangeEnabledReq;
 import com.goudong.authentication.server.rest.req.BaseDictSettingPageReq;
@@ -12,11 +17,6 @@ import com.goudong.authentication.server.service.dto.BaseDictSettingDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.mapper.BaseDictSettingMapper;
 import com.goudong.authentication.server.util.SecurityContextUtil;
-import com.goudong.boot.web.core.ClientException;
-import com.goudong.core.lang.PageResult;
-import com.goudong.core.util.AssertUtil;
-import com.goudong.core.util.CollectionUtil;
-import com.goudong.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

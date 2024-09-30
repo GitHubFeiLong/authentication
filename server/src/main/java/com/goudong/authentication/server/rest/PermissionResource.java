@@ -1,5 +1,6 @@
 package com.goudong.authentication.server.rest;
 
+import com.goudong.authentication.server.lang.Result;
 import com.goudong.authentication.server.rest.req.PermissionGetUserReq;
 import com.goudong.authentication.server.rest.resp.PermissionGetMenusResp;
 import com.goudong.authentication.server.rest.resp.PermissionGetRolesMenusResp;
@@ -7,7 +8,6 @@ import com.goudong.authentication.server.rest.resp.PermissionGetUserResp;
 import com.goudong.authentication.server.rest.resp.PermissionListPermissionByUsername2SimpleResp;
 import com.goudong.authentication.server.rest.req.PermissionListPermissionByUsernameReq;
 import com.goudong.authentication.server.service.manager.PermissionManagerService;
-import com.goudong.core.lang.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

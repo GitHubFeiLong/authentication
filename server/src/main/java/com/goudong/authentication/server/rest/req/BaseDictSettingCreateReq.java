@@ -1,9 +1,8 @@
 package com.goudong.authentication.server.rest.req;
 
-import com.goudong.core.util.StringUtil;
+import com.goudong.authentication.common.util.StringUtil;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

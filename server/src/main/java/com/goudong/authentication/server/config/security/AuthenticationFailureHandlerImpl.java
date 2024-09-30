@@ -1,10 +1,10 @@
 package com.goudong.authentication.server.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.goudong.boot.web.bean.ApiLogBean;
-import com.goudong.boot.web.core.BasicException;
-import com.goudong.boot.web.enumerate.ClientExceptionEnum;
-import com.goudong.core.lang.Result;
+import com.goudong.authentication.server.bean.ApiLogBean;
+import com.goudong.authentication.server.exception.BasicException;
+import com.goudong.authentication.server.exception.ClientExceptionEnum;
+import com.goudong.authentication.server.lang.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -48,7 +48,7 @@ public class AuthenticationFailureHandlerImpl implements AuthenticationFailureHa
     @Override
     public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException {
         ClientExceptionEnum exceptionEnum = ClientExceptionEnum.UNAUTHORIZED;
-        Result<BasicException> result = Result.ofFail(exceptionEnum);
+        Result<Object> result = Result.ofFail(exceptionEnum);
         log.warn("自定义登录失败处理器:{}", e.getMessage());
         // TODO是否需要返回200
         if (e instanceof UsernameNotFoundException) {

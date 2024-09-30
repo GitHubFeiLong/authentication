@@ -2,10 +2,10 @@ package com.goudong.authentication.server.config.security;
 
 import com.goudong.authentication.common.core.LoginResp;
 import com.goudong.authentication.common.util.JsonUtil;
+import com.goudong.authentication.server.bean.ApiLogBean;
+import com.goudong.authentication.server.lang.Result;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.manager.BaseUserManagerService;
-import com.goudong.boot.web.bean.ApiLogBean;
-import com.goudong.core.lang.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;

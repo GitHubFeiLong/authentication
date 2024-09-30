@@ -1,6 +1,8 @@
 package com.goudong.authentication.server.rest;
 
 import com.goudong.authentication.common.constant.CommonConst;
+import com.goudong.authentication.server.lang.PageResult;
+import com.goudong.authentication.server.lang.Result;
 import com.goudong.authentication.server.rest.req.BaseAppCertCreateReq;
 import com.goudong.authentication.server.rest.req.BaseAppCreate;
 import com.goudong.authentication.server.rest.req.BaseAppUpdate;
@@ -9,8 +11,6 @@ import com.goudong.authentication.server.rest.resp.BaseAppPageResp;
 import com.goudong.authentication.server.service.dto.BaseAppCertDTO;
 import com.goudong.authentication.server.service.dto.BaseAppDTO;
 import com.goudong.authentication.server.service.manager.BaseAppManagerService;
-import com.goudong.core.lang.PageResult;
-import com.goudong.core.lang.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.annotation.Secured;

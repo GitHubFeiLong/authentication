@@ -19,28 +19,6 @@
     </properties>
 
     <dependencies>
-        <!--本地jar-->
-        <dependency>
-            <groupId>com.goudong</groupId>
-            <artifactId>goudong-core</artifactId>
-            <scope>system</scope>
-            <version>1.0.0</version>
-            <systemPath>${pom.basedir}/../libs/goudong-core-1.0.0.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.goudong</groupId>
-            <artifactId>goudong-web-spring-boot-starter</artifactId>
-            <scope>system</scope>
-            <version>1.0.0</version>
-            <systemPath>${pom.basedir}/../libs/goudong-web-spring-boot-starter-1.0.0.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.goudong</groupId>
-            <artifactId>goudong-redis-spring-boot-starter</artifactId>
-            <scope>system</scope>
-            <version>1.0.0</version>
-            <systemPath>${pom.basedir}/../libs/goudong-redis-spring-boot-starter-1.0.0.jar</systemPath>
-        </dependency>
         <!--三方jar-->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -54,6 +32,23 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.5.7</version>
         </dependency>
     </dependencies>
 

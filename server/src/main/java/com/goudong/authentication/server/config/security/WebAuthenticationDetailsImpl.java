@@ -1,9 +1,9 @@
 package com.goudong.authentication.server.config.security;
 
+import com.goudong.authentication.common.util.AssertUtil;
+import com.goudong.authentication.common.util.StringUtil;
 import com.goudong.authentication.server.constant.HttpHeaderConst;
-import com.goudong.boot.web.core.BasicException;
-import com.goudong.core.util.AssertUtil;
-import com.goudong.core.util.StringUtil;
+import com.goudong.authentication.server.exception.BasicException;
 import lombok.Getter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
