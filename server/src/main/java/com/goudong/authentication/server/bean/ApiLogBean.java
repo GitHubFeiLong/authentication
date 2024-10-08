@@ -3,7 +3,7 @@ package com.goudong.authentication.server.bean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.goudong.authentication.server.lang.ApiLog;
 import com.goudong.authentication.server.properties.ApiLogProperties;
-import com.goudong.authentication.common.util.IpUtil;
+import com.goudong.authentication.server.util.IpUtil;
 import com.goudong.authentication.common.util.TraceIdUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.request.RequestContextHolder;

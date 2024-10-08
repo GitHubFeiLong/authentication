@@ -1,4 +1,6 @@
-package com.goudong.authentication.common.util;
+package com.goudong.authentication.server.util;
+
+import com.goudong.authentication.common.util.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;
 

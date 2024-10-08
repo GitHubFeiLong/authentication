@@ -1,7 +1,7 @@
 package com.goudong.authentication.server.aop;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.goudong.authentication.common.util.IpUtil;
+import com.goudong.authentication.server.util.IpUtil;
 import com.goudong.authentication.common.util.ListUtil;
 import com.goudong.authentication.common.util.TraceIdUtil;
 import com.goudong.authentication.server.exception.BasicException;
