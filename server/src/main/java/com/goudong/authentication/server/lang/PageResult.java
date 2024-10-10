@@ -1,5 +1,9 @@
 package com.goudong.authentication.server.lang;
 
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -8,9 +12,9 @@ import java.util.Objects;
  * 类描述：
  * 本项目的同一分页结果封装
  * @author cfl
- * @date 2022/8/20 9:03
  * @version 1.0
  */
+@Data
 public class PageResult<T> {
 
     /**
@@ -72,69 +76,5 @@ public class PageResult<T> {
         this.page = page;
         this.size = size;
         this.content = content;
-    }
-
-    public Long getTotal() {
-        return total;
-    }
-
-    public void setTotal(Long total) {
-        this.total = total;
-    }
-
-    public Long getTotalPage() {
-        return totalPage;
-    }
-
-    public void setTotalPage(Long totalPage) {
-        this.totalPage = totalPage;
-    }
-
-    public Long getPage() {
-        return page;
-    }
-
-    public void setPage(Long page) {
-        this.page = page;
-    }
-
-    public Long getSize() {
-        return size;
-    }
-
-    public void setSize(Long size) {
-        this.size = size;
-    }
-
-    public List<T> getContent() {
-        return content;
-    }
-
-    public void setContent(List<T> content) {
-        this.content = content;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PageResult<?> that = (PageResult<?>) o;
-        return Objects.equals(total, that.total) && Objects.equals(totalPage, that.totalPage) && Objects.equals(page, that.page) && Objects.equals(size, that.size) && Objects.equals(content, that.content);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(total, totalPage, page, size, content);
-    }
-
-    @Override
-    public String toString() {
-        return "PageResult{" +
-                "total=" + total +
-                ", totalPage=" + totalPage +
-                ", page=" + page +
-                ", size=" + size +
-                ", content=" + content +
-                '}';
     }
 }

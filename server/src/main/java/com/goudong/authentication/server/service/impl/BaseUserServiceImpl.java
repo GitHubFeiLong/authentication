@@ -1,8 +1,6 @@
 package com.goudong.authentication.server.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.zhxu.bs.BeanSearcher;
-import cn.zhxu.bs.SearchResult;
 import com.goudong.authentication.common.util.AssertUtil;
 import com.goudong.authentication.common.util.CollectionUtil;
 import com.goudong.authentication.common.util.StringUtil;
@@ -13,7 +11,7 @@ import com.goudong.authentication.server.lang.PageResult;
 import com.goudong.authentication.server.properties.AuthenticationServerProperties;
 import com.goudong.authentication.server.repository.BaseUserRepository;
 import com.goudong.authentication.server.rest.req.BaseUserPageReq;
-import com.goudong.authentication.server.rest.req.search.BaseUserDropDownReq;
+import com.goudong.authentication.server.rest.req.BaseUserDropDownReq;
 import com.goudong.authentication.server.rest.resp.BaseRoleDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseUserDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseUserPageResp;
@@ -21,8 +19,7 @@ import com.goudong.authentication.server.service.BaseUserService;
 import com.goudong.authentication.server.service.dto.BaseUserDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.mapper.BaseUserMapper;
-import com.goudong.authentication.server.util.BeanSearcherUtil;
-import com.goudong.authentication.server.util.PageResultUtil;
+import com.goudong.authentication.server.util.PageResultConvert;
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -71,12 +68,6 @@ public class BaseUserServiceImpl implements BaseUserService {
      */
     @Resource
     private PasswordEncoder passwordEncoder;
-
-    /**
-     * 查询器
-     */
-    @Resource
-    private BeanSearcher beanSearcher;
 
     /**
      * 认证服务配置
@@ -149,9 +140,31 @@ public class BaseUserServiceImpl implements BaseUserService {
     @Override
     public PageResult<BaseUserDropDownResp> userDropDown(BaseUserDropDownReq req) {
         MyAuthentication authentication = SecurityContextUtil.get();
-        req.setRealAppId(authentication.getRealAppId());
-        SearchResult<BaseUserDropDownReq> search = beanSearcher.search(BaseUserDropDownReq.class, BeanSearcherUtil.getParaMap(req));
-        return PageResultUtil.convert(search, req, BaseUserDropDownResp.class);
+
+        Specification<BaseUser> specification = (root, query, criteriaBuilder) -> {
+            List<Predicate> andPredicateList = new ArrayList<>();
+            andPredicateList.add(criteriaBuilder.equal(root.get("realAppId"), authentication.getRealAppId()));
+
+            //1.获取比较的属性
+            if (req.getId() != null) {
+                Path<Object> idPath = root.get("id");
+                andPredicateList.add(criteriaBuilder.equal(idPath, req.getId()));
+            }
+            if (StringUtil.isNotBlank(req.getName())) {
+                Path<Object> usernamePath = root.get("username");
+                andPredicateList.add(criteriaBuilder.like(usernamePath.as(String.class), "%" + req.getName() + "%"));
+            }
+
+            return criteriaBuilder.and(andPredicateList.toArray(new Predicate[0]));
+        };
+
+        // 单独创建排序对象
+        Sort createdDateDesc = Sort.by("createdDate").descending();
+
+        // 开启分页，就需要分页查询
+        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), createdDateDesc);
+        Page<BaseUser> userPage = baseUserRepository.findAll(specification, pageable);
+        return PageResultConvert.convert(userPage, BaseUserDropDownResp.class);
     }
 
     /**

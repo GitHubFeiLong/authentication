@@ -1,20 +1,18 @@
-package com.goudong.authentication.server.rest.req.search;
+package com.goudong.authentication.server.rest.req;
 
-import cn.zhxu.bs.bean.SearchBean;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * 类描述：
  * 角色下拉分页
  * @author cfl
  * @version 1.0
- * @date 2023/7/22 19:59
  */
-@SearchBean(
-        tables="base_role", orderBy = "id asc"
-)
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @Data
 public class BaseRoleDropDownReq extends BasePage{
     //~fields
@@ -24,8 +22,4 @@ public class BaseRoleDropDownReq extends BasePage{
 
     @ApiModelProperty("角色名")
     private String name;
-
-    @ApiModelProperty(value = "应用名", hidden = true)
-    @JsonIgnore
-    private Long appId ;
 }

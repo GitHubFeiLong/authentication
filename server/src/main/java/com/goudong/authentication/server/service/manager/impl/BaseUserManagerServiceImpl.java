@@ -18,7 +18,7 @@ import com.goudong.authentication.server.exception.ClientException;
 import com.goudong.authentication.server.lang.PageResult;
 import com.goudong.authentication.server.properties.AuthenticationServerProperties;
 import com.goudong.authentication.server.rest.req.*;
-import com.goudong.authentication.server.rest.req.search.BaseUserDropDownReq;
+import com.goudong.authentication.server.rest.req.BaseUserDropDownReq;
 import com.goudong.authentication.server.rest.resp.BaseUserDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseUserPageResp;
 import com.goudong.authentication.server.service.BaseAppService;

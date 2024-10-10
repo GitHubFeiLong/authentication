@@ -2,7 +2,6 @@ package com.goudong.authentication.server.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Assert;
-import cn.zhxu.bs.BeanSearcher;
 import com.goudong.authentication.common.util.*;
 import com.goudong.authentication.server.constant.HttpHeaderConst;
 import com.goudong.authentication.server.domain.BaseApp;
@@ -15,8 +14,8 @@ import com.goudong.authentication.server.repository.BaseMenuRepository;
 import com.goudong.authentication.server.repository.BaseRoleRepository;
 import com.goudong.authentication.server.repository.BaseUserRepository;
 import com.goudong.authentication.server.rest.req.BaseAppUpdate;
-import com.goudong.authentication.server.rest.req.search.BaseAppDropDownReq;
-import com.goudong.authentication.server.rest.req.search.BaseAppPageReq;
+import com.goudong.authentication.server.rest.req.BaseAppDropDownReq;
+import com.goudong.authentication.server.rest.req.BaseAppPageReq;
 import com.goudong.authentication.server.rest.resp.BaseAppPageResp;
 import com.goudong.authentication.server.service.BaseAppService;
 import com.goudong.authentication.server.service.dto.BaseAppDTO;
@@ -72,12 +71,6 @@ public class BaseAppServiceImpl implements BaseAppService {
      */
     @Resource
     private RedisTool redisTool;
-
-    /**
-     * 实体查询器
-     */
-    @Resource
-    private BeanSearcher beanSearcher;
 
     /**
      * 角色表持久层
@@ -352,8 +345,22 @@ public class BaseAppServiceImpl implements BaseAppService {
             if (Boolean.TRUE.equals(redisTool.hasKey(key))) {
                 return redisTool.getList(APP_DROP_DOWN, BaseAppDropDownReq.class);
             }
+            Specification<BaseApp> specification = (root, query, criteriaBuilder) -> {
+                List<Predicate> andPredicateList = new ArrayList<>();
+                if (req.getId() != null) {
+                    Path<Object> idPath = root.get("id");
+                    andPredicateList.add(criteriaBuilder.equal(idPath, req.getId()));
+                }
+                if (StringUtil.isNotBlank(req.getName())) {
+                    Path<Object> usernamePath = root.get("name");
+                    andPredicateList.add(criteriaBuilder.like(usernamePath.as(String.class), "%" + req.getName() + "%"));
+                }
+                return criteriaBuilder.and(andPredicateList.toArray(new Predicate[0]));
+            };
 
-            List<BaseAppDropDownReq> list = beanSearcher.searchAll(BaseAppDropDownReq.class);
+            List<BaseApp> baseApps = baseAppRepository.findAll(specification);
+
+            List<BaseAppDropDownReq> list = BeanUtil.copyToList(baseApps, BaseAppDropDownReq.class);
 
             redisTool.set(APP_DROP_DOWN, list);
 

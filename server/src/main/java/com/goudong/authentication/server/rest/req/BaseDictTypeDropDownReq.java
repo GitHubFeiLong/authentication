@@ -1,6 +1,5 @@
 package com.goudong.authentication.server.rest.req;
 
-import com.goudong.authentication.server.rest.req.search.BasePage;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 

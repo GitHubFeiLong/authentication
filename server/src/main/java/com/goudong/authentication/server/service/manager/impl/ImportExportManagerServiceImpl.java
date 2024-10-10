@@ -21,7 +21,7 @@ import com.goudong.authentication.server.enums.option.MenuTypeEnum;
 import com.goudong.authentication.server.lang.PageResult;
 import com.goudong.authentication.server.properties.AuthenticationServerProperties;
 import com.goudong.authentication.server.rest.req.*;
-import com.goudong.authentication.server.rest.req.search.BaseAppPageReq;
+import com.goudong.authentication.server.rest.req.BaseAppPageReq;
 import com.goudong.authentication.server.rest.resp.*;
 import com.goudong.authentication.server.service.*;
 import com.goudong.authentication.server.service.dto.BaseMenuDTO;

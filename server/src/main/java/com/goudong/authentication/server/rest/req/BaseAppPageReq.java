@@ -1,14 +1,9 @@
-package com.goudong.authentication.server.rest.req.search;
+package com.goudong.authentication.server.rest.req;
 
-import cn.zhxu.bs.bean.DbField;
-import cn.zhxu.bs.bean.SearchBean;
-import cn.zhxu.bs.operator.Contain;
-import cn.zhxu.bs.operator.StartWith;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
 import java.util.List;
 
 /**

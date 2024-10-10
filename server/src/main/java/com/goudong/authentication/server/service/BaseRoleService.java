@@ -5,7 +5,7 @@ import com.goudong.authentication.server.lang.PageResult;
 import com.goudong.authentication.server.rest.req.BaseRoleCreateReq;
 import com.goudong.authentication.server.rest.req.BaseRolePageReq;
 import com.goudong.authentication.server.rest.req.BaseRoleUpdateReq;
-import com.goudong.authentication.server.rest.req.search.BaseRoleDropDownReq;
+import com.goudong.authentication.server.rest.req.BaseRoleDropDownReq;
 import com.goudong.authentication.server.rest.resp.BaseRoleDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseRolePageResp;
 import com.goudong.authentication.server.service.dto.BaseMenuDTO;

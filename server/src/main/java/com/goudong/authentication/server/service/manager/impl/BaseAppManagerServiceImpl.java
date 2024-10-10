@@ -19,8 +19,8 @@ import com.goudong.authentication.server.properties.AuthenticationServerProperti
 import com.goudong.authentication.server.rest.req.BaseAppCertCreateReq;
 import com.goudong.authentication.server.rest.req.BaseAppCreate;
 import com.goudong.authentication.server.rest.req.BaseAppUpdate;
-import com.goudong.authentication.server.rest.req.search.BaseAppDropDownReq;
-import com.goudong.authentication.server.rest.req.search.BaseAppPageReq;
+import com.goudong.authentication.server.rest.req.BaseAppDropDownReq;
+import com.goudong.authentication.server.rest.req.BaseAppPageReq;
 import com.goudong.authentication.server.rest.resp.BaseAppPageResp;
 import com.goudong.authentication.server.service.BaseAppCertService;
 import com.goudong.authentication.server.service.BaseAppService;

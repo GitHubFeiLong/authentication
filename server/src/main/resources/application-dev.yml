@@ -86,3 +86,4 @@ authentication:
   server:
     token:
       access-token-expiration: 3600
+      accessTokenExpirationTimeUnit: HOURS

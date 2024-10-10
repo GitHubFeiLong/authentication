@@ -143,11 +143,6 @@
             <artifactId>mapstruct-processor</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!--要移除-->
-        <dependency>
-            <groupId>cn.zhxu</groupId>
-            <artifactId>bean-searcher-boot-starter</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>

@@ -3,8 +3,6 @@ package com.goudong.authentication.server.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.Assert;
-import cn.zhxu.bs.BeanSearcher;
-import cn.zhxu.bs.SearchResult;
 import com.goudong.authentication.common.constant.CommonConst;
 import com.goudong.authentication.common.util.AssertUtil;
 import com.goudong.authentication.common.util.CollectionUtil;
@@ -18,7 +16,7 @@ import com.goudong.authentication.server.repository.BaseRoleRepository;
 import com.goudong.authentication.server.rest.req.BaseRoleCreateReq;
 import com.goudong.authentication.server.rest.req.BaseRolePageReq;
 import com.goudong.authentication.server.rest.req.BaseRoleUpdateReq;
-import com.goudong.authentication.server.rest.req.search.BaseRoleDropDownReq;
+import com.goudong.authentication.server.rest.req.BaseRoleDropDownReq;
 import com.goudong.authentication.server.rest.resp.BaseRoleDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseRolePageResp;
 import com.goudong.authentication.server.rest.resp.BaseUserDropDownResp;
@@ -27,8 +25,7 @@ import com.goudong.authentication.server.service.dto.BaseMenuDTO;
 import com.goudong.authentication.server.service.dto.BaseRoleDTO;
 import com.goudong.authentication.server.service.dto.MyAuthentication;
 import com.goudong.authentication.server.service.mapper.BaseRoleMapper;
-import com.goudong.authentication.server.util.BeanSearcherUtil;
-import com.goudong.authentication.server.util.PageResultUtil;
+import com.goudong.authentication.server.util.PageResultConvert;
 import com.goudong.authentication.server.util.SecurityContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -64,9 +61,6 @@ public class BaseRoleServiceImpl implements BaseRoleService {
     @Resource
     private RedisTool redisTool;
 
-    @Resource
-    private BeanSearcher beanSearcher;
-
     //~methods
     //==================================================================================================================
 
@@ -79,10 +73,32 @@ public class BaseRoleServiceImpl implements BaseRoleService {
     @Override
     public PageResult<BaseRoleDropDownResp> roleDropDown(BaseRoleDropDownReq req) {
         MyAuthentication myAuthentication = SecurityContextUtil.get();
-        req.setAppId(myAuthentication.getRealAppId());
-        SearchResult<BaseRoleDropDownReq> search = beanSearcher.search(BaseRoleDropDownReq.class, BeanSearcherUtil.getParaMap(req));
 
-        return PageResultUtil.convert(search, req, BaseRoleDropDownResp.class);
+        Specification<BaseRole> specification = (root, query, criteriaBuilder) -> {
+            List<Predicate> andPredicateList = new ArrayList<>();
+            andPredicateList.add(criteriaBuilder.equal(root.get("appId"), myAuthentication.getRealAppId()));
+
+            //1.获取比较的属性
+            if (req.getId() != null) {
+                Path<Object> idPath = root.get("id");
+                andPredicateList.add(criteriaBuilder.equal(idPath, req.getId()));
+            }
+            if (StringUtil.isNotBlank(req.getName())) {
+                Path<Object> usernamePath = root.get("name");
+                andPredicateList.add(criteriaBuilder.like(usernamePath.as(String.class), "%" + req.getName() + "%"));
+            }
+
+            return criteriaBuilder.and(andPredicateList.toArray(new Predicate[0]));
+        };
+
+        // 单独创建排序对象
+        Sort createdDateDesc = Sort.by("createdDate").descending();
+
+        // 开启分页，就需要分页查询
+        Pageable pageable = PageRequest.of(req.getPage(), req.getSize(), createdDateDesc);
+        Page<BaseRole> userPage = baseRoleRepository.findAll(specification, pageable);
+
+        return PageResultConvert.convert(userPage, BaseRoleDropDownResp.class);
     }
 
     /**

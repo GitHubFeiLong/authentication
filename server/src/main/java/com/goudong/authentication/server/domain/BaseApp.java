@@ -1,7 +1,6 @@
 package com.goudong.authentication.server.domain;
 
 
-import cn.zhxu.bs.bean.SearchBean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,7 +19,6 @@ import java.util.List;
  * @author chenf
  */
 @EqualsAndHashCode(callSuper = true)
-@SearchBean(tables="base_app ba")
 @Entity
 @Table(name = "base_app")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
