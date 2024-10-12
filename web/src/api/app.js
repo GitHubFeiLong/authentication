@@ -8,7 +8,7 @@ import {API_PREFIX} from "@/constant/commons";
  * @param {Number} data.size      每页大小
  * @param {Number} data.id        应用id
  * @param {string} data.name      应用名称
- * @param {string} data.homePage  首页地址
+ * @param {string} data.homePage  登录回调页面，处理登录逻辑
  * @param {string} data.enabled   状态
  * @param {string} data.remark    备注
  */
@@ -24,7 +24,7 @@ export function pageAppsApi(data) {
  * 新增应用
  * @param {Object} data             新增应用参数
  * @param {string} data.name        应用名称
- * @param {string} data.homePage    应用中转页
+ * @param {string} data.homePage    登录回调页面，处理登录逻辑
  * @param {'true' | 'false'} data.enabled  激活状态：true 激活；false 未激活
  * @param {string} data.remark      备注信息
  */
@@ -40,7 +40,7 @@ export function createAppApi(data) {
  * 修改应用
  * @param {Object} data             修改应用参数
  * @param {Number} data.id          应用id
- * @param {string} data.homePage    应用中转页
+ * @param {string} data.homePage    登录回调页面，处理登录逻辑
  * @param {'0' | '1'} data.enabled  激活状态
  * @param {string} data.remark      备注信息
  */

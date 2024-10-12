@@ -36,11 +36,11 @@ public class BaseAppDTO implements Serializable {
     private String name;
 
     /**
-     * 应用首页
+     * 登录回调页面，处理登录逻辑
      */
     @NotNull
     @Size(max = 255)
-    @ApiModelProperty(value = "应用首页")
+    @ApiModelProperty(value = "登录回调页面，处理登录逻辑")
     private String homePage;
 
     /**

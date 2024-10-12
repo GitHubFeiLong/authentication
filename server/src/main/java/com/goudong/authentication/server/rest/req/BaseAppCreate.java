@@ -25,11 +25,11 @@ public class BaseAppCreate {
     private String name;
 
     /**
-     * 应用首页
+     * 登录回调页面，处理登录逻辑
      */
-    @Size(max = 255, message = "首页地址不能超过255")
+    @Size(max = 255, message = "登录回调页面，处理登录逻辑地址不能超过255")
     @NotBlank
-    @ApiModelProperty(value = "应用首页")
+    @ApiModelProperty(value = "登录回调页面，处理登录逻辑")
     private String homePage;
 
     /**

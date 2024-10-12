@@ -44,7 +44,7 @@ public class BaseApp extends BasePO implements Serializable {
     private String name;
 
     /**
-     * 应用首页
+     * 登录回调页面，处理登录逻辑
      */
     @Size(max = 255)
     @Column(name = "home_page", length = 255, nullable = true)

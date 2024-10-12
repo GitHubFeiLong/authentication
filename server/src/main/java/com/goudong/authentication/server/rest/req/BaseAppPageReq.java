@@ -25,7 +25,7 @@ public class BaseAppPageReq extends BasePage {
     @ApiModelProperty("应用名称")
     private String name;
 
-    @ApiModelProperty("首页地址")
+    @ApiModelProperty("登录回调页面，处理登录逻辑")
     private String homePage;
 
     @ApiModelProperty("激活状态")

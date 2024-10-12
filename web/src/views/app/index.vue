@@ -12,7 +12,7 @@
         <el-input v-model="filter.name" clearable placeholder="请输入"/>
       </div>
       <div class="filter-item">
-        <span class="filter-item-label">首页地址: </span>
+        <span class="filter-item-label">地址: </span>
         <el-input v-model="filter.homePage" clearable placeholder="请输入"/>
       </div>
       <div class="filter-item">
@@ -139,7 +139,7 @@
             sortable
         />
         <el-table-column
-            label="首页地址"
+            label="地址"
             prop="homePage"
             show-overflow-tooltip
         />
@@ -229,8 +229,8 @@
         <el-form-item label="应用名称" prop="name">
           <el-input v-model="dialog.create.form.data.name" placeholder="请输入应用名称" clearable/>
         </el-form-item>
-        <el-form-item label="应用首页" prop="homePage">
-          <el-input v-model="dialog.create.form.data.homePage" placeholder="请输入访问应用首页web地址"  clearable/>
+        <el-form-item label="地址" prop="homePage">
+          <el-input v-model="dialog.create.form.data.homePage" placeholder="请输入应用登录成功回调地址"  clearable/>
         </el-form-item>
         <el-form-item label="应用状态" prop="enabled">
           <el-select
@@ -262,7 +262,7 @@
         <el-form-item label="应用名称" prop="name">
           <el-input v-model="dialog.update.form.data.name" placeholder="请输入应用名称" disabled clearable/>
         </el-form-item>
-        <el-form-item label="应用首页" prop="homePage">
+        <el-form-item label="地址" prop="homePage">
           <el-input v-model="dialog.update.form.data.homePage" placeholder="请输入访问应用首页web地址" clearable/>
         </el-form-item>
         <el-form-item label="应用状态" prop="enabled">

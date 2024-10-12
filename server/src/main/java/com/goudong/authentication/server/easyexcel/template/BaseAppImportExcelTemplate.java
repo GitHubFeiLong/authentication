@@ -16,7 +16,7 @@ public class BaseAppImportExcelTemplate {
     @ExcelProperty("* 应用名称")
     private String name;
 
-    @ExcelProperty("应用首页")
+    @ExcelProperty("应用回调地址")
     private String homePage;
 
     @ExcelProperty("* 应用状态")

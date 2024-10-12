@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -62,6 +63,12 @@ public class BaseUserDTO implements Serializable {
     @NotNull
     @ApiModelProperty(value = "有效截止时间", required = false)
     private Date validTime;
+
+    /**
+     * 最近登录时间
+     */
+    @ApiModelProperty(value = "最近登录时间", required = false)
+    private Date lastLoginTime;
 
     /**
      * 备注

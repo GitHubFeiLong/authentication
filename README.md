@@ -1,8 +1,6 @@
 # authentication
 authentication分为服务端（server）和客户端（client） 后台web管理（web）三个子项目。
 ## 目录结构
-### libs
-存放第三方jar包，server使用的其它jar依赖（从本人的代码库提取出来的依赖）。
 ### web(管理后台)
 + 登录
 + 用户管理
@@ -27,9 +25,30 @@ authentication分为服务端（server）和客户端（client） 后台web管�
 ### client(客户端)
 作用：封装客户端需要用到接口，使用http请求访问server获取资源数据。
 
+## 技术栈
+### 服务端server
+| 应用         | 版本     |
+|------------|--------|
+| JDK        | 1.8    |
+| MySQL      | 8.0.16 |
+| Redis      | 5.0+   |
+| SpringBoot | 2.5.15 |
+
+ORM框架使用SpringDataJpa，权限框架使用SpringSecurity
+
+### 用户端web
+| 应用          | 版本     |
+|-------------|--------|
+| vue         | 2.6.10 |
+| vue-router  | 3.0.2  |
+| vuex        | 3.1.0  |
+| element-ui  | 2.13.2 |
+
+
 ## 流程
 
 ## 待办
 + spring mvc 跳转/error 请求怎么获取正确的uri
 + 将login-success页面相关代码封装，并书写文档，方便第三方应用后台接入
 + 异常管理：根据
++ 权限重构：后端接口权限单独录入到另外一张新表，菜单管理砍掉接口权限，只配置前端页面相关的权限，但是可以绑定接口权限（1个前端权限对应多个后端权限）

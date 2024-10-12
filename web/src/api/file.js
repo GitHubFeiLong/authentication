@@ -245,7 +245,7 @@ export function exportAppTemplateApi() {
  * @param {array} data.pageReq.ids          勾选的id
  * @param {number} data.pageReq.id          应用id
  * @param {string} data.pageReq.name        应用名
- * @param {string} data.pageReq.homePage    应用主页
+ * @param {string} data.pageReq.homePage    登录回调页面，处理登录逻辑
  * @param {true|false} data.pageReq.enabled 是否激活
  * @param {string} data.pageReq.remark      备注
  */

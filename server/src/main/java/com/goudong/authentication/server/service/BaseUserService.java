@@ -8,6 +8,7 @@ import com.goudong.authentication.server.rest.resp.BaseUserDropDownResp;
 import com.goudong.authentication.server.rest.resp.BaseUserPageResp;
 import com.goudong.authentication.server.service.dto.BaseUserDTO;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -120,5 +121,11 @@ public interface BaseUserService {
      */
     BaseUser findOneByAppIdAndRealAppIdAndUsername(Long appId, Long realAppId, String name);
 
-
+    /**
+     * 更新用户最近登录时间
+     * @param lastLoginTime 最近登录时间
+     * @param id    用户ID
+     * @return  修改成功的记录数
+     */
+    int updateLastLoginTime(Date lastLoginTime, Long id);
 }

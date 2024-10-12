@@ -70,11 +70,6 @@ knife4j:
   setting: # 前端Ui的个性化配置属性
     enableDebug: true  # 启用调试，默认为true 无效
 
-bean-searcher:
-  sql:
-    default-mapping:
-      ignore-fields: org_grails_datastore_gorm_GormValidateable__errors
-
 # libs下的jar配置信息
 goudong:
   web:

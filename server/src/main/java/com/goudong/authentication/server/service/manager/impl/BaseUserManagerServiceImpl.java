@@ -3,10 +3,7 @@ package com.goudong.authentication.server.service.manager.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.goudong.authentication.common.core.*;
-import com.goudong.authentication.common.util.AssertUtil;
-import com.goudong.authentication.common.util.CollectionUtil;
-import com.goudong.authentication.common.util.JsonUtil;
-import com.goudong.authentication.common.util.StringUtil;
+import com.goudong.authentication.common.util.*;
 import com.goudong.authentication.server.constant.CommonConst;
 import com.goudong.authentication.server.constant.DateConst;
 import com.goudong.authentication.server.domain.BaseApp;
@@ -139,6 +136,8 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         UserSimple userSimple = new UserSimple(myAuthentication.getId(), myAuthentication.getAppId(), myAuthentication.getRealAppId(), myAuthentication.getUsername(), roles);
         Token token = jwt.generateToken(userSimple);
         loginResp.setToken(token);
+        LogUtil.info(log, "更新用户最近登录时间");
+        int updateCount = baseUserService.updateLastLoginTime(new Date(), myAuthentication.getId());
 
         log.info("认证成功，响应用户登录信息:{}", JsonUtil.toJsonString(loginResp));
         return loginResp;

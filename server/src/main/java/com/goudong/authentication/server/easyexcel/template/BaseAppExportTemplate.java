@@ -33,11 +33,11 @@ public class BaseAppExportTemplate {
 
     @ApiModelProperty("应用名称")
     @ExcelProperty("应用名称")
-    @ColumnWidth(10)
+    @ColumnWidth(15)
     private String name;
 
-    @ApiModelProperty("应用主页")
-    @ExcelProperty("应用主页")
+    @ApiModelProperty("登录回调页面，处理登录逻辑")
+    @ExcelProperty("应用回调地址")
     @ColumnWidth(20)
     private String homePage;
 

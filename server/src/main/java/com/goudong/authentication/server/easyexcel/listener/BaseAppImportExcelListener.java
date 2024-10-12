@@ -78,10 +78,9 @@ public class BaseAppImportExcelListener implements ReadListener<BaseAppImportExc
         baseAppCreate.setRemark(data.getRemark());
         if (Boolean.TRUE.equals(baseAppCreate.getEnabled())) {
             String homePage = data.getHomePage();
-            boolean matches = httpUrlPattern.matcher(homePage).matches();
-            AssertUtil.isTrue(StringUtil.isNotBlank(homePage) && matches, () ->
+            AssertUtil.isTrue(StringUtil.isNotBlank(homePage) && httpUrlPattern.matcher(homePage).matches(), () ->
                     BasicException.builder()
-                            .clientMessageTemplate("应用\"{}\"首页格式错误")
+                            .clientMessageTemplate("应用\"{}\"应用回调地址格式错误")
                             .clientMessageParams(data.getName())
                             .serverMessage("已激活的应用，首页地址必填")
                             .build()

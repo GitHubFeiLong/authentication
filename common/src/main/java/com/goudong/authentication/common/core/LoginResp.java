@@ -54,12 +54,12 @@ public class LoginResp {
     private List<String> roles;
 
     /**
-     * 应用的首页地址
+     * 登录回调页面，处理登录逻辑
      */
     private String homePage;
 
     /**
-     * 应用的首页地址
+     * 登录回调页面，处理登录逻辑
      */
     private String realHomePage;
 

@@ -81,6 +81,12 @@ public class BaseUser extends BasePO implements Serializable {
     private Date validTime;
 
     /**
+     * 最近登录时间
+     */
+    @Column(name = "last_login_time", nullable = false)
+    private Date lastLoginTime;
+
+    /**
      * 备注
      */
     @Column(name = "remark")

@@ -27,7 +27,7 @@ public class BaseAppPageResp {
     @ApiModelProperty("密钥")
     private String secret;
 
-    @ApiModelProperty("首页地址")
+    @ApiModelProperty("登录回调页面，处理登录逻辑")
     private String homePage;
 
     @ApiModelProperty("激活状态")

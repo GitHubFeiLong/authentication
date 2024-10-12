@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
+
 
 /**
  * Spring Data  repository for the BaseUser entity.
@@ -43,4 +45,14 @@ public interface BaseUserRepository extends JpaRepository<BaseUser, Long>, JpaSp
      * @return  用户
      */
     BaseUser findByAppIdAndRealAppIdAndUsername(Long appId, Long realAppId, String username);
+
+    /**
+     * 更新最近登录时间，必须登录过才更新
+     * @param lastLoginTime 最近登录时间
+     * @param id    用户ID
+     * @return  修改记录数
+     */
+    @Modifying
+    @Query(nativeQuery = true, value = "update base_user set last_login_time=?1 where id = ?2")
+    int updateLastLoginTime(Date lastLoginTime, Long id);
 }

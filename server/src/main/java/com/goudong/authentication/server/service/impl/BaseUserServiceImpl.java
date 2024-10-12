@@ -36,6 +36,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
@@ -386,6 +387,18 @@ public class BaseUserServiceImpl implements BaseUserService {
             List<String> roleNames = baseUser.getRoles().stream().map(BaseRole::getName).collect(Collectors.toList());
         }
         return baseUser;
+    }
+
+    /**
+     * 更新用户最近登录时间
+     *
+     * @param lastLoginTime 最近登录时间
+     * @param id            用户ID
+     * @return 修改成功的记录数
+     */
+    @Override
+    public int updateLastLoginTime(Date lastLoginTime, Long id) {
+        return baseUserRepository.updateLastLoginTime(lastLoginTime, id);
     }
 
 }
