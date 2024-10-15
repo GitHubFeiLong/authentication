@@ -299,6 +299,7 @@ public class BaseUserManagerServiceImpl implements BaseUserManagerService {
         user.setRemark(req.getRemark());
         // 设置角色
         user.setRoles(baseRoleService.listByIds(req.getRoleIds()));
+        user.setLastLoginTime(DateConst.MIN_DATE_TIME);
 
         return baseUserService.save(user);
     }

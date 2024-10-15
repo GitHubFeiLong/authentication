@@ -184,6 +184,7 @@ public class BaseAppManagerServiceImpl implements BaseAppManagerService {
         baseUser.setLocked(false);
         baseUser.setValidTime(DateConst.MAX_DATE_TIME);
         baseUser.setRemark(req.getName() + "应用管理员");
+        baseUser.setLastLoginTime(DateConst.MIN_DATE_TIME);
 
         // 创建角色
         BaseRole baseRole = new BaseRole();

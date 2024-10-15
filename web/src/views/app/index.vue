@@ -142,7 +142,14 @@
             label="地址"
             prop="homePage"
             show-overflow-tooltip
-        />
+        >
+          <template slot="header" slot-scope="scope">
+            <span>地址</span>
+            <el-tooltip class="item" effect="dark" content="Top Center 提示文字" placement="top">
+              <span>上边</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column
             label="状态"
             width="70"

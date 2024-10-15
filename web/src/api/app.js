@@ -92,7 +92,6 @@ export function createCertApi(data) {
   })
 }
 
-
 /**
  * 新增证书
  * @param {Number} appId  应用id

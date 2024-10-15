@@ -187,6 +187,7 @@ public class BaseUserImportExcelListener implements ReadListener<BaseUserImportE
                 user.setLocked(Objects.equals(LockEnum.LOCKED.getLabel(), p.getLocked()));
                 user.setValidTime(DateUtil.parse(p.getValidTime()));
                 user.setRemark(p.getRemark());
+                user.setLastLoginTime(DateConst.MIN_DATE_TIME);
                 users.add(user);
             });
             transactionTemplate.execute(status -> {
