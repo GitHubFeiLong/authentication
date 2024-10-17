@@ -142,14 +142,7 @@
             label="地址"
             prop="homePage"
             show-overflow-tooltip
-        >
-          <template slot="header" slot-scope="scope">
-            <span>地址</span>
-            <el-tooltip class="item" effect="dark" content="Top Center 提示文字" placement="top">
-              <span>上边</span>
-            </el-tooltip>
-          </template>
-        </el-table-column>
+        />
         <el-table-column
             label="状态"
             width="70"
@@ -237,7 +230,13 @@
           <el-input v-model="dialog.create.form.data.name" placeholder="请输入应用名称" clearable/>
         </el-form-item>
         <el-form-item label="地址" prop="homePage">
-          <el-input v-model="dialog.create.form.data.homePage" placeholder="请输入应用登录成功回调地址"  clearable/>
+          <span slot="label">
+            地址
+            <el-tooltip class="item" effect="dark" content="用户登录成功后，会携带登录信息回跳该地址，地址需要保存用户的登录信息。" placement="top-start">
+              <i class="el-icon-info" />
+            </el-tooltip>
+          </span>
+          <el-input v-model="dialog.create.form.data.homePage" placeholder="请输入地址" clearable/>
         </el-form-item>
         <el-form-item label="应用状态" prop="enabled">
           <el-select
@@ -270,7 +269,13 @@
           <el-input v-model="dialog.update.form.data.name" placeholder="请输入应用名称" disabled clearable/>
         </el-form-item>
         <el-form-item label="地址" prop="homePage">
-          <el-input v-model="dialog.update.form.data.homePage" placeholder="请输入访问应用首页web地址" clearable/>
+          <span slot="label">
+            地址
+            <el-tooltip class="item" effect="dark" content="用户登录成功后，会携带登录信息回跳该地址，地址需要保存用户的登录信息。" placement="top-start">
+              <i class="el-icon-info" />
+            </el-tooltip>
+          </span>
+          <el-input v-model="dialog.update.form.data.homePage" placeholder="请输入地址" clearable/>
         </el-form-item>
         <el-form-item label="应用状态" prop="enabled">
           <el-select
