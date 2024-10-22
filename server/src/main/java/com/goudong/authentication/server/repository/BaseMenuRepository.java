@@ -44,4 +44,11 @@ public interface BaseMenuRepository extends JpaRepository<BaseMenu, Long>, JpaSp
     @Modifying
     @Query(nativeQuery = true, value = "update base_menu set sort_num = sort_num + ?5 where app_id=?1 and parent_id=?2 and sort_num >= ?3 and sort_num <= ?4 ")
     void updateSortNum(Long appId, Long parentId, Integer minSortNum, Integer maxSortNum, int incr);
+
+    /**
+     * 查询最大的排序号
+     * @return  菜单最大排序号
+     */
+    @Query(value = "select max(sortNum) from BaseMenu")
+    Integer findMaxSortNum();
 }

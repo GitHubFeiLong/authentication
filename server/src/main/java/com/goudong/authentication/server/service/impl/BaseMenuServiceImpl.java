@@ -178,7 +178,15 @@ public class BaseMenuServiceImpl implements BaseMenuService {
         baseMenu.setAppId(myAuthentication.getRealAppId());
         // 校验参数
         checkBaseMenuBySave(baseMenu);
-        baseMenuRepository.save(baseMenu);
+        synchronized (this) {
+            if (req.getSortNum() == null || req.getSortNum() < 10) {
+                Integer maxSortNum = Optional.ofNullable(baseMenuRepository.findMaxSortNum()).orElseGet(() -> 0);
+                baseMenu.setSortNum(maxSortNum + 1);
+            }
+
+            baseMenuRepository.save(baseMenu);
+        }
+
         return baseMenuMapper.toDto(baseMenu);
     }
 
