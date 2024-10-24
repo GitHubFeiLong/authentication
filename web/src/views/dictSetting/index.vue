@@ -79,14 +79,14 @@
       >
         <el-table-column type="expand">
           <template slot-scope="props">
-            <el-form label-position="left" inline class="demo-table-expand">
-              <el-form-item label="配置模板">
-                <el-input v-model="props.row.template" type="textarea" :rows="4" placeholder="请输入字典基础配置JSON模板"/>
-              </el-form-item>
-              <el-form-item label="配置JSON">
-                <el-input v-model="props.row.setting" type="textarea" :rows="4" placeholder="请输入字典基础配置JSON模板"/>
-              </el-form-item>
-            </el-form>
+            <div class="el-table-expand-header">
+              <div class="json-viewer-container">
+                <h4>配置模板</h4>
+                <json-viewer :value="JSON.parse(props.row.template)" copyable boxed />
+                <h4>配置JSON</h4>
+                <json-viewer :value="JSON.parse(props.row.setting)" copyable boxed />
+              </div>
+            </div>
           </template>
         </el-table-column>
         <el-table-column
@@ -158,18 +158,18 @@
           <template v-slot="scope">
             <div class="el-link-parent">
               <el-link
-                  v-permission="'sys:dict:management:setting:edit'"
-                  icon="el-icon-edit"
-                  :underline="false"
-                  type="primary"
-                  @click="editDictSetting(scope.row)"
+                v-permission="'sys:dict:management:setting:edit'"
+                icon="el-icon-edit"
+                :underline="false"
+                type="primary"
+                @click="editDictSetting(scope.row)"
               >编辑</el-link>
               <el-link
-                  v-permission="'sys:dict:management:setting:delete'"
-                  icon="el-icon-delete"
-                  :underline="false"
-                  type="danger"
-                  @click="deleteDictSetting([scope.row.id])"
+                v-permission="'sys:dict:management:setting:delete'"
+                icon="el-icon-delete"
+                :underline="false"
+                type="danger"
+                @click="deleteDictSetting([scope.row.id])"
               >删除</el-link>
             </div>
           </template>
@@ -177,17 +177,16 @@
       </el-table>
       <!-- 分页控件 -->
       <el-pagination
-          :current-page="dictSetting.table.page"
-          :pager-count="dictSetting.table.pagerCount"
-          :page-size="dictSetting.table.size"
-          :page-sizes="dictSetting.table.pageSizes"
-          :total="dictSetting.table.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
+        :current-page="dictSetting.table.page"
+        :pager-count="dictSetting.table.pagerCount"
+        :page-size="dictSetting.table.size"
+        :page-sizes="dictSetting.table.pageSizes"
+        :total="dictSetting.table.total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
       />
     </div>
-
 
     <!--  新增字典配置  -->
     <el-dialog title="新增字典配置" width="600px" :visible.sync="dictSetting.dialog.create.enabled" @close="dialogCreateCancel" :append-to-body="true">
@@ -208,7 +207,8 @@
         </el-form-item>
         <el-form-item label="配置模板" prop="template">
           <el-button plain class="el-button--small" @click="useParentTemplate(dictSetting.dialog.create.data.dictTypeId)">使用上级配置模板</el-button>
-          <el-input v-model="dictSetting.dialog.create.data.template" type="textarea" :rows="4" placeholder="请输入JSON注释"/>
+<!--          <el-input v-model="dictSetting.dialog.create.data.template" type="textarea" :rows="4" placeholder="请输入JSON注释"/>-->
+          <json-editor v-model="dictSetting.dialog.create.data.templateJson" />
         </el-form-item>
         <el-form-item label="配置明细" prop="setting">
           <el-input v-model="dictSetting.dialog.create.data.setting" type="textarea" :rows="4" placeholder="请输入JSON配置"/>
@@ -286,8 +286,6 @@
         <el-button type="primary" @click="dialogEditSubmit()">确 定</el-button>
       </div>
     </el-dialog>
-
-
     <!--  导入字典配置  -->
     <UploadSingleExcel
         @close="closeUploadSingleExcelHandler"
@@ -318,10 +316,13 @@ import {exportDictSettingApi, exportDictSettingTemplateApi} from "@/api/file";
 import {JsonText} from "@/utils/ElementValidatorUtil";
 import {Message} from "element-ui";
 import DictSelect from "@/components/Dict/DictSelect.vue";
+import JsonViewer from 'vue-json-viewer';
+import 'vue-json-viewer/style.css';
+import JsonEditor from 'vue-json-editor';
 
 export default {
   name: 'DictSettingPage',
-  components: {DictTypeSelect, DictSelect, UploadSingleExcel},
+  components: { DictTypeSelect, DictSelect, UploadSingleExcel, JsonViewer, JsonEditor },
   mounted() {
     let dictTypeId = this.$route.query.dictTypeId;
     let dictId = this.$route.query.dictId;
@@ -329,7 +330,6 @@ export default {
     this.dictSetting.table.filter.dictId = dictId
     this.dictSetting.dialog.create.data.dictTypeId = dictTypeId
     this.dictSetting.dialog.create.data.dictId = dictId
-
 
     // 优先加载表格数据
     this.loadPageDictSetting()
@@ -343,6 +343,15 @@ export default {
       // 抽屉
       // 字典明细
       dictSetting: {
+        jsonData: {
+          name: "张三",
+          age: 30,
+          address: {
+            city: "北京",
+            street: "长安街"
+          },
+          hobbies: ["读书", "旅行", "编程"]
+        },
         EL_TABLE: {
           // 显示大小
           size: 'medium'
@@ -372,7 +381,9 @@ export default {
               dictId: null,
               name: null,
               template: null,
+              templateJson: null,
               setting: null,
+              settingJson: null,
               enabled: true,
               remark: null,
             },
@@ -385,7 +396,9 @@ export default {
               dictId: null,
               name: null,
               template: null,
+              templateJson: null,
               setting: null,
+              settingJson: null,
               enabled: false,
               remark: null,
             },
@@ -532,6 +545,7 @@ export default {
           const column = {
             ...item,
           }
+          // column.template = JSON.stringify(JSON.parse(item.template), null, 2);
           this.dictSetting.table.data.push(column)
         })
       }).finally(() => {
@@ -702,13 +716,25 @@ export default {
         // 弹框设置值
         this.dictSetting.dialog.create.data.template = undefined
         this.dictSetting.dialog.create.data.setting = undefined
+        this.dictSetting.dialog.create.data.templateJson = undefined
+        this.dictSetting.dialog.create.data.settingJson = undefined
+
         this.dictSetting.dialog.edit.data.template = undefined
         this.dictSetting.dialog.edit.data.setting = undefined
+        this.dictSetting.dialog.edit.data.templateJson = undefined
+        this.dictSetting.dialog.edit.data.settingJson = undefined
+
+        let templateJson = template ? JSON.parse(template) : {};
         // 重新赋值。
         this.dictSetting.dialog.create.data.template = template
         this.dictSetting.dialog.create.data.setting = template
+        this.dictSetting.dialog.create.data.templateJson = templateJson
+        this.dictSetting.dialog.create.data.settingJson = templateJson
+
         this.dictSetting.dialog.edit.data.template = template
         this.dictSetting.dialog.edit.data.setting = template
+        this.dictSetting.dialog.edit.data.templateJson = templateJson
+        this.dictSetting.dialog.edit.data.settingJson = templateJson
       })
     },
     /**
