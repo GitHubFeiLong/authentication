@@ -185,7 +185,7 @@
     </div>
 
     <!--  新增字典类型  -->
-    <el-dialog title="新增类型" width="600px" :visible.sync="dialog.dictType.create.enabled" @close="dialogDictTypeCreateCancel">
+    <el-dialog title="新增类型" width="600px" :visible.sync="dialog.dictType.create.enabled" @close="dialogDictTypeCreateCancel(0)">
       <el-form ref="dialogDictTypeCreateForm" :model="dialog.dictType.create.data" :rules="dialog.dictType.rules" label-width="80px">
         <el-form-item label="类型编码" prop="code">
           <el-input v-model="dialog.dictType.create.data.code" placeholder="请输入类型编码" clearable/>
@@ -194,7 +194,7 @@
           <el-input v-model="dialog.dictType.create.data.name" placeholder="请输入类型名称" clearable/>
         </el-form-item>
         <el-form-item label="配置模板" prop="template">
-          <el-input v-model="dialog.dictType.create.data.template"  type="textarea" :rows="4" placeholder="请输入类型基础配置JSON模板" clearable/>
+          <json-editor v-model="dialog.dictType.create.data.templateJson" :mode="'code'" />
         </el-form-item>
         <el-form-item label="激活状态" prop="enabled">
           <el-select
@@ -214,13 +214,13 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogDictTypeCreateCancel">取 消</el-button>
+        <el-button @click="dialogDictTypeCreateCancel(1)">取 消</el-button>
         <el-button type="primary" @click="dialogDictTypeCreateSubmit()">确 定</el-button>
       </div>
     </el-dialog>
 
     <!--  编辑字典类型  -->
-    <el-dialog title="修改类型" width="600px" :visible.sync="dialog.dictType.edit.enabled" @close="dialogDictTypeEditCancel">
+    <el-dialog title="修改类型" width="600px" :visible.sync="dialog.dictType.edit.enabled" @close="dialogDictTypeEditCancel(0)">
       <el-form ref="dialogDictTypeEditForm" :model="dialog.dictType.edit.data" :rules="dialog.dictType.rules" label-width="80px">
         <el-form-item label="类型编码" prop="code">
           <el-input v-model="dialog.dictType.edit.data.code" placeholder="请输入类型编码" clearable/>
@@ -229,7 +229,7 @@
           <el-input v-model="dialog.dictType.edit.data.name" placeholder="请输入类型名称" clearable/>
         </el-form-item>
         <el-form-item label="配置模板" prop="template">
-          <el-input v-model="dialog.dictType.edit.data.template"  type="textarea" :rows="4" placeholder="请输入类型基础配置JSON模板" clearable/>
+          <json-editor v-model="dialog.dictType.edit.data.templateJson"  :encoding="'UTF-8'" :language="'zh-CN'"/>
         </el-form-item>
         <el-form-item label="激活状态" prop="enabled">
           <el-select
@@ -249,7 +249,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogDictTypeEditCancel">取 消</el-button>
+        <el-button @click="dialogDictTypeEditCancel(1)">取 消</el-button>
         <el-button type="primary" @click="dialogDictTypeEditSubmit()">确 定</el-button>
       </div>
     </el-dialog>
@@ -281,10 +281,12 @@ import {JsonText, SimpleCode} from "@/utils/ElementValidatorUtil";
 import {Message} from "element-ui";
 import {filterNullUndefined} from "@/utils/common";
 import {exportDictTypeApi, exportDictTypeTemplateApi} from "@/api/file";
+import JsonEditor from "vue-json-editor-fix-cn";
 
 export default {
   name: 'DictTypePage',
   components: {
+    JsonEditor,
     DictTypeSelect: () => import('@/components/Dict/DictTypeSelect'),
     UploadSingleExcel: () => import('@/components/UploadExcel/UploadSingleExcel.vue'),
   },
@@ -321,6 +323,7 @@ export default {
               code: null,
               name: null,
               template: null,
+              templateJson: null,
               enabled: true,
               remark: null,
             },
@@ -332,6 +335,7 @@ export default {
               code: null,
               name: null,
               template: null,
+              templateJson: null,
               enabled: true,
               remark: null,
             },
@@ -484,6 +488,7 @@ export default {
           code: data.code,
           name: data.name,
           template: data.template,
+          templateJson: JSON.parse(data.template),
           enabled: data.enabled,
           remark: data.remark,
         };
@@ -588,8 +593,12 @@ export default {
     /**
      * 字典类型创建弹框点击取消
      */
-    dialogDictTypeCreateCancel() {
+    dialogDictTypeCreateCancel(type) {
       this.dialog.dictType.create.enabled = false;
+      if (type === 1) {
+        this.dialog.dictType.create.data.template = undefined;
+        this.dialog.dictType.create.data.templateJson = {};
+      }
       this.$refs.dialogDictTypeCreateForm.resetFields();
     },
     /**
@@ -599,13 +608,14 @@ export default {
       console.log("dialogDictTypeCreateSubmit")
       this.$refs.dialogDictTypeCreateForm.validate((valid) => {
         if (valid) {
+          this.dialog.dictType.create.data.template = JSON.stringify(this.dialog.dictType.create.data.templateJson)
           createBaseDictTypeApi(filterNullUndefined(this.dialog.dictType.create.data)).then(response => {
             // 保存成功
             Message({
               message: '字典类型创建成功',
               type: 'success',
             })
-            this.dialogDictTypeCreateCancel()
+            this.dialogDictTypeCreateCancel(1)
             this.loadPageDictType();
           })
         } else {
@@ -617,8 +627,12 @@ export default {
     /**
      * 字典类型编辑弹框点击取消
      */
-    dialogDictTypeEditCancel() {
+    dialogDictTypeEditCancel(type) {
       this.dialog.dictType.edit.enabled = false;
+      if (type === 1) {
+        this.dialog.dictType.edit.data.template = undefined;
+        this.dialog.dictType.edit.data.templateJson = {};
+      }
       this.$refs.dialogDictTypeEditForm.resetFields();
     },
     /**
@@ -627,13 +641,14 @@ export default {
     dialogDictTypeEditSubmit() {
       this.$refs.dialogDictTypeEditForm.validate((valid) => {
         if (valid) {
+          this.dialog.dictType.edit.data.template = JSON.stringify(this.dialog.dictType.edit.data.templateJson)
           updateBaseDictTypeApi(this.dialog.dictType.edit.data).then(response => {
             // 保存成功
             Message({
               message: '修改成功',
               type: 'success',
             })
-            this.dialogDictTypeEditCancel()
+            this.dialogDictTypeEditCancel(1)
             this.loadPageDictType();
           })
         } else {

@@ -49,12 +49,7 @@ public class BaseDictSettingUpdateReq {
     @NotNull(message="[是否激活（true：已激活；false：未激活）]不能为空")
     @ApiModelProperty("是否激活（true：已激活；false：未激活）")
     private Boolean enabled;
-    /**
-     * 是否是默认的（true：默认的；false：非默认的）
-     */
-    @NotNull(message="[是否是默认的（true：默认的；false：非默认的）]不能为空")
-    @ApiModelProperty("是否是默认的（true：默认的；false：非默认的）")
-    private Boolean defaulted;
+
     /**
      * 备注
      */

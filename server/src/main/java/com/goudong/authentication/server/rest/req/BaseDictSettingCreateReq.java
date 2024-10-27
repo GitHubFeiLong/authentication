@@ -45,11 +45,6 @@ public class BaseDictSettingCreateReq {
     private Boolean enabled;
 
     /**
-     * 是否是默认的（true：默认的；false：非默认的）
-     */
-    @ApiModelProperty("是否是默认的（true：默认的；false：非默认的）")
-    private Boolean defaulted;
-    /**
      * 备注
      */
     @Size(max= 255,message="编码长度不能超过255")
@@ -71,9 +66,6 @@ public class BaseDictSettingCreateReq {
         }
         if (this.getEnabled() == null) {
             this.enabled = false;
-        }
-        if (this.getDefaulted() == null) {
-            this.defaulted = false;
         }
     }
 }

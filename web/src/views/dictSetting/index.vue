@@ -208,10 +208,11 @@
         <el-form-item label="配置模板" prop="template">
           <el-button plain class="el-button--small" @click="useParentTemplate(dictSetting.dialog.create.data.dictTypeId)">使用上级配置模板</el-button>
 <!--          <el-input v-model="dictSetting.dialog.create.data.template" type="textarea" :rows="4" placeholder="请输入JSON注释"/>-->
-          <json-editor v-model="dictSetting.dialog.create.data.templateJson" />
+          <json-editor v-model="dictSetting.dialog.create.data.templateJson" :mode="'code'" />
         </el-form-item>
         <el-form-item label="配置明细" prop="setting">
-          <el-input v-model="dictSetting.dialog.create.data.setting" type="textarea" :rows="4" placeholder="请输入JSON配置"/>
+<!--          <el-input v-model="dictSetting.dialog.create.data.setting" type="textarea" :rows="4" placeholder="请输入JSON配置"/>-->
+          <json-editor v-model="dictSetting.dialog.create.data.settingJson" :mode="'code'" />
         </el-form-item>
         <el-form-item label="激活状态" prop="enabled">
           <el-select
@@ -237,7 +238,7 @@
     </el-dialog>
 
     <!--  修改字典配置  -->
-    <el-dialog title="新增字典配置" width="600px" :visible.sync="dictSetting.dialog.edit.enabled" @close="dialogEditCancel" :append-to-body="true">
+    <el-dialog title="修改字典配置" width="600px" :visible.sync="dictSetting.dialog.edit.enabled" @close="dialogEditCancel" :append-to-body="true">
       <el-form ref="dialogEditForm" :model="dictSetting.dialog.edit.data" :rules="dictSetting.dialog.rules" label-width="80px">
         <el-form-item label="字典类型" prop="dictId">
           <DictTypeSelect :default-select-id="dictSetting.dialog.edit.data.dictTypeId"
@@ -259,10 +260,12 @@
         </el-form-item>
         <el-form-item label="配置模板" prop="template">
           <el-button plain class="el-button--small" @click="useParentTemplate(dictSetting.dialog.edit.data.dictTypeId)">使用上级配置模板</el-button>
-          <el-input v-model="dictSetting.dialog.edit.data.template" type="textarea" :rows="4" placeholder="请输入JSON注释"/>
+<!--          <el-input v-model="dictSetting.dialog.edit.data.template" type="textarea" :rows="4" placeholder="请输入JSON注释"/>-->
+          <json-editor v-model="dictSetting.dialog.edit.data.templateJson" :mode="'code'" />
         </el-form-item>
         <el-form-item label="配置明细" prop="setting">
-          <el-input v-model="dictSetting.dialog.edit.data.setting" type="textarea" :rows="4" placeholder="请输入JSON配置"/>
+<!--          <el-input v-model="dictSetting.dialog.edit.data.setting" type="textarea" :rows="4" placeholder="请输入JSON配置"/>-->
+          <json-editor v-model="dictSetting.dialog.edit.data.settingJson" :mode="'code'" />
         </el-form-item>
         <el-form-item label="激活状态" prop="enabled">
           <el-select
@@ -318,10 +321,16 @@ import {Message} from "element-ui";
 import DictSelect from "@/components/Dict/DictSelect.vue";
 import JsonViewer from 'vue-json-viewer';
 import 'vue-json-viewer/style.css';
-import JsonEditor from 'vue-json-editor';
+import JsonEditor from 'vue-json-editor-fix-cn';
+import zhCN from "element-ui/src/locale/lang/zh-CN";
 
 export default {
   name: 'DictSettingPage',
+  computed: {
+    zhCN() {
+      return zhCN
+    }
+  },
   components: { DictTypeSelect, DictSelect, UploadSingleExcel, JsonViewer, JsonEditor },
   mounted() {
     let dictTypeId = this.$route.query.dictTypeId;
@@ -639,7 +648,9 @@ export default {
         this.dictSetting.dialog.edit.data.dictId = data.dictId
         this.dictSetting.dialog.edit.data.name = data.name
         this.dictSetting.dialog.edit.data.template = data.template
+        this.dictSetting.dialog.edit.data.templateJson = JSON.parse(data.template)
         this.dictSetting.dialog.edit.data.setting = data.setting
+        this.dictSetting.dialog.edit.data.settingJson = JSON.parse(data.setting)
         this.dictSetting.dialog.edit.data.enabled = data.enabled
         this.dictSetting.dialog.edit.data.defaulted = data.defaulted
         this.dictSetting.dialog.edit.data.remark = data.remark
@@ -742,6 +753,9 @@ export default {
      */
     dialogCreateSubmit() {
       this.$refs.dialogCreateForm.validate((valid) => {
+        // 使用json字符串
+        this.dictSetting.dialog.create.data.template = JSON.stringify(this.dictSetting.dialog.create.data.templateJson)
+        this.dictSetting.dialog.create.data.setting = JSON.stringify(this.dictSetting.dialog.create.data.settingJson)
         if (valid) {
           createBaseDictSettingApi(this.dictSetting.dialog.create.data).then(response => {
             // 保存成功
@@ -791,6 +805,10 @@ export default {
     dialogEditSubmit() {
       this.$refs.dialogEditForm.validate((valid) => {
         if (valid) {
+          // 使用json字符串
+          this.dictSetting.dialog.edit.data.template = JSON.stringify(this.dictSetting.dialog.edit.data.templateJson)
+          this.dictSetting.dialog.edit.data.setting = JSON.stringify(this.dictSetting.dialog.edit.data.settingJson)
+
           updateBaseDictSettingApi(this.dictSetting.dialog.edit.data).then(response => {
             // 保存成功
             Message({
