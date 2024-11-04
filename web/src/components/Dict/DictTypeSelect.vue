@@ -1,48 +1,51 @@
 <!--字典类型编码模糊下拉分页-->
 <template>
   <el-select
-      v-model="selectedValue"
-      v-loadmore="loadMore"
-      style="width: 230px;"
-      :loading="loading"
-      :clearable="clearable"
-      :disabled="disabled"
-      filterable
-      placeholder="请输入字典类型编码"
-      @change="change"
-      @clear="clear"
+    v-model="selectedValue"
+    v-loadmore="loadMore"
+    style="width: 230px;"
+    :loading="loading"
+    :clearable="clearable"
+    :disabled="disabled"
+    filterable
+    placeholder="请输入字典类型编码"
+    @change="change"
+    @clear="clear"
   >
     <el-option
-        v-for="item in data"
-        :key="item.id"
-        :label="item.code"
-        :value="item.id"
+      v-for="item in data"
+      :key="item.id"
+      :label="item.code"
+      :value="item.id"
     />
   </el-select>
 </template>
 
 <script>
 
-import {dropDownDictTypeApi} from '@/api/dropDown';
-import {loadmore} from '@/directive/select/index'
-import {getBaseDictTypeByIdApi} from "@/api/dict";
+import { dropDownDictTypeApi } from '@/api/dropDown';
+import { loadmore } from '@/directive/select/index'
+import { getBaseDictTypeByIdApi } from "@/api/dict";
 export default {
   directives: { loadmore },
   props: {
     // 字典类型ID
-    defaultSelectId:{
+    defaultSelectId: {
       required: false,
       type: String,
+      default() {
+        return undefined
+      }
     },
     // 字典类型ID
-    clearable:{
+    clearable: {
       required: false,
       type: Boolean,
       default() {
         return true
       }
     },
-    disabled:{
+    disabled: {
       required: false,
       type: Boolean,
       default() {
@@ -61,16 +64,12 @@ export default {
       totalPage: undefined, // 下拉总页码
     }
   },
-  mounted() {
-    // 优先加载表格数据
-    this.load()
-  },
-  watch:{
+  watch: {
     /**
      * 变更时，需要选中指定下拉选项
      */
     defaultSelectId: {
-      handler(n, o){
+      handler(n, o) {
         console.log("defaultSelectId指定了");
         if (n !== undefined && n !== null && n !== '') {
           let item = this.data.find(item => item.id === n);
@@ -78,7 +77,7 @@ export default {
           if (item === undefined || item === null) {
             console.log("不存在dictTypeId", n)
             getBaseDictTypeByIdApi(n).then(dt => {
-              let op = {id: dt.id, code: dt.code, name: dt.name};
+              let op = { id: dt.id, code: dt.code, name: dt.name };
               // 只有不存在时，才添加到数组中
               if (this.data.find(item => item.id === op.id) === undefined) {
                 this.data.push(op)
@@ -88,12 +87,16 @@ export default {
               console.log("reason", reason)
             })
           } else { // 存在就默认选中
-            console.log("存在选中他 type1")
+            console.log("存在选中他", n)
             this.selectedValue = n
           }
         }
       }
     }
+  },
+  mounted() {
+    // 优先加载表格数据
+    this.load()
   },
   methods: {
     load() {
@@ -107,7 +110,7 @@ export default {
         // 添加到数组中
         content.forEach(item => {
           // 只有不存在时，才添加到数组中
-          let op = {id: item.id, code: item.code, name: item.name};
+          let op = { id: item.id, code: item.code, name: item.name };
           if (this.data.find(item => item.id === op.id) === undefined) {
             this.data.push(op)
           }
@@ -120,7 +123,7 @@ export default {
             console.log("不存在dictTypeId this.defaultSelectId", this.defaultSelectId)
             // 不存在，就查询出来
             getBaseDictTypeByIdApi(this.defaultSelectId).then(dt => {
-              let op = {id: dt.id, code: dt.code, name: dt.name};
+              let op = { id: dt.id, code: dt.code, name: dt.name };
               // 只有不存在时，才添加到数组中
               if (this.data.find(item => item.id === op.id) === undefined) {
                 this.data.push(op)
@@ -134,7 +137,6 @@ export default {
             this.selectedValue = this.defaultSelectId
           }
         }
-
       }).catch(err => {
         console.warn('err', err)
       }).finally(() => {

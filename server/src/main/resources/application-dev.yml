@@ -1,8 +1,8 @@
 logging:
+  config: classpath:logback-spring.xml
   level:
     ROOT: INFO
-    cn.zhxu.bs: DEBUG
-    com.goudong: INFO
+    com.goudong: DEBUG
 
 server:
   port: 8080

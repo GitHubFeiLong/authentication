@@ -5,18 +5,18 @@
     <div class="filter-container">
       <div class="filter-item">
         <span class="filter-item-label">类型编码: </span>
-        <el-input v-model="table.filter.code" placeholder="请输入需要查询字典类型编码" clearable/>
+        <el-input v-model="table.filter.code" placeholder="请输入需要查询字典类型编码" clearable />
       </div>
       <div class="filter-item">
         <span class="filter-item-label">类型名称: </span>
-        <el-input v-model="table.filter.name" placeholder="请输入需要查询字典类型名称" clearable/>
+        <el-input v-model="table.filter.name" placeholder="请输入需要查询字典类型名称" clearable />
       </div>
       <div class="filter-item">
         <el-button
-            v-permission="'sys:user:query'"
-            icon="el-icon-search"
-            type="primary"
-            @click="searchFunc"
+          v-permission="'sys:user:query'"
+          icon="el-icon-search"
+          type="primary"
+          @click="searchFunc"
         >
           查询
         </el-button>
@@ -65,107 +65,106 @@
     <div class="el-table__body__pagination">
       <!-- 表格  -->
       <el-table
-          ref="table"
-          v-loading="table.isLoading"
-          border
-          :data="table.data"
-          row-key="id"
-          style="width: 100%"
-          :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
-          :header-row-class-name="EL_TABLE.size"
-          :size="EL_TABLE.size"
-          @selection-change="selectionChangeFunc"
+        ref="table"
+        v-loading="table.isLoading"
+        border
+        :data="table.data"
+        row-key="id"
+        style="width: 100%"
+        :header-cell-style="{background:'#FAFAFA', color:'#000', height: '30px',}"
+        :header-row-class-name="EL_TABLE.size"
+        :size="EL_TABLE.size"
+        @selection-change="selectionChangeFunc"
       >
         <el-table-column
-            width="50"
-            type="selection"
-            header-align="center"
-            align="center"
-            class-name="selection"
+          width="50"
+          type="selection"
+          header-align="center"
+          align="center"
+          class-name="selection"
         />
         <el-table-column
-            width="50"
-            label="序号"
-            prop="serialNumber"
-            align="center"
+          width="50"
+          label="序号"
+          prop="serialNumber"
+          align="center"
         />
         <el-table-column
-            label="类型编码"
-            min-width="50"
-            prop="code"
-            sortable
+          label="类型编码"
+          min-width="50"
+          prop="code"
+          sortable
         />
         <el-table-column
-            label="类型名称"
-            prop="name"
-            min-width="50"
-            sortable
-            show-overflow-tooltip
+          label="类型名称"
+          prop="name"
+          min-width="50"
+          sortable
+          show-overflow-tooltip
         />
         <el-table-column
-            label="字典数量"
-            prop="dictNumber"
-            min-width="50"
-            sortable
+          label="字典数量"
+          prop="dictNumber"
+          min-width="50"
+          sortable
         />
 
-
         <el-table-column
-            label="状态"
-            width="80"
-            prop="enabled"
-            align="center"
+          label="状态"
+          width="80"
+          prop="enabled"
+          align="center"
         >
           <template v-slot="scope">
             <el-switch
-                v-model="scope.row.enabled"
-                :disabled="permissionDisabled('sys:dict:management:type:edit')"
-                :active-value="true"
-                :inactive-value="false"
-                @change="changeDictTypeEnabled(scope.row)"
+              v-model="scope.row.enabled"
+              :disabled="permissionDisabled('sys:dict:management:type:edit')"
+              :active-value="true"
+              :inactive-value="false"
+              @change="changeDictTypeEnabled(scope.row)"
             />
           </template>
         </el-table-column>
         <el-table-column
-            label="备注"
-            min-width="180"
-            prop="remark"
-            show-overflow-tooltip
+          label="备注"
+          min-width="180"
+          prop="remark"
+          show-overflow-tooltip
         />
         <el-table-column
-            label="创建时间"
-            width="170"
-            prop="createdDate"
-            show-overflow-tooltip
-            sortable
+          label="创建时间"
+          width="170"
+          prop="createdDate"
+          show-overflow-tooltip
+          sortable
         />
         <el-table-column
-            label="操作"
-            width="230"
-            align="center"
+          label="操作"
+          width="230"
+          align="center"
         >
           <template v-slot="scope">
             <div class="el-link-parent">
               <el-link
-                  v-permission="'sys:dict:management:dict:query'"
-                  icon="el-icon-info"
-                  :underline="false"
-                  type="primary"
-                  @click="seeDetail(scope.row)"
+                v-permission="'sys:dict:management:dict:query'"
+                icon="el-icon-info"
+                :underline="false"
+                type="primary"
+                @click="seeDetail(scope.row)"
               >详情</el-link>
               <el-link
-                  v-permission="'sys:dict:management:type:edit'"
-                  icon="el-icon-edit"
-                  :underline="false"
-                  type="primary"
-                  @click="editDictType(scope.row)"
+                v-permission="'sys:dict:management:type:edit'"
+                icon="el-icon-edit"
+                :underline="false"
+                type="primary"
+                @click="editDictType(scope.row)"
               >编辑</el-link>
               <el-link
-                  v-permission="'sys:dict:management:type:delete'"
-                  icon="el-icon-delete"
-                  :underline="false"
-                  type="danger"
-                  @click="deleteDictType(scope.row)"
+                v-permission="'sys:dict:management:type:delete'"
+                icon="el-icon-delete"
+                :underline="false"
+                type="danger"
+                @click="deleteDictType(scope.row)"
               >删除</el-link>
             </div>
           </template>
@@ -173,14 +172,14 @@
       </el-table>
       <!-- 分页控件 -->
       <el-pagination
-          :current-page="table.page"
-          :pager-count="table.pagerCount"
-          :page-size="table.size"
-          :page-sizes="table.pageSizes"
-          :total="table.total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
+        :current-page="table.page"
+        :pager-count="table.pagerCount"
+        :page-size="table.size"
+        :page-sizes="table.pageSizes"
+        :total="table.total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
       />
     </div>
 
@@ -188,29 +187,29 @@
     <el-dialog title="新增类型" width="600px" :visible.sync="dialog.dictType.create.enabled" @close="dialogDictTypeCreateCancel(0)">
       <el-form ref="dialogDictTypeCreateForm" :model="dialog.dictType.create.data" :rules="dialog.dictType.rules" label-width="80px">
         <el-form-item label="类型编码" prop="code">
-          <el-input v-model="dialog.dictType.create.data.code" placeholder="请输入类型编码" clearable/>
+          <el-input v-model="dialog.dictType.create.data.code" placeholder="请输入类型编码" clearable />
         </el-form-item>
         <el-form-item label="类型名称" prop="name">
-          <el-input v-model="dialog.dictType.create.data.name" placeholder="请输入类型名称" clearable/>
+          <el-input v-model="dialog.dictType.create.data.name" placeholder="请输入类型名称" clearable />
         </el-form-item>
         <el-form-item label="配置模板" prop="template">
-          <json-editor v-model="dialog.dictType.create.data.templateJson" :mode="'code'" />
+          <json-editor v-model="dialog.dictType.create.data.templateJson" :mode="'code'" :modes="['code']" :encoding="'UTF-8'" />
         </el-form-item>
         <el-form-item label="激活状态" prop="enabled">
           <el-select
-              v-model="dialog.dictType.create.data.enabled"
-              placeholder="请选择激活状态"
+            v-model="dialog.dictType.create.data.enabled"
+            placeholder="请选择激活状态"
           >
             <el-option
-                v-for="item in [{label : '已激活', value : true},{label : '未激活', value : false}]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+              v-for="item in [{label : '已激活', value : true},{label : '未激活', value : false}]"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
             />
           </el-select>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="dialog.dictType.create.data.remark" placeholder="请输入类型备注" clearable/>
+          <el-input v-model="dialog.dictType.create.data.remark" placeholder="请输入类型备注" clearable />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -223,29 +222,29 @@
     <el-dialog title="修改类型" width="600px" :visible.sync="dialog.dictType.edit.enabled" @close="dialogDictTypeEditCancel(0)">
       <el-form ref="dialogDictTypeEditForm" :model="dialog.dictType.edit.data" :rules="dialog.dictType.rules" label-width="80px">
         <el-form-item label="类型编码" prop="code">
-          <el-input v-model="dialog.dictType.edit.data.code" placeholder="请输入类型编码" clearable/>
+          <el-input v-model="dialog.dictType.edit.data.code" placeholder="请输入类型编码" clearable />
         </el-form-item>
         <el-form-item label="类型名称" prop="name">
-          <el-input v-model="dialog.dictType.edit.data.name" placeholder="请输入类型名称" clearable/>
+          <el-input v-model="dialog.dictType.edit.data.name" placeholder="请输入类型名称" clearable />
         </el-form-item>
         <el-form-item label="配置模板" prop="template">
-          <json-editor v-model="dialog.dictType.edit.data.templateJson"  :encoding="'UTF-8'" :language="'zh-CN'"/>
+          <json-editor v-model="dialog.dictType.edit.data.templateJson" :mode="'code'" :modes="['code']" :encoding="'UTF-8'" />
         </el-form-item>
         <el-form-item label="激活状态" prop="enabled">
           <el-select
-              v-model="dialog.dictType.edit.data.enabled"
-              placeholder="请选择激活状态"
+            v-model="dialog.dictType.edit.data.enabled"
+            placeholder="请选择激活状态"
           >
             <el-option
-                v-for="item in [{label : '已激活', value : true},{label : '未激活', value : false}]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+              v-for="item in [{label : '已激活', value : true},{label : '未激活', value : false}]"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
             />
           </el-select>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="dialog.dictType.edit.data.remark" placeholder="请输入类型备注" clearable/>
+          <el-input v-model="dialog.dictType.edit.data.remark" placeholder="请输入类型备注" clearable />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -256,12 +255,12 @@
 
     <!--  导入字典类型  -->
     <UploadSingleExcel
-        @close="closeUploadSingleExcelHandler"
-        :import-dialog-title="uploadSingleExcelAttr.title"
-        :show-import-dialog="uploadSingleExcelAttr.showImportDialog"
-        :action="uploadSingleExcelAttr.action"
-        :on-success-callback="loadPageDictType"
-        :download-template="downloadImportTemplate"
+      :import-dialog-title="uploadSingleExcelAttr.title"
+      :show-import-dialog="uploadSingleExcelAttr.showImportDialog"
+      :action="uploadSingleExcelAttr.action"
+      :on-success-callback="loadPageDictType"
+      :download-template="downloadImportTemplate"
+      @close="closeUploadSingleExcelHandler"
     />
   </div>
 </template>
@@ -275,19 +274,18 @@ import {
   pageDictTypeApi,
   updateBaseDictTypeApi,
 } from '@/api/dict'
-import {isNotEmpty} from "@/utils/assertUtil";
-import {API_PREFIX} from "@/constant/commons";
-import {JsonText, SimpleCode} from "@/utils/ElementValidatorUtil";
-import {Message} from "element-ui";
-import {filterNullUndefined} from "@/utils/common";
-import {exportDictTypeApi, exportDictTypeTemplateApi} from "@/api/file";
+import { isNotEmpty } from "@/utils/assertUtil";
+import { API_PREFIX } from "@/constant/commons";
+import { JsonText, SimpleCode } from "@/utils/ElementValidatorUtil";
+import { Message } from "element-ui";
+import { filterNullUndefined } from "@/utils/common";
+import { exportDictTypeApi, exportDictTypeTemplateApi } from "@/api/file";
 import JsonEditor from "vue-json-editor-fix-cn";
 
 export default {
   name: 'DictTypePage',
   components: {
     JsonEditor,
-    DictTypeSelect: () => import('@/components/Dict/DictTypeSelect'),
     UploadSingleExcel: () => import('@/components/UploadExcel/UploadSingleExcel.vue'),
   },
   data() {
@@ -315,7 +313,7 @@ export default {
         pageSizes: this.$globalVariable.PAGE_SIZES
       },
       // 新增编辑弹窗
-      dialog:{
+      dialog: {
         dictType: {
           create: {
             enabled: false,
@@ -342,17 +340,17 @@ export default {
           },
           rules: { // 弹窗的规则
             code: [
-              {required: true, max: 16, message: '请输入16位及以内的类型编码', trigger: 'blur'},
-              {required: true, validator: SimpleCode, trigger: 'blur'}
+              { required: true, max: 16, message: '请输入16位及以内的类型编码', trigger: 'blur' },
+              { required: true, validator: SimpleCode, trigger: 'blur' }
             ],
             name: [
-              {required: true, max: 16, message: '请输入16位及以内的类型名称', trigger: 'blur'},
+              { required: true, max: 16, message: '请输入16位及以内的类型名称', trigger: 'blur' },
             ],
             template: [
-              {required: false, validator: JsonText, trigger: 'blur'}
+              { required: false, validator: JsonText, trigger: 'blur' }
             ],
             remark: [
-              {max: 255, message: '长度在 0 到 255 个字符', trigger: 'blur'},
+              { max: 255, message: '长度在 0 到 255 个字符', trigger: 'blur' },
             ],
           }
         }
@@ -372,8 +370,8 @@ export default {
        */
       seeDetail(row) {
         this.$router.push({
-          path:'/dict/index',
-          query:{
+          path: '/dict/index',
+          query: {
             dictTypeId: row.id
           }
         })
@@ -501,7 +499,7 @@ export default {
      * @param row
      */
     changeDictTypeEnabled(row) {
-      let parameter = {id: row.id};
+      let parameter = { id: row.id };
       changeEnabledBaseDictTypeApi(parameter).then(response => {
         // 保存成功
         Message({
