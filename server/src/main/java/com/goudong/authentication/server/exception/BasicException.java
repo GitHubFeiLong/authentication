@@ -1289,12 +1289,34 @@ public class BasicException extends RuntimeException implements BasicExceptionIn
     }
 
     /**
+     * 设置clientMessage
+     * @param clientMessageTemplate 客户端异常模板
+     * @param clientMessageParams   模板参数
+     * @return
+     */
+    public BasicException clientMessage(String clientMessageTemplate, Object... clientMessageParams) {
+        this.clientMessage = MessageFormatUtil.format(clientMessageTemplate, clientMessageParams);;
+        return this;
+    }
+
+    /**
      * 设置serverMessage
      * @param serverMessage
      * @return
      */
     public BasicException serverMessage(String serverMessage) {
         this.serverMessage = serverMessage;
+        return this;
+    }
+
+    /**
+     * 设置serverMessage
+     * @param serverMessageTemplate 服务端端异常模板
+     * @param serverMessageParams   模板参数
+     * @return
+     */
+    public BasicException serverMessage(String serverMessageTemplate, Object... serverMessageParams) {
+        this.serverMessage = MessageFormatUtil.format(serverMessageTemplate, serverMessageParams);;
         return this;
     }
 
@@ -1497,6 +1519,18 @@ public class BasicException extends RuntimeException implements BasicExceptionIn
         }
 
         /**
+         * 设置clientMessageTemplate和clientMessageParams</br>
+         * @param clientMessageTemplate 模板
+         * @param clientMessageParams   模板参数
+         * @return
+         */
+        public BasicExceptionBuilder clientMessage(String clientMessageTemplate, Object... clientMessageParams) {
+            this.clientMessageTemplate = clientMessageTemplate;
+            this.clientMessageParams = clientMessageParams;
+            return this;
+        }
+
+        /**
          * 设置clientMessageTemplate</br>
          * 通常该方法和{@code clientMessageParams}一起使用，这样可以有效避免字符串拼接问题
          * @param clientMessageTemplate
@@ -1534,6 +1568,18 @@ public class BasicException extends RuntimeException implements BasicExceptionIn
             this.serverMessage = serverMessage;
             this.serverMessageTemplate = null;
             this.serverMessageParams = null;
+            return this;
+        }
+
+        /**
+         * 设置serverMessageTemplate和serverMessageParams</br>
+         * @param serverMessageTemplate 模板
+         * @param serverMessageParams   模板参数
+         * @return
+         */
+        public BasicExceptionBuilder serverMessage(String serverMessageTemplate, Object... serverMessageParams) {
+            this.serverMessageTemplate = serverMessageTemplate;
+            this.serverMessageParams = serverMessageParams;
             return this;
         }
 

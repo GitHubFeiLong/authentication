@@ -157,6 +157,18 @@ public class ServerException extends BasicException {
         }
 
         /**
+         * 设置clientMessageTemplate和clientMessageParams</br>
+         * @param clientMessageTemplate 模板
+         * @param clientMessageParams   模板参数
+         * @return
+         */
+        public ServerExceptionBuilder clientMessage(String clientMessageTemplate, Object... clientMessageParams) {
+            this.clientMessageTemplate = clientMessageTemplate;
+            this.clientMessageParams = clientMessageParams;
+            return this;
+        }
+
+        /**
          * 设置clientMessageTemplate</br>
          * 通常该方法和{@code clientMessageParams}一起使用，这样可以有效避免字符串拼接问题
          * @param clientMessageTemplate
@@ -194,6 +206,18 @@ public class ServerException extends BasicException {
             this.serverMessage = serverMessage;
             this.serverMessageTemplate = null;
             this.serverMessageParams = null;
+            return this;
+        }
+
+        /**
+         * 设置serverMessageTemplate和serverMessageParams</br>
+         * @param serverMessageTemplate 模板
+         * @param serverMessageParams   模板参数
+         * @return
+         */
+        public ServerExceptionBuilder serverMessage(String serverMessageTemplate, Object... serverMessageParams) {
+            this.serverMessageTemplate = serverMessageTemplate;
+            this.serverMessageParams = serverMessageParams;
             return this;
         }
 
