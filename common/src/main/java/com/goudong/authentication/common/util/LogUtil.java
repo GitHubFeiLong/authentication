@@ -12,6 +12,41 @@ import org.slf4j.Logger;
 public class LogUtil {
 
     /**
+     * 判断是否打开trace，打印日志
+     * @param log 日志对象
+     * @param logTemplate 模板
+     * @param param 参数
+     */
+    public static void trace(Logger log, String logTemplate, Object... param){
+        if (log.isTraceEnabled()) {
+            log.trace(logTemplate, param);
+        }
+    }
+
+    /**
+     * 判断是否打开trace，打印日志
+     * @param log 日志对象
+     * @param logTemplate 模板
+     */
+    public static void trace(Logger log, StringSupplier logTemplate){
+        if (log.isTraceEnabled()) {
+            log.trace(logTemplate.get());
+        }
+    }
+
+    /**
+     * 判断是否打开trace，打印日志
+     * @param log 日志对象
+     * @param logTemplate 模板
+     * @param param 参数
+     */
+    public static void trace(Logger log, StringSupplier logTemplate, ObjectArraySupplier param){
+        if (log.isTraceEnabled()) {
+            log.trace(logTemplate.get(), param.get());
+        }
+    }
+
+    /**
      * 判断是否打开debug，打印日志
      * @param log 日志对象
      * @param logTemplate 模板
