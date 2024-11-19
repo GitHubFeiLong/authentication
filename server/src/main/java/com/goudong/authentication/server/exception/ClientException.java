@@ -18,6 +18,8 @@ import java.util.Map;
  */
 public class ClientException extends BasicException {
 
+    private static final long serialVersionUID = -4405027876978649163L;
+    
     public static final Logger log = LoggerFactory.getLogger(ClientException.class);
 
     /**

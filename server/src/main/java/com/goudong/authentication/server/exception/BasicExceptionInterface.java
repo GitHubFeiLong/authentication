@@ -14,11 +14,13 @@ public interface BasicExceptionInterface {
 
     /**
      * http 响应码
+     * @return http状态码
      */
     int getStatus();
 
     /**
      * 错误代码
+     * @return 自定义code
      */
     String getCode();
 

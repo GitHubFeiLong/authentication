@@ -1,17 +1,14 @@
 package com.goudong.authentication.common.core;
 
 import com.goudong.authentication.common.util.JsonUtil;
+import com.goudong.authentication.common.util.ListUtil;
 import com.goudong.authentication.common.util.LogUtil;
-import com.goudong.core.util.ListUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith({})
 @Slf4j

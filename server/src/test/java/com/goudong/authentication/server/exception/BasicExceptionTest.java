@@ -9,5 +9,7 @@ class BasicExceptionTest {
 
     @Test
     void test1() {
+        BasicException helloWorld = ClientException.client().clientMessage("你好啊{}", "hello world").serverMessage();
+        System.out.println("helloWorld = " + helloWorld);
     }
 }

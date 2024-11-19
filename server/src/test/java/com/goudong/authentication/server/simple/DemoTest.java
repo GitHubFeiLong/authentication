@@ -2,7 +2,7 @@ package com.goudong.authentication.server.simple;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import com.goudong.core.util.ListUtil;
+import com.goudong.authentication.common.util.ListUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
